@@ -1,0 +1,25 @@
+{
+  "name": "usco-ultiviewer",
+  "main": "index.html",
+  "chromium-args": "--ignore-gpu-blacklist",
+  "description": "usco-ultiviewer",
+  "author": "Mark kaosat-dev Moissette",
+  "license": "MIT",
+  "window": {
+    "title": "Ui test",
+    "toolbar": false,
+    "frame": true,
+    "width": 800,
+    "height": 600,
+    "position": "mouse",
+    "min_width": 640,
+    "min_height": 480
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "http-server": "~0.5.5"
+  }
+}
+
+

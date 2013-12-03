@@ -1,0 +1,56 @@
+<html>
+  <head>
+    <title>Ultishaper example</title>
+      <script src="components/platform/platform.js"></script>
+      <link rel="import" href="components/polymer/polymer.html">
+      <link rel="import" href="usco-ultiviewer/usco-ultiviewer.html">
+
+      <style>
+        usco-ultiviewer{
+          left:0px;top:0px;width:100%;height:100%;background-color:#ffffff;
+        }
+      </style>
+  </head>
+<body>
+  <usco-ultiviewer orientation="diagonal" showShadows postProcess></usco-ultiviewer>
+
+  <!-- <asset-manager> </asset-manager> -->
+
+  <script>
+    window.addEventListener('WebComponentsReady', function() {
+	    var ultiViewer = document.querySelector('usco-ultiviewer');
+
+      var currentUrl = window.location.origin;
+      ultiViewer.loadResource(currentUrl+"/pr2_head_tilt.stl");
+      ultiViewer.loadResource(currentUrl+"/femur.stl");
+      ultiViewer.loadResource(currentUrl+"/pr2_head_pan.stl");
+
+
+      /*
+      function onLoaded( loadedResource)
+      {
+        console.log("finished loading resource",loadedResource);
+      }
+
+       function onProgress( progress)
+        {
+          console.log("on progress",progress);
+        }
+
+        function onError( error)
+        {
+          console.log("error loading resource",error);
+        }
+
+
+
+      var assetManager = document.querySelector('asset-manager');
+      assetManager.read( "http://localhost:8081/femur.stl" ).then(onLoaded, onError, onProgress);
+      assetManager.read( "http://localhost:8081/pr2_head_pan.stl" ).then(onLoaded, onError, onProgress);*/
+
+    });
+      
+    
+  </script>  
+</body>
+</html>

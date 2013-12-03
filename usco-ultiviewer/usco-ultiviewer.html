@@ -1,0 +1,28 @@
+<!--on-tap="bla" on-hold="bli" on-release="blo" on-holdpulse="ble"-->
+<!--TODO: replace three-viewer with usco-base-viewer??
+<link rel="import" href="components/usco-viewer-base/three-viewer/three-viewer.html">
+-->
+
+<link rel="import" href="../components/asset-manager/element/asset-manager.html">
+<link rel="import" href="../components/usco-viewer-base/three-viewer/three-viewer.html">
+
+
+<script src="lib/custom-grid-helper.js"></script>
+
+<polymer-element name="usco-ultiviewer" extends="three-viewer" attributes="showGrid">
+  <template>
+    <link rel="stylesheet" type="text/css" href="usco-ultiviewer.css">
+    <asset-manager id="assetsMgr"> </asset-manager>
+
+    <div id="viewWrapper" touch-action="none" on-pointermove="{{onPointerMove}}" on-pointerdown="{{onPointerDown}}" on-pointerup="{{onPointerUp}}" on-longstatictap="{{onLongstatictap}}" on-longmovetap="{{onLongmovetap}}">
+      <div id="viewer"></div>
+      <three-stats id="stats" show="{{showStats}}"></three-stats>
+      <div id="resourceLoading">Bla</div>
+    </div>
+  </template>
+  <!--TODO: perhaps favour composition over inheritance ??
+  <three-viewer style="width:100%; height:100%"> </three-viewer>
+  -->
+<script src="usco-ultiviewer.js"></script>
+</polymer-element>
+
