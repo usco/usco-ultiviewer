@@ -19,12 +19,12 @@
       <three-stats id="stats" show="{{showStats}}"></three-stats>
 
       <div id="resourcesList" style="position:absolute;top:0px;right:20px">
-        resources:
         <template repeat="{{resource in resources}}">
-          <div id="resourceLoading" >Loading: {{resource.name}} Download: {{resource.fetchProgress}} % Total:{{resource.totalDisplaySize}} Loaded:{{resource.loaded}}</div>
-
-          <template if="{{resource.totalRawSize > warningSize}}">
-            <div style="color:red"> Warning: large file</div>
+          <template if="{{!resource.loaded}}"> <!-- only display resources info if not yet fully loaded-->
+            <div id="resourceLoading" >Loading: {{resource.name}} Download: {{resource.fetchProgress}} % Total:{{resource.totalDisplaySize}} Loaded:{{resource.loaded}}</div>
+            <template if="{{resource.totalRawSize > warningSize}}">
+              <div style="color:red"> Warning: large file</div>
+            </template>
           </template>
         </template>
       </div>

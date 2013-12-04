@@ -9,7 +9,6 @@ function Resource(uri)
   //temporary, this needs to be a filter
   this.totalDisplaySize = "";
   this.loaded = false;
-    
 }
 
 Resource.prototype.onLoaded = function()
@@ -31,15 +30,37 @@ Resource.prototype.onDownloadProgress = function(progress)
    return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
   };
 
-
   this.totalRawSize = progress.total;
   this.totalDisplaySize = bytesToSize(progress.total);
 
   var progress = progress.download || 100;
   this.fetchProgress = progress.toFixed(2);
-  //console.log("this.fetchProgres" ,this.fetchProgress )
 }
 
+computeObject3DBoundingSphere = function(object)
+{
+  if( object.geometry === undefined)
+  {
+      var bbox = new THREE.Box3();
+  }
+  else
+  {
+    var bbox = object.geometry.boundingBox.clone();
+  }
+  
+  object.traverse(function (child) {
+    if (child instanceof THREE.Mesh)
+    {
+        if( child.geometry !==undefined)
+        {
+          var childBox = child.geometry.boundingBox.clone();
+          childBox.translate( child.localToWorld( new THREE.Vector3() ) );
+          bbox.union( childBox );
+        }
+    }
+  });
+  return bbox.getBoundingSphere();
+}
 
 Polymer('usco-ultiviewer', {
   selectedObject : null,
@@ -53,8 +74,6 @@ Polymer('usco-ultiviewer', {
     this.minObjectSize = 20;//minimum size (in arbitrarty/opengl units) before requiring re-scaling (upwards)
     this.maxObjectSize = 100;//maximum size (in arbitrarty/opengl units) before requiring re-scaling (downwards)
 
-    //this.autoCenter = true;
-    //this.autoResize = true;
   },
   enteredView:function()
   {
@@ -74,58 +93,81 @@ Polymer('usco-ultiviewer', {
       var autoCenter = autoCenter === undefined ? true: autoCenter;
       var autoResize = autoResize === undefined ? true: autoResize;
 
-      function addRes(res)
+      var resource = new Resource( uri );
+
+      function addResource(res)
       {
-        console.log("res",res,autoResize,autoCenter);
-        var geometry = res.resource;
-        geometry.computeBoundingBox();
-				geometry.computeCentroids();
-				geometry.computeBoundingSphere();
+        var resourceData = res.resource;//todo: better structure needed
 
-        var material = new THREE.MeshPhongMaterial( { color: 0x00a9ff, specular: 0xffffff, shininess: 10, shading: THREE.FlatShading} );
-        var shape = new THREE.Mesh(geometry, material);
-
-        console.log("here", res, geometry, shape);
-
-        //centering hack
-        if( autoCenter)
+        
+    
+        if( ! resourceData instanceof THREE.Object3D)
         {
-          var offset = geometry.boundingSphere.center;
-          geometry.applyMatrix( new THREE.Matrix4().makeTranslation( -offset.x, -offset.y, -offset.z ) );
+          var geometry = res.resource;
+          geometry.computeBoundingBox();
+				  geometry.computeCentroids();
+				  geometry.computeBoundingSphere();
+
+          var material = new THREE.MeshPhongMaterial( { color: 0x00a9ff, specular: 0xffffff, shininess: 10, shading: THREE.FlatShading} );
+          var shape = new THREE.Mesh(geometry, material);
+
+          //centering hack
+          if( autoCenter)
+          {
+            var offset = geometry.boundingSphere.center;
+            geometry.applyMatrix( new THREE.Matrix4().makeTranslation( -offset.x, -offset.y, -offset.z ) );
+          }
+          //resizing hacks
+          if( autoResize)
+          {
+            var size = geometry.boundingSphere.radius;
+
+            if( size < this.minObjectSize)
+            {
+              resource.centeringRequired = true;
+              var ratio = geometry.boundingSphere.radius/this.minObjectSize;
+              var scaling = 1/ratio;
+              geometry.applyMatrix( new THREE.Matrix4().makeScale( scaling, scaling, scaling ) );
+            }
+            else if(size > this.maxObjectSize)
+            {
+              resource.scalingRequired = true;
+              var ratio = geometry.boundingSphere.radius/this.maxObjectSize;
+              var scaling = 1/ratio;
+              geometry.applyMatrix( new THREE.Matrix4().makeScale( scaling, scaling, scaling ) );
+            }
+          }
+          self.addToScene(shape);
         }
-        //resizing hacks
-        if( autoResize)
+        else
         {
-          var size = geometry.boundingSphere.radius;
+            var bSphere = computeObject3DBoundingSphere(resourceData);
+            console.log("bSphere", bSphere);
+            if( autoResize)
+            {
+              var size = bSphere.radius;
 
-          console.log("size",size, this.minObjectSize)        
-          if( size < this.minObjectSize)
-          {
-            var ratio = geometry.boundingSphere.radius/this.minObjectSize;
-            var scaling = 1/ratio;
-            console.log("resizing",ratio, scaling)
-            geometry.applyMatrix( new THREE.Matrix4().makeScale( scaling, scaling, scaling ) );
-          }
-          else if(size > this.maxObjectSize)
-          {
-            var ratio = geometry.boundingSphere.radius/this.maxObjectSize;
-            var scaling = 1/ratio;
-            console.log("resizing",ratio, scaling)
-            geometry.applyMatrix( new THREE.Matrix4().makeScale( scaling, scaling, scaling ) );
-          }
+              if( size < this.minObjectSize)
+              {
+                resource.centeringRequired = true;
+                var ratio = size/this.minObjectSize;
+                var scaling = 1/ratio;
+                resourceData.applyMatrix( new THREE.Matrix4().makeScale( scaling, scaling, scaling ) );
+              }
+            }
+
+
+            self.addToScene(resourceData);
         }
-
-        self.addToScene(shape);
+        
+        
         
       }
-
-      var resource = new Resource(uri);
+      
       this.resources.push(resource);
 
-      var magic = "toto"
-  
       var resourcePromise = this.$.assetsMgr.read( uri );
-      resourcePromise.then(addRes.bind(this));
+      resourcePromise.then(addResource.bind(this));
       resourcePromise.then(resource.onLoaded.bind(resource), null, resource.onDownloadProgress.bind(resource) );
   },
   //event handlers
