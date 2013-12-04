@@ -1,6 +1,51 @@
+function Resource(uri)
+{
+  this.uri = uri;
+  this.name = uri.split("/").pop();
+  this.fetchProgress = 10;
+  this.parseProgress = 0;
+  this.totalRawSize = 0;
+
+  //temporary, this needs to be a filter
+  this.totalDisplaySize = "";
+  this.loaded = false;
+    
+}
+
+Resource.prototype.onLoaded = function()
+{
+  this.loaded = true;
+}
+
+Resource.prototype.onDownloadProgress = function(progress)
+{
+  function bytesToSize(bytes) {
+   var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+   if (bytes == 0) return '0 Bytes';
+   var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+   return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+  };
+
+
+  this.totalRawSize = progress.total;
+  this.totalDisplaySize = bytesToSize(progress.total);
+
+  var progress = progress.download || 100;
+  this.fetchProgress = progress.toFixed(2);
+  //console.log("this.fetchProgres" ,this.fetchProgress )
+}
+
+
 Polymer('usco-ultiviewer', {
   selectedObject : null,
-  showGrid: true,
+  showGrid: false,
+
+  resources : [], //TODO: move this to asset manager ??
+  created: function()
+  {
+    this.super();
+    this.warningSize = 100000;//byte size above which to display a warning to the user
+  },
   enteredView:function()
   {
     this.super();
@@ -18,14 +63,26 @@ Polymer('usco-ultiviewer', {
       var self = this;
       function addRes(res)
       {
-        var material = new THREE.MeshLambertMaterial( {color: 0x0088ff} );
-        var shape = new THREE.Mesh(res.resource, material);
+        var geometry = res.resource;
+        geometry.computeBoundingBox();
+				geometry.computeCentroids();
+				geometry.computeBoundingSphere();
 
-        console.log("here", res, shape);
+        var material = new THREE.MeshPhongMaterial( { color: 0x00a9ff, specular: 0xffffff, shininess: 10, shading: THREE.FlatShading} );
+        var shape = new THREE.Mesh(geometry, material);
+
+        console.log("here", res, geometry, shape);
+
         self.addToScene(shape);
+        //hack for now
       }
-      //this._onResourceLoaded.bind(this) 
-      this.$.assetsMgr.read(uri).then(addRes);
+
+      var resource = new Resource(uri);
+      this.resources.push(resource);
+
+      var resourcePromise = this.$.assetsMgr.read( uri );
+      resourcePromise.then(addRes)
+      resourcePromise.then(resource.onLoaded.bind(resource), null, resource.onDownloadProgress.bind(resource) );
   },
   //event handlers
   onLongstatictap:function(event)

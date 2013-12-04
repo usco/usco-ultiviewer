@@ -17,7 +17,17 @@
     <div id="viewWrapper" touch-action="none" on-pointermove="{{onPointerMove}}" on-pointerdown="{{onPointerDown}}" on-pointerup="{{onPointerUp}}" on-longstatictap="{{onLongstatictap}}" on-longmovetap="{{onLongmovetap}}">
       <div id="viewer"></div>
       <three-stats id="stats" show="{{showStats}}"></three-stats>
-      <div id="resourceLoading">Bla</div>
+
+      <div id="resourcesList" style="position:absolute;top:0px;right:20px">
+        resources:
+        <template repeat="{{resource in resources}}">
+          <div id="resourceLoading" >Loading: {{resource.name}} Download: {{resource.fetchProgress}} % Total:{{resource.totalDisplaySize}} Loaded:{{resource.loaded}}</div>
+
+          <template if="{{resource.totalRawSize > warningSize}}">
+            <div style="color:red"> Warning: large file</div>
+          </template>
+        </template>
+      </div>
     </div>
   </template>
   <!--TODO: perhaps favour composition over inheritance ??
