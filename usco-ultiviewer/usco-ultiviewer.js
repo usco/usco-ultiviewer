@@ -71,7 +71,7 @@ Polymer('usco-ultiviewer', {
   {
     this.super();
     this.warningSize = 100000;//byte size above which to display a warning to the user
-    this.minObjectSize = 20;//minimum size (in arbitrarty/opengl units) before requiring re-scaling (upwards)
+    this.minObjectSize = 40;//minimum size (in arbitrarty/opengl units) before requiring re-scaling (upwards)
     this.maxObjectSize = 100;//maximum size (in arbitrarty/opengl units) before requiring re-scaling (downwards)
 
   },
@@ -99,9 +99,7 @@ Polymer('usco-ultiviewer', {
       {
         var resourceData = res.resource;//todo: better structure needed
 
-        
-    
-        if( ! resourceData instanceof THREE.Object3D)
+        if( !(resourceData instanceof THREE.Object3D) )
         {
           var geometry = res.resource;
           geometry.computeBoundingBox();
@@ -166,6 +164,7 @@ Polymer('usco-ultiviewer', {
       
       this.resources.push(resource);
 
+      console.log("loading ", uri)
       var resourcePromise = this.$.assetsMgr.read( uri );
       resourcePromise.then(addResource.bind(this));
       resourcePromise.then(resource.onLoaded.bind(resource), null, resource.onDownloadProgress.bind(resource) );
