@@ -18,7 +18,16 @@
       <div id="viewer"></div>
       <three-stats id="stats" show="{{showStats}}"></three-stats>
 
-      <div id="resourcesList" style="position:absolute;top:0px;right:20px">
+      <div style="position:absolute;top:0px;left:20px" >
+        <div><a href="#">Download</a> <a href="#">Edit</a></div>
+      </div>
+
+      <div style="position:absolute;top:0px;right:20px">
+        <div><a href="#">Fullscreen</a> <a href="#">Show grid</a></div>
+      </div>
+
+      <!-- seperate this out to another component ?? -->
+      <div id="resourcesList" style="position:absolute;top:40px;right:20px">
         <template repeat="{{resource in resources}}">
           <template if="{{!resource.loaded}}"> <!-- only display resources info if not yet fully loaded-->
             <div id="resourceLoading" >Loading: {{resource.name}} Download: {{resource.fetchProgress}} % Total:{{resource.totalDisplaySize}} Loaded:{{resource.loaded}}</div>
