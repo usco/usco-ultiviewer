@@ -180,6 +180,14 @@ Polymer('usco-ultiviewer', {
     var event = event.impl || event;
     console.log("LONG Move TAP",event.detail.position);
   },
+  onDownloadTap:function(event)
+  {
+     console.log("downloadTap")
+     var link = document.createElement("a");
+		 //link.download = name;
+		 link.href = this.resources[0].uri;
+		 link.click();
+  },
   //attribute change handlers
   showGridChanged:function()
 	{

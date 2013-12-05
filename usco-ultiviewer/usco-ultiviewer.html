@@ -18,12 +18,17 @@
       <div id="viewer"></div>
       <three-stats id="stats" show="{{showStats}}"></three-stats>
 
-      <div style="position:absolute;top:0px;left:20px" >
-        <div><a href="#">Download</a> <a href="#">Edit</a></div>
+      <div style="" id="uiTest">
+        <div style="width:100%;height:10px;position:absolute;top:0px" id="testHover">
+        <div style="cursor:pointer" on-tap="{{onDownloadTap}}">Download</div>
       </div>
 
       <div style="position:absolute;top:0px;right:20px">
-        <div><a href="#">Fullscreen</a> <a href="#">Show grid</a></div>
+        <div>
+          Fullscreen<input type="checkbox" checked="{{fullScreen}}"> 
+          Grid<input type="checkbox" checked="{{showGrid}}">
+          Axes<input type="checkbox" checked="{{showAxes}}"> 
+        </div>
       </div>
 
       <!-- seperate this out to another component ?? -->

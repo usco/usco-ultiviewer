@@ -47,3 +47,11 @@
 	user-select: none;
 }
 
+#toto{
+/*display:none;*/
+}
+
+#testHover:hover +  div {
+    display: block;
+    color:red;
+}
