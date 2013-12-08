@@ -84,6 +84,10 @@ Polymer('usco-ultiviewer', {
     this.grid = new THREE.CustomGridHelper(200,10,this.cameraUp);
     this.grid.toggle(this.showGrid)
 	  this.scene.add(this.grid);
+
+    console.log("THREE.AMFParser",THREE.AMFParser);
+    this.$.assetsMgr.addParser("amf",THREE.AMFParser);
+    this.$.assetsMgr._assetManager.addParser( "amf",THREE.AMFParser);
   },
 
   //public api
