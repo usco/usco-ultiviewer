@@ -1,3 +1,8 @@
+In the viewer/any main app: (editor etc) we need:
+  - kernel 
+  - any parsers we need [1..n]
+  - any storage system we need [1..n]
+
 Steps to get a clean build/release circle:
  - find best way to handle dependency inclusion : bower/ browserify / requirejs ?
  - how to include libs that have dependencies themselves:  for example amf parser depends on zip && sax libs
