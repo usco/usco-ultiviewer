@@ -16,10 +16,14 @@
     "min_height": 480
   },
   "dependencies": {
+    "usco-asset-manager": "git://github.com/usco/usco-asset-manager#master",
+    "usco-xhr-store": "git://github.com/usco/usco-xhr-store#master",
+    "usco-stl-parser": "git://github.com/usco/usco-stl-parser#master"
+
   },
   "devDependencies": {
-    "http-server": "~0.5.5"
+    "http-server": "~0.5.5",
+    "grunt": "~0.4.2",
+    "grunt-browserify-bower": "~0.1.0"
   }
 }
-
-
