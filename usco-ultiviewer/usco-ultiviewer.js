@@ -37,30 +37,6 @@ Resource.prototype.onDownloadProgress = function(progress)
   this.fetchProgress = progress.toFixed(2);
 }
 
-computeObject3DBoundingSphere = function(object)
-{
-  if( object.geometry === undefined)
-  {
-      var bbox = new THREE.Box3();
-  }
-  else
-  {
-    var bbox = object.geometry.boundingBox.clone();
-  }
-  
-  object.traverse(function (child) {
-    if (child instanceof THREE.Mesh)
-    {
-        if( child.geometry !==undefined)
-        {
-          var childBox = child.geometry.boundingBox.clone();
-          childBox.translate( child.localToWorld( new THREE.Vector3() ) );
-          bbox.union( childBox );
-        }
-    }
-  });
-  return bbox.getBoundingSphere();
-}
 
 Polymer('usco-ultiviewer', {
   selectedObject : null,
@@ -70,10 +46,18 @@ Polymer('usco-ultiviewer', {
   created: function()
   {
     this.super();
+
+    AssetManager = require("AssetManager");
+    xhrStore = require("usco-xhrStore");
+
+    this._assetManager = new AssetManager();
+    this._assetManager.stores["xhr"] = new xhrStore();
+
+    this._assetManager.addParser("amf",THREE.AMFParser);
+
     this.warningSize = 100000;//byte size above which to display a warning to the user
     this.minObjectSize = 40;//minimum size (in arbitrarty/opengl units) before requiring re-scaling (upwards)
     this.maxObjectSize = 100;//maximum size (in arbitrarty/opengl units) before requiring re-scaling (downwards)
-
   },
   enteredView:function()
   {
@@ -86,26 +70,27 @@ Polymer('usco-ultiviewer', {
 	  this.scene.add(this.grid);
 
     console.log("THREE.AMFParser",THREE.AMFParser);
-    this.$.assetsMgr.addParser("amf",THREE.AMFParser);
-    this.$.assetsMgr._assetManager.addParser( "amf",THREE.AMFParser);
+    //this.$.assetsMgr.addParser("amf",THREE.AMFParser);
+    //this.$.assetsMgr._assetManager.addParser( "amf",THREE.AMFParser);
   },
 
   //public api
-  loadResource: function(uri, autoCenter, autoResize)
+  loadResource: function(uri, autoCenter, autoResize, display)
   {
       var self = this;
       var autoCenter = autoCenter === undefined ? true: autoCenter;
       var autoResize = autoResize === undefined ? true: autoResize;
+      var display = display === undefined ? true: display;
 
       var resource = new Resource( uri );
 
       function addResource(res)
       {
-        var resourceData = res.resource;//todo: better structure needed
+        var resourceData = res.data;
 
         if( !(resourceData instanceof THREE.Object3D) )
         {
-          var geometry = res.resource;
+          var geometry = resourceData;
           geometry.computeBoundingBox();
 				  geometry.computeCentroids();
 				  geometry.computeBoundingSphere();
@@ -157,19 +142,14 @@ Polymer('usco-ultiviewer', {
                 resourceData.applyMatrix( new THREE.Matrix4().makeScale( scaling, scaling, scaling ) );
               }
             }
-
-
             self.addToScene(resourceData);
         }
-        
-        
-        
       }
       
       this.resources.push(resource);
 
       console.log("loading ", uri)
-      var resourcePromise = this.$.assetsMgr.read( uri );
+      var resourcePromise = this._assetManager.load( uri );//this.$.assetsMgr.read( uri );
       resourcePromise.then(addResource.bind(this));
       resourcePromise.then(resource.onLoaded.bind(resource), null, resource.onDownloadProgress.bind(resource) );
   },
