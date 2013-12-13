@@ -46,15 +46,23 @@ Polymer('usco-ultiviewer', {
   created: function()
   {
     this.super();
+    var AssetManager = require("assetManager");
+    var xhrStore = require("usco-xhr-store");
+    var stlParser = require("usco-stl-parser");
+    var amfParser = require("usco-amf-parser");
+    var objParser = require("usco-obj-parser");
+    var plyParser = require("usco-ply-parser");
 
-    AssetManager = require("AssetManager");
-    xhrStore = require("usco-xhrStore");
+    //console.log("AssetManager",AssetManager, "xhrStore",xhrStore)
+    //console.log("stlParser", stlParser, "amfParser",amfParser );
 
     this._assetManager = new AssetManager();
     this._assetManager.stores["xhr"] = new xhrStore();
-
-    this._assetManager.addParser("amf",THREE.AMFParser);
-
+    this._assetManager.addParser("stl", stlParser );
+    this._assetManager.addParser("amf", amfParser );
+    this._assetManager.addParser("obj", objParser );
+    this._assetManager.addParser("ply", plyParser );
+  
     this.warningSize = 100000;//byte size above which to display a warning to the user
     this.minObjectSize = 40;//minimum size (in arbitrarty/opengl units) before requiring re-scaling (upwards)
     this.maxObjectSize = 100;//maximum size (in arbitrarty/opengl units) before requiring re-scaling (downwards)
@@ -86,6 +94,8 @@ Polymer('usco-ultiviewer', {
 
       function addResource(res)
       {
+
+        console.log("blabla recieved resource result",res);
         var resourceData = res.data;
 
         if( !(resourceData instanceof THREE.Object3D) )
@@ -128,6 +138,7 @@ Polymer('usco-ultiviewer', {
         }
         else
         {
+            console.log("right here");
             var bSphere = computeObject3DBoundingSphere(resourceData);
             console.log("bSphere", bSphere);
             if( autoResize)

@@ -16,15 +16,19 @@
     "min_height": 480
   },
   "dependencies": {
-    "usco-asset-manager": "git://github.com/usco/usco-asset-manager#master",
-    "usco-xhr-store": "git://github.com/usco/usco-xhr-store#master",
-    "usco-stl-parser": "git://github.com/usco/usco-stl-parser#master"
+    "usco-asset-manager": "git://github.com/usco/usco-asset-manager",
+    "usco-xhr-store": "git://github.com/usco/usco-xhr-store",
+    "usco-stl-parser": "git://github.com/usco/usco-stl-parser",
+    "usco-amf-parser": "git://github.com/usco/usco-amf-parser",
+    "usco-obj-parser": "git://github.com/usco/usco-obj-parser",
+    "usco-ply-parser": "git://github.com/usco/usco-ply-parser"
   },
   "devDependencies": {
     "http-server": "~0.5.5",
     "grunt": "~0.4.2",
     "grunt-browserify-bower": "~0.1.0",
+    "grunt-browserify": "~1.2.12",
     "browserify": "~2.36.1",
-    "grunt-browserify": "~1.2.12"
+    "coffeeify": "~0.5.2"
   }
 }

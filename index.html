@@ -18,6 +18,9 @@
 	    var ultiViewer = document.querySelector('usco-ultiviewer');
 
       var currentUrl = window.location.origin;
+
+
+      //stl files
       ultiViewer.loadResource(currentUrl+"/demo-data/pr2_head_tilt.stl");
       //ultiViewer.loadResource(currentUrl+"/demo-data/femur.stl");
       //ultiViewer.loadResource(currentUrl+"/demo-data/pr2_head_pan.stl");
@@ -25,13 +28,21 @@
       //ultiViewer.loadResource(currentUrl+"/demo-data/UM2CableChain_ChainSegment.STL");
       //ultiViewer.loadResource("https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/1609/10mm_Shaft_bearing_mount__lower__A_v3.stl");
 
+      //obj files
+      ultiViewer.loadResource(currentUrl+"/demo-data/box.obj");
+        
+      //ply files
+      ultiViewer.loadResource(currentUrl+"/demo-data/dolphins.ply");
+
+      //amf files
       //ultiViewer.loadResource(currentUrl+"/demo-data/Constellation.amf")
-      //ultiViewer.loadResource(currentUrl+"/demo-data/FaceColors.amf")      
-      //ultiViewer.loadResource(currentUrl+"/demo-data/Rook.amf")
+      ultiViewer.loadResource(currentUrl+"/demo-data/FaceColors.amf")      
+      ultiViewer.loadResource(currentUrl+"/demo-data/Rook.amf")
       //ultiViewer.loadResource(currentUrl+"/demo-data/stapel_dual.amf")
+      /*
       ultiViewer.loadResource("https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/670/hackaday.amf")
       ultiViewer.loadResource("https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/393/RoboIce-dual.amf")
-
+      */
       //ultiViewer.loadResource("https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/1078/Extruder_Big_Gear_V1.stl");
       //ultiViewer.loadResource("https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/1609/10mm_Shaft_bearing_mount__lower__A_v3.stl");
 
