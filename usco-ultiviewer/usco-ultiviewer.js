@@ -14,6 +14,7 @@ function Resource(uri)
 Resource.prototype.onLoaded = function()
 {
   this.loaded = true;
+  
 }
 
 Resource.prototype.onLoadFailure = function(error)
@@ -94,7 +95,6 @@ Polymer('usco-ultiviewer', {
 
       function addResource(res)
       {
-
         console.log("blabla recieved resource result",res);
         var resourceData = res.data;
 
@@ -134,6 +134,12 @@ Polymer('usco-ultiviewer', {
               geometry.applyMatrix( new THREE.Matrix4().makeScale( scaling, scaling, scaling ) );
             }
           }
+          
+          shape.meta = {};
+          shape.meta.resource = res;
+          //FIXME: should be already in the resource itself
+          shape.meta.resource.uri = uri;
+          
           self.addToScene(shape);
         }
         else
@@ -153,6 +159,12 @@ Polymer('usco-ultiviewer', {
                 resourceData.applyMatrix( new THREE.Matrix4().makeScale( scaling, scaling, scaling ) );
               }
             }
+
+            resourceData.meta = {};
+            resourceData.meta.resource = res;
+            //FIXME: should be already in the resource itself
+            resourceData.meta.resource.uri = uri;
+
             self.addToScene(resourceData);
         }
       }
@@ -180,8 +192,11 @@ Polymer('usco-ultiviewer', {
      console.log("downloadTap")
      var link = document.createElement("a");
 		 //link.download = name;
-		 link.href = this.resources[0].uri;
+		 this.resources[0].uri;//link.href = this.selectedObject.meta.resource.uri;//
 		 link.click();
+     console.log("this.selectedObject",this.selectedObject);
+     event.preventDefault();
+     event.stopPropagation();
   },
   //attribute change handlers
   showGridChanged:function()
@@ -190,4 +205,8 @@ Polymer('usco-ultiviewer', {
 		this.grid.toggle(this.showGrid)
 	},
   //helpers
+  _associateResourceWithInstance:function()
+  {
+
+  }
 });

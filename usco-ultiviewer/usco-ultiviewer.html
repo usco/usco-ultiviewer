@@ -35,10 +35,10 @@
       <div id="viewer"></div>
       <three-stats id="stats" show="{{showStats}}"></three-stats>
 
-      <div style="" id="uiTest">
+      <template if="{{selectedObject != null}}">
         <div style="width:100%;height:10px;position:absolute;top:0px" id="testHover">
         <div style="cursor:pointer" on-tap="{{onDownloadTap}}">Download</div>
-      </div>
+      </template>
 
       <div style="position:absolute;top:0px;right:20px">
         <div>
