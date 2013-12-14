@@ -1,42 +1,4 @@
-function Resource(uri)
-{
-  this.uri = uri;
-  this.name = uri.split("/").pop();
-  this.fetchProgress = 10;
-  this.parseProgress = 0;
-  this.totalRawSize = 0;
 
-  //temporary, this needs to be a filter
-  this.totalDisplaySize = "";
-  this.loaded = false;
-}
-
-Resource.prototype.onLoaded = function()
-{
-  this.loaded = true;
-  
-}
-
-Resource.prototype.onLoadFailure = function(error)
-{
-   this.error = error;
-}
-
-Resource.prototype.onDownloadProgress = function(progress)
-{
-  function bytesToSize(bytes) {
-   var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-   if (bytes == 0) return '0 Bytes';
-   var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
-   return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
-  };
-
-  this.totalRawSize = progress.total;
-  this.totalDisplaySize = bytesToSize(progress.total);
-
-  var progress = progress.download || 100;
-  this.fetchProgress = progress.toFixed(2);
-}
 
 
 Polymer('usco-ultiviewer', {
@@ -53,7 +15,6 @@ Polymer('usco-ultiviewer', {
     var amfParser = require("usco-amf-parser");
     var objParser = require("usco-obj-parser");
     var plyParser = require("usco-ply-parser");
-
     //console.log("AssetManager",AssetManager, "xhrStore",xhrStore)
     //console.log("stlParser", stlParser, "amfParser",amfParser );
 
@@ -78,7 +39,6 @@ Polymer('usco-ultiviewer', {
     this.grid.toggle(this.showGrid)
 	  this.scene.add(this.grid);
 
-    console.log("THREE.AMFParser",THREE.AMFParser);
     //this.$.assetsMgr.addParser("amf",THREE.AMFParser);
     //this.$.assetsMgr._assetManager.addParser( "amf",THREE.AMFParser);
   },
@@ -95,7 +55,6 @@ Polymer('usco-ultiviewer', {
 
       function addResource(res)
       {
-        console.log("blabla recieved resource result",res);
         var resourceData = res.data;
 
         if( !(resourceData instanceof THREE.Object3D) )
@@ -172,8 +131,6 @@ Polymer('usco-ultiviewer', {
             resourceData.meta.resource = res;
             //FIXME: should be already in the resource itself
             resourceData.meta.resource.uri = uri;
-            console.log("here yeah",resourceData)
-
             self.addToScene(resourceData);
         }
       }
@@ -181,7 +138,7 @@ Polymer('usco-ultiviewer', {
       this.resources.push(resource);
 
       var resourcePromise = this._assetManager.load( uri );//this.$.assetsMgr.read( uri );
-      resourcePromise.then(addResource.bind(this));
+      if (display) resourcePromise.then(addResource.bind(this));
       resourcePromise.then(resource.onLoaded.bind(resource), null, resource.onDownloadProgress.bind(resource) );
   },
   //event handlers
@@ -288,7 +245,6 @@ Polymer('usco-ultiviewer', {
         outline.scale.multiplyScalar(1.01);
         newSelection.outline = outline;
         newSelection.add(outline);
-
         //newSelection.currentSelectHex = newSelection.material.color.getHex();
         //newSelection.material.color.setHex(0xff5400);
     }

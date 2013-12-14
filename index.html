@@ -24,7 +24,7 @@
       //ultiViewer.loadResource(currentUrl+"/demo-data/femur.stl");
       //ultiViewer.loadResource(currentUrl+"/demo-data/pr2_head_pan.stl");
       //ultiViewer.loadResource(currentUrl+"/demo-data/UM2CableChain_BedEnd.STL");
-      ultiViewer.loadResource(currentUrl+"/demo-data/UM2CableChain_ChainSegment.STL");
+      //ultiViewer.loadResource(currentUrl+"/demo-data/UM2CableChain_ChainSegment.STL");
       //ultiViewer.loadResource("https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/1609/10mm_Shaft_bearing_mount__lower__A_v3.stl");
       //ultiViewer.loadResource("https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/1078/Extruder_Big_Gear_V1.stl");
 
@@ -32,11 +32,17 @@
       //obj files
       //ultiViewer.loadResource(currentUrl+"/demo-data/box.obj");
       //ultiViewer.loadResource(currentUrl+"/demo-data/extincteur_obj.obj", false, false, true);
-      ultiViewer.loadResource(currentUrl+"/demo-data/toyplane.obj");
+      //ultiViewer.loadResource(currentUrl+"/demo-data/toyplane.obj");
       
         
       //ply files
-      ultiViewer.loadResource(currentUrl+"/demo-data/dolphins.ply");
+      //preload ??
+      ultiViewer.loadResource(currentUrl+"/demo-data/dolphins.ply",true,true,false);
+      setTimeout(function(){
+
+          ultiViewer.loadResource(currentUrl+"/demo-data/dolphins.ply",true,true,true);
+      },8000);
+      //ultiViewer.loadResource(currentUrl+"/demo-data/dolphins.ply",true,true,true);
       //ultiViewer.loadResource(currentUrl+"/demo-data/airplane.ply");
 
       //amf files
@@ -47,7 +53,7 @@
       //ultiViewer.loadResource(currentUrl+"/demo-data/RoboIce-dual.amf")
       //ultiViewer.loadResource("https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/393/RoboIce-dual.amf");
       
-      ultiViewer.loadResource("https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/670/hackaday.amf")
+      //ultiViewer.loadResource("https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/670/hackaday.amf")
       
 
     });
