@@ -6,10 +6,6 @@
 <!--<link rel="import" href="../components/asset-manager/element/asset-manager.html">-->
 <link rel="import" href="../components/usco-viewer-base/three-viewer/three-viewer.html">
 
-<!--should only be ??
-<script src="foo/usco.js"></script>
--->
-
 <script src="../public/usco-ultiviewer.min.js"></script>
 
 <!--yuck !!! should be bundled-->
@@ -32,7 +28,7 @@
 
       <template if="{{selectedObject != null}}">
         <div style="width:100%;height:10px;position:absolute;top:0px" id="testHover">
-        <div style="cursor:pointer" on-tap="{{onDownloadTap}}">Download</div>
+        <div style="cursor:pointer" on-tap="{{onDownloadTap}}" on-mouseDown="{{onDownloadTap}}">Download</div>
       </template>
 
       <div style="position:absolute;top:0px;right:20px">

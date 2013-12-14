@@ -149,31 +149,30 @@ Polymer('usco-ultiviewer', {
         }
         else
         {
-            console.log("right here");
-
             try
             {
-            
-            if( autoResize)
-            {
-              var bSphere = computeObject3DBoundingSphere(resourceData);
-              var size = bSphere.radius;
-
-              if( size < this.minObjectSize)
+              if( autoResize)
               {
-                resource.centeringRequired = true;
-                var ratio = size/this.minObjectSize;
-                var scaling = 1/ratio;
-                //resourceData.applyMatrix( new THREE.Matrix4().makeScale( scaling, scaling, scaling ) );
-              }
+                var bSphere = computeObject3DBoundingSphere(resourceData);
+                var size = bSphere.radius;
+
+                if( size < this.minObjectSize)
+                {
+                  resource.centeringRequired = true;
+                  var ratio = size/this.minObjectSize;
+                  var scaling = 1/ratio;
+                  resourceData.applyMatrix( new THREE.Matrix4().makeScale( scaling, scaling, scaling ) );
+                }
             }
             }catch(error)
             {console.log("failed to auto resize ",error)}
       
+     
             resourceData.meta = {};
             resourceData.meta.resource = res;
             //FIXME: should be already in the resource itself
             resourceData.meta.resource.uri = uri;
+            console.log("here yeah",resourceData)
 
             self.addToScene(resourceData);
         }
@@ -181,7 +180,6 @@ Polymer('usco-ultiviewer', {
       
       this.resources.push(resource);
 
-      console.log("loading ", uri)
       var resourcePromise = this._assetManager.load( uri );//this.$.assetsMgr.read( uri );
       resourcePromise.then(addResource.bind(this));
       resourcePromise.then(resource.onLoaded.bind(resource), null, resource.onDownloadProgress.bind(resource) );
@@ -202,18 +200,99 @@ Polymer('usco-ultiviewer', {
      console.log("downloadTap")
      var link = document.createElement("a");
 		 //link.download = name;
-		 this.resources[0].uri;//link.href = this.selectedObject.meta.resource.uri;//
+     //FIXME: if imported object is already a mesh/object 3D , selection is wrong ??
+     var href = null;
+     if( ! this.selectedObject.meta  )
+     {
+        if(this.selectedObject.parent.meta)
+        {
+          href= this.selectedObject.parent.meta.resource.uri;
+        }
+     }
+     else{href = this.selectedObject.meta.resource.uri;}
+     if( ! href) return;
+
+		 link.href = href;
 		 link.click();
-     console.log("this.selectedObject",this.selectedObject);
      event.preventDefault();
      event.stopPropagation();
   },
   //attribute change handlers
-  showGridChanged:function()
-	{
-		console.log("showGridChanged");//, this.showGrid);
-		this.grid.toggle(this.showGrid)
-	},
+  showGridChanged:function(){this.grid.toggle(this.showGrid)},
+  highlightedObjectChanged:function(oldHovered)
+  {
+      this.selectionColor = 0xff5400;//0xfffccc;
+		  this.outlineColor = 0xffc200;
+      function validForOutline(selection)
+      {
+        return (!(selection.hoverOutline != null) && !(selection.outline != null) && !(selection.name === "hoverOutline") && !(selection.name === "boundingCage") && !(selection.name === "selectOutline"))
+      }
+
+      var curHovered = this.highlightedObject;
+
+      if (curHovered != null )
+      {
+        var hoverEffect = new THREE.Object3D();
+        var outline, outlineMaterial;
+        curHovered.currentHoverHex = curHovered.material.color.getHex();
+        curHovered.material.color.setHex(this.selectionColor);
+        outlineMaterial = new THREE.MeshBasicMaterial({
+            color: 0xffc200,
+            side: THREE.BackSide
+          });
+        outline = new THREE.Mesh(curHovered.geometry.clone(), outlineMaterial);
+        outline.scale.multiplyScalar(1.01);
+        outline.name = "hoverOutline";
+        curHovered.hoverOutline = outline;
+        curHovered.add(outline);
+      }
+      if(oldHovered != null)
+      {
+        if (oldHovered.hoverOutline != null)
+        {
+          oldHovered.material.color.setHex(oldHovered.currentHoverHex);
+          oldHovered.remove(oldHovered.hoverOutline);
+          oldHovered.hoverOutline = null;
+        }
+      }
+  },
+  selectedObjectChanged:function(oldSelection)
+  {
+    var newSelection = this.selectedObject;
+    this.selectObject(newSelection, oldSelection);
+  },
+  selectObject:function(newSelection, oldSelection)
+  {
+    this.selectionColor = 0xfffccc;
+    if(oldSelection != null && newSelection != null)
+    {    
+      console.log("SELECTED object changed",newSelection.name,"OLD",oldSelection.name);
+    }
+    //remove from old selection
+    if(oldSelection != null)
+    {
+      oldSelection.remove(oldSelection.outline);
+      oldSelection.cage = null;
+      oldSelection.outline = null;
+      //oldSelection.material.color.setHex( oldSelection.currentSelectHex );
+    }
+    //add to new selection
+    if(newSelection != null)
+    {
+        var outlineMaterial = new THREE.MeshBasicMaterial({
+          color: 0xff0000,//0xffc200,
+          side: THREE.BackSide
+        });
+        outline = new THREE.Mesh(newSelection.geometry.clone(), outlineMaterial);
+        outline.name = "selectOutline";
+        outline.scale.multiplyScalar(1.01);
+        newSelection.outline = outline;
+        newSelection.add(outline);
+
+        //newSelection.currentSelectHex = newSelection.material.color.getHex();
+        //newSelection.material.color.setHex(0xff5400);
+    }
+  },
   //helpers
   _associateResourceWithInstance:function()
   {
