@@ -105,6 +105,11 @@ Polymer('usco-ultiviewer', {
 				  geometry.computeCentroids();
 				  geometry.computeBoundingSphere();
 
+          //needed at least for .ply files
+          geometry.computeVertexNormals();
+          geometry.computeFaceNormals();
+
+          //var material = new THREE.MeshNormalMaterial();//new THREE.MeshLambertMaterial({ color: 0x00a9ff});//THREE.MeshPhongMaterial( { color: 0x00a9ff, specular: 0xffffff, shininess: 10, shading: THREE.FlatShading} );
           var material = new THREE.MeshPhongMaterial( { color: 0x00a9ff, specular: 0xffffff, shininess: 10, shading: THREE.FlatShading} );
           var shape = new THREE.Mesh(geometry, material);
 
@@ -145,10 +150,13 @@ Polymer('usco-ultiviewer', {
         else
         {
             console.log("right here");
-            var bSphere = computeObject3DBoundingSphere(resourceData);
-            console.log("bSphere", bSphere);
+
+            try
+            {
+            
             if( autoResize)
             {
+              var bSphere = computeObject3DBoundingSphere(resourceData);
               var size = bSphere.radius;
 
               if( size < this.minObjectSize)
@@ -156,10 +164,12 @@ Polymer('usco-ultiviewer', {
                 resource.centeringRequired = true;
                 var ratio = size/this.minObjectSize;
                 var scaling = 1/ratio;
-                resourceData.applyMatrix( new THREE.Matrix4().makeScale( scaling, scaling, scaling ) );
+                //resourceData.applyMatrix( new THREE.Matrix4().makeScale( scaling, scaling, scaling ) );
               }
             }
-
+            }catch(error)
+            {console.log("failed to auto resize ",error)}
+      
             resourceData.meta = {};
             resourceData.meta.resource = res;
             //FIXME: should be already in the resource itself
