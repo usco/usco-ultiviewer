@@ -2,11 +2,12 @@
 <!--TODO: replace three-viewer with usco-base-viewer??
 <link rel="import" href="components/usco-viewer-base/three-viewer/three-viewer.html">
 -->
-
 <!--<link rel="import" href="../components/asset-manager/element/asset-manager.html">-->
 <link rel="import" href="../components/usco-viewer-base/three-viewer/three-viewer.html">
 
+<!-- build:js js/app.js -->
 <script src="../public/main.js"></script>
+<!-- endbuild -->
 
 <!--yuck !!! should be bundled-->
 <!--<script src="../components/usco-amf-parser/sax.js"></script>
@@ -37,6 +38,7 @@
           Fullscreen<input type="checkbox" checked="{{fullScreen}}"> 
           Grid<input type="checkbox" checked="{{showGrid}}">
           Axes<input type="checkbox" checked="{{showAxes}}"> 
+          AutoRotate<input type="checkbox" checked="{{autoRotate}}"> 
         </div>
       </div>
 

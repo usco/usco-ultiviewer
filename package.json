@@ -5,6 +5,7 @@
   "description": "usco-ultiviewer",
   "author": "Mark kaosat-dev Moissette",
   "license": "MIT",
+  "version": "0.0.1",
   "window": {
     "title": "Ui test",
     "toolbar": false,
@@ -30,6 +31,9 @@
     "grunt-browserify": "~1.2.12",
     "browserify": "~2.36.1",
     "coffeeify": "~0.5.2",
-    "grunt-contrib-uglify": "~0.2.7"
+    "grunt-contrib-uglify": "~0.2.7",
+    "grunt-usemin": "~2.0.2",
+    "grunt-node-webkit-builder": "~0.1.13",
+    "grunt-exec": "~0.4.2"
   }
 }

@@ -43,19 +43,48 @@ module.exports = function (grunt) {
           'public/<%= pkg.name %>.min.js': ['public/main.js']
         }
       }
+    },
+    exec: {
+      vulcan: {
+        command: 'vulcanize -i index.html -o build/build.html',
+        stdout: true,
+        stderr: true
+      }
+    },
+    nodewebkit: {
+      options: {
+          build_dir: './build/desktop', // Where the build version of my node-webkit app is saved
+          mac: false, // We want to build it for mac
+          win: false, // We want to build it for win
+          linux32: true, // We don't need linux32
+          linux64: false // We don't need linux64
+      },
+      src: ['./*'] // Your node-wekit app
     }
   });
 
+  //generic
+  grunt.loadNpmTasks('grunt-exec');
+
+  //builds generation
   grunt.loadNpmTasks('grunt-browserify');
+  grunt.loadNpmTasks('grunt-node-webkit-builder');
+
   //release cycle
   grunt.loadNpmTasks('grunt-contrib-uglify');
-
 
   // Task(s).
   grunt.registerTask('test', ['jshint', 'jasmine_node']);
   grunt.registerTask('build', ['jshint', 'jasmine_node','concat','uglify']);
   grunt.registerTask('release', ['concat','uglify','jasmine_node','release']);
   grunt.registerTask('default', ['browserify','uglify']);
+
+  //test for polymer vulcanizer (ie full release)
+  grunt.registerTask('vulcan', ['exec']);
+
+  //should be a sub task/target
+  grunt.registerTask('desktopBuild', ['nodewebkit']);
+
 };
 
 //see https://github.com/jmreidy/grunt-browserify/blob/master/examples/mappings/Gruntfile.js
