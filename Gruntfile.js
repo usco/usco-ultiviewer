@@ -56,10 +56,10 @@ module.exports = function (grunt) {
           build_dir: './build/desktop', // Where the build version of my node-webkit app is saved
           mac: false, // We want to build it for mac
           win: false, // We want to build it for win
-          linux32: true, // We don't need linux32
-          linux64: false // We don't need linux64
+          linux32: false, // We don't need linux32
+          linux64: true // We don't need linux64
       },
-      src: ['./*'] // Your node-wekit app
+      src: ['./bla/**'] // Your node-wekit app
     }
   });
 
