@@ -197,8 +197,8 @@ Polymer('usco-ultiviewer', {
             color: 0xffc200,
             side: THREE.BackSide
           });
-        outline = new THREE.Mesh(curHovered.geometry.clone(), outlineMaterial);
-        outline.scale.multiplyScalar(1.01);
+        outline = new THREE.Mesh(curHovered.geometry, outlineMaterial);
+        outline.scale.multiplyScalar(1.03);
         outline.name = "hoverOutline";
         curHovered.hoverOutline = outline;
         curHovered.add(outline);
@@ -240,9 +240,9 @@ Polymer('usco-ultiviewer', {
           color: 0xff0000,//0xffc200,
           side: THREE.BackSide
         });
-        outline = new THREE.Mesh(newSelection.geometry.clone(), outlineMaterial);
+        outline = new THREE.Mesh(newSelection.geometry, outlineMaterial);
         outline.name = "selectOutline";
-        outline.scale.multiplyScalar(1.01);
+        outline.scale.multiplyScalar(1.02);
         newSelection.outline = outline;
         newSelection.add(outline);
         //newSelection.currentSelectHex = newSelection.material.color.getHex();
