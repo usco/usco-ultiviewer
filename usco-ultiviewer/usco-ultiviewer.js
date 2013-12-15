@@ -1,6 +1,3 @@
-
-
-
 Polymer('usco-ultiviewer', {
   selectedObject : null,
   showGrid: false,
@@ -44,12 +41,13 @@ Polymer('usco-ultiviewer', {
   },
 
   //public api
-  loadResource: function(uri, autoCenter, autoResize, display)
+  loadResource: function(uri, autoCenter, autoResize, display, keepRawData)
   {
       var self = this;
       var autoCenter = autoCenter === undefined ? true: autoCenter;
       var autoResize = autoResize === undefined ? true: autoResize;
       var display = display === undefined ? true: display;
+      var keepRawData = keepRawData === undefined ? true: keepRawData;
 
       var resource = new Resource( uri );
 
@@ -101,9 +99,6 @@ Polymer('usco-ultiviewer', {
           
           shape.meta = {};
           shape.meta.resource = res;
-          //FIXME: should be already in the resource itself
-          shape.meta.resource.uri = uri;
-          
           self.addToScene(shape);
         }
         else
@@ -129,15 +124,13 @@ Polymer('usco-ultiviewer', {
      
             resourceData.meta = {};
             resourceData.meta.resource = res;
-            //FIXME: should be already in the resource itself
-            resourceData.meta.resource.uri = uri;
             self.addToScene(resourceData);
         }
       }
       
       this.resources.push(resource);
-
-      var resourcePromise = this._assetManager.load( uri );//this.$.assetsMgr.read( uri );
+      
+      var resourcePromise = this._assetManager.load( uri, null, {keepRawData:keepRawData} );//this.$.assetsMgr.read( uri );
       if (display) resourcePromise.then(addResource.bind(this));
       resourcePromise.then(resource.onLoaded.bind(resource), null, resource.onDownloadProgress.bind(resource) );
   },
@@ -156,17 +149,43 @@ Polymer('usco-ultiviewer', {
   {
      console.log("downloadTap")
      var link = document.createElement("a");
-		 //link.download = name;
-     //FIXME: if imported object is already a mesh/object 3D , selection is wrong ??
+
+     //TODO: rethink this whole aspect: even when keeping the initial "raw" data
+     //things are a bit convoluted : perhaps an intermediary step would be for the viewer
+     //to be able to act as a "format converter": once we have working "writers/serialisers"
+     //the initial data format would not matter and exporting data would be more clean
      var href = null;
-     if( ! this.selectedObject.meta  )
+     var download = null;
+     
+     //walk up the object tree
+     function findSelectionsResource(object)
      {
-        if(this.selectedObject.parent.meta)
+        var currentObject = object;            
+        while(currentObject)
         {
-          href= this.selectedObject.parent.meta.resource.uri;
+           if (!(!currentObject.meta))
+           {
+              return currentObject;
+           }
+           currentObject= object.parent;
         }
      }
-     else{href = this.selectedObject.meta.resource.uri;}
+     resourceRoot = findSelectionsResource(this.selectedObject);
+
+     if( resourceRoot ) href = resourceRoot.meta.resource.uri;
+      /*var rawData = this.selectedObject.meta.resource.rawData;
+      var name = this.selectedObject.meta.resource.name;
+      var ext = this.selectedObject.meta.resource.name.split(".").pop()
+      if(rawData != null) 
+      {
+
+        var blob = new Blob([rawData],{type : 'application/'+ext})
+        var url = URL.createObjectURL(blob);
+        //var blobURL = window.webkitURL.createObjectURL(blob);
+
+        href = url;//rawData;
+        link.download = name;
+      }*/
      if( ! href) return;
 
 		 link.href = href;
@@ -197,6 +216,16 @@ Polymer('usco-ultiviewer', {
             color: 0xffc200,
             side: THREE.BackSide
           });
+
+        outlineMaterialTest = new THREE.LineBasicMaterial({
+            color: 0xffc200,
+            linewidth: 10
+            //side: THREE.BackSide
+          });
+        outlineMaterialTest = new THREE.MeshBasicMaterial({ 
+            color: 0xffc200,
+            wireframe: true, wireframeLinewidth: 4 ,side: THREE.BackSide} );
+
         outline = new THREE.Mesh(curHovered.geometry, outlineMaterial);
         outline.scale.multiplyScalar(1.03);
         outline.name = "hoverOutline";
