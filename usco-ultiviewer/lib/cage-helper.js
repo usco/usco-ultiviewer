@@ -1,6 +1,93 @@
 
-THREE.BoundingCage = function () {
+/*
+  Made of one main arrow, and two lines perpendicular to the main arrow, at both its ends
+*/
+SizeArrowHelper = function(mainLength, sideLength, color)
+{
+  THREE.Object3D.call( this );
+
+  this.mainLength = mainLength || 10;
+  this.sideLength = sideLength || 2;
+  this.color = color || "#000000" ;
+
+  var mainArrowLeft = new THREE.ArrowHelper2(new THREE.Vector3(1,0,0),new THREE.Vector3(0,0,0),mainLength/2-3 , this.color);
+  var mainArrowRight = new THREE.ArrowHelper2(new THREE.Vector3(-1,0,0),new THREE.Vector3(0,0,0),mainLength/2-3, this.color);
+  this.add( mainArrowLeft );
+  this.add( mainArrowRight );
+
+  var sideLineGeometry = new THREE.Geometry();
+  sideLineGeometry.vertices.push( new THREE.Vector3( 0, 0, 0 ) );
+  sideLineGeometry.vertices.push( new THREE.Vector3( 0, sideLength, 0 ) );
+  
+  var leftSideLine = new THREE.Line( sideLineGeometry, new THREE.LineBasicMaterial( { color: 0x000000,depthTest:false,depthWrite:false,renderDepth : 1e20 } ) );
+  leftSideLine.position.x = -this.mainLength / 2;
+
+  var rightSideLine = new THREE.Line( sideLineGeometry, new THREE.LineBasicMaterial( { color: 0x000000,depthTest:false,depthWrite:false,renderDepth : 1e20 } ) );
+  rightSideLine.position.x = this.mainLength / 2;
+
+  this.add( rightSideLine );
+  this.add( leftSideLine );
 }
+
+SizeArrowHelper.prototype = Object.create( THREE.Object3D.prototype );
+
+
+/*
+  Made of one main arrow, and two lines perpendicular to the main arrow, at both its ends
+*/
+DiameterHelper = function(diameter, color)
+{
+  THREE.Object3D.call( this );
+
+  this.diameter = diameter || 10;
+  this.color = color || "#000000" ;
+
+  var mainArrowLeft = new THREE.ArrowHelper2(new THREE.Vector3(1,0,0),new THREE.Vector3(0,0,0),mainLength/2-3 , this.color);
+  var mainArrowRight = new THREE.ArrowHelper2(new THREE.Vector3(-1,0,0),new THREE.Vector3(0,0,0),mainLength/2-3, this.color);
+  this.add( mainArrowLeft );
+  this.add( mainArrowRight );
+
+  var sideLineGeometry = new THREE.Geometry();
+  sideLineGeometry.vertices.push( new THREE.Vector3( 0, 0, 0 ) );
+  sideLineGeometry.vertices.push( new THREE.Vector3( 0, sideLength, 0 ) );
+  
+  var leftSideLine = new THREE.Line( sideLineGeometry, new THREE.LineBasicMaterial( { color: 0x000000,depthTest:false,depthWrite:false,renderDepth : 1e20 } ) );
+  leftSideLine.position.x = -this.mainLength / 2;
+
+  var rightSideLine = new THREE.Line( sideLineGeometry, new THREE.LineBasicMaterial( { color: 0x000000,depthTest:false,depthWrite:false,renderDepth : 1e20 } ) );
+  rightSideLine.position.x = this.mainLength / 2;
+
+  this.add( rightSideLine );
+  this.add( leftSideLine );
+}
+
+DiameterHelper.prototype = Object.create( THREE.Object3D.prototype );
+
+
+/*----------------------------------------------*/
+
+THREE.BoundingCage = function () {
+
+  var cage = new THREE.Object3D()
+  var lineMat = new THREE.MeshBasicMaterial({color: color, wireframe: true, shading:THREE.FlatShading});
+
+  var delta = middlePoint(mesh.geometry)
+  cage.position = delta
+  
+  var widthArrowPos = new THREE.Vector3( length/2+10, 0, -height/2 )
+  var lengthArrowPos = new THREE.Vector3( 0, width/2+10, -height/2)
+  var heightArrowPos = new THREE.Vector3( -length/2-5,-width/2-5,0)
+
+  dashMaterial = new THREE.LineDashedMaterial( { color: 0x000000, dashSize: 0.5, gapSize: 2, depthTest: false,linewidth:2} )
+  baseCubeGeom = new THREE.CubeGeometry(length,width,0)
+  baseOutline = new THREE.Line( geometryToline(baseCubeGeom.clone()), dashMaterial, THREE.LinePieces )
+  baseOutline.renderDepth = 1e20
+  baseOutline.position = new THREE.Vector3(delta.x,delta.y,-delta.z)
+  cage.add(baseOutline)
+
+}
+
+/*
 
 class BoundingCage extends BaseHelper
     #Draws a bounding box (wireframe) around a mesh, and shows its dimentions
@@ -43,8 +130,6 @@ class BoundingCage extends BaseHelper
         
         delta = middlePoint(mesh.geometry)
         cage.position = delta
-        
-        
         
         widthArrowPos = new THREE.Vector3( length/2+10, 0, -height/2 )
         lengthArrowPos = new THREE.Vector3( 0, width/2+10, -height/2)
@@ -145,19 +230,10 @@ class BoundingCage extends BaseHelper
         heightLineGeometry2.vertices.push( new THREE.Vector3( -length/2-5, -width/2 -5, height/2 ) )
         heightLine2 = new THREE.Line( heightLineGeometry2, new THREE.LineBasicMaterial( { color: 0x000000 } ) )
         
-        
         forceOverlay([heightArrow1,heightArrow2], [heightLine,heightLine2])
         
         cage.add( heightLine)
         cage.add( heightLine2)
-        
-        
-        ###
-        selectionAxis = new THREE.AxisHelper(Math.min(width,length, height))
-        selectionAxis.material.depthTest = false
-        selectionAxis.material.transparent = true
-        selectionAxis.position = mesh.position###
-        #selectionAxis.matrixAutoUpdate = false
         
         dashMaterial = new THREE.LineDashedMaterial( { color: 0x000000, dashSize: 0.5, gapSize: 2, depthTest: false,linewidth:2} )
         baseCubeGeom = new THREE.CubeGeometry(length,width,0)
@@ -182,4 +258,4 @@ class BoundingCage extends BaseHelper
         
         computeVolume(mesh)
         
-      catch error
+      catch error*/

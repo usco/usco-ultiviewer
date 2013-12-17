@@ -36,6 +36,8 @@ Polymer('usco-ultiviewer', {
     this.grid.toggle(this.showGrid)
 	  this.scene.add(this.grid);
 
+    this.dimensionArrowTest = new SizeArrowHelper(100,10);
+    this.scene.add( this.dimensionArrowTest );
     //this.$.assetsMgr.addParser("amf",THREE.AMFParser);
     //this.$.assetsMgr._assetManager.addParser( "amf",THREE.AMFParser);
   },
