@@ -2,13 +2,14 @@
 /*
   Made of one main arrow, and two lines perpendicular to the main arrow, at both its ends
 */
-SizeArrowHelper = function(mainLength, sideLength, color)
+SizeArrowHelper = function(mainLength, sideLength, color, text)
 {
   THREE.Object3D.call( this );
 
   this.mainLength = mainLength || 10;
   this.sideLength = sideLength || 2;
   this.color = color || "#000000" ;
+  this.text = text || this.mainLength;
 
   var mainArrowLeft = new THREE.ArrowHelper2(new THREE.Vector3(1,0,0),new THREE.Vector3(0,0,0),mainLength/2-3 , this.color);
   var mainArrowRight = new THREE.ArrowHelper2(new THREE.Vector3(-1,0,0),new THREE.Vector3(0,0,0),mainLength/2-3, this.color);
@@ -25,8 +26,14 @@ SizeArrowHelper = function(mainLength, sideLength, color)
   var rightSideLine = new THREE.Line( sideLineGeometry, new THREE.LineBasicMaterial( { color: 0x000000,depthTest:false,depthWrite:false,renderDepth : 1e20 } ) );
   rightSideLine.position.x = this.mainLength / 2;
 
+  //draw dimention / text
+  this.label = new THREE.TextDrawHelper().drawTextOnPlane(this.text,45);
+  this.label.position.y = -2;
+
   this.add( rightSideLine );
   this.add( leftSideLine );
+
+  this.add( this.label );
 }
 
 SizeArrowHelper.prototype = Object.create( THREE.Object3D.prototype );
@@ -35,30 +42,63 @@ SizeArrowHelper.prototype = Object.create( THREE.Object3D.prototype );
 /*
   Made of one main arrow, and two lines perpendicular to the main arrow, at both its ends
 */
-DiameterHelper = function(diameter, color)
+DiameterHelper = function(diameter, distance, endLength, color)
 {
   THREE.Object3D.call( this );
 
-  this.diameter = diameter || 10;
+  this.distance = distance || 30;
+  this.diameter = diameter || 20;
+  this.endLength = endLength || 20;
   this.color = color || "#000000" ;
+  this.text = this.diameter;
 
-  var mainArrowLeft = new THREE.ArrowHelper2(new THREE.Vector3(1,0,0),new THREE.Vector3(0,0,0),mainLength/2-3 , this.color);
-  var mainArrowRight = new THREE.ArrowHelper2(new THREE.Vector3(-1,0,0),new THREE.Vector3(0,0,0),mainLength/2-3, this.color);
-  this.add( mainArrowLeft );
-  this.add( mainArrowRight );
+  var material = new THREE.LineBasicMaterial( { color: 0x000000, depthTest:false,depthWrite:false,renderDepth : 1e20});
+ 
+  //center cross
+  var centerCrossSize = 10;
+  var centerCrossGeometry1 = new THREE.Geometry();
+  centerCrossGeometry1.vertices.push( new THREE.Vector3( -centerCrossSize, 0, 0 ) );
+  centerCrossGeometry1.vertices.push( new THREE.Vector3( centerCrossSize, 0, 0 ) );
+  var centerCrossGeometry2 = new THREE.Geometry();
+  centerCrossGeometry2.vertices.push( new THREE.Vector3( 0, -centerCrossSize, 0 ) );
+  centerCrossGeometry2.vertices.push( new THREE.Vector3( 0, centerCrossSize, 0 ) );
+  var centerCross1 = new THREE.Line( centerCrossGeometry1, material );
+  var centerCross2 = new THREE.Line( centerCrossGeometry2, material );
 
-  var sideLineGeometry = new THREE.Geometry();
-  sideLineGeometry.vertices.push( new THREE.Vector3( 0, 0, 0 ) );
-  sideLineGeometry.vertices.push( new THREE.Vector3( 0, sideLength, 0 ) );
+  //draw arrow
+  var arrowOffset = new THREE.Vector3(Math.sqrt(this.distance)*2+this.diameter/2,Math.sqrt(this.distance)*2+this.diameter/2,0);
+  var mainArrow = new THREE.ArrowHelper2(new THREE.Vector3(-1,-1,0),new THREE.Vector3(),this.distance , this.color);
+  mainArrow.position.add(arrowOffset);
+
+  var endLineEndPoint = arrowOffset.clone().add( new THREE.Vector3( this.endLength, 0, 0 ) ) ;
+  var endLineGeometry = new THREE.Geometry();
+  endLineGeometry.vertices.push( arrowOffset );
+  endLineGeometry.vertices.push( endLineEndPoint ); 
+   var endLine = new THREE.Line( endLineGeometry, material );
+
+  //draw dimention / text
+  this.label = new THREE.TextDrawHelper().drawTextOnPlane(this.text,45);
+  this.label.position.add( endLineEndPoint );
+  //TODO: account for size of text instead of these hacks
+  this.label.position.x += 5
+  this.label.position.y -= 2
   
-  var leftSideLine = new THREE.Line( sideLineGeometry, new THREE.LineBasicMaterial( { color: 0x000000,depthTest:false,depthWrite:false,renderDepth : 1e20 } ) );
-  leftSideLine.position.x = -this.mainLength / 2;
+  
+  //draw main circle
+  var circleRadius = this.diameter/2;
+  var circleShape = new THREE.Shape();
+	circleShape.moveTo( 0, 0 );
+	circleShape.absarc( 0, 0, circleRadius, 0, Math.PI*2, false );
+  var points  = circleShape.createSpacedPointsGeometry( 100 );
+  var diaCircle = new THREE.Line(points, material );
 
-  var rightSideLine = new THREE.Line( sideLineGeometry, new THREE.LineBasicMaterial( { color: 0x000000,depthTest:false,depthWrite:false,renderDepth : 1e20 } ) );
-  rightSideLine.position.x = this.mainLength / 2;
-
-  this.add( rightSideLine );
-  this.add( leftSideLine );
+  //add all
+  this.add( diaCircle );
+  this.add( mainArrow );
+  this.add( endLine );
+  this.add( this.label );
+  this.add( centerCross1 );
+  this.add( centerCross2 );
 }
 
 DiameterHelper.prototype = Object.create( THREE.Object3D.prototype );

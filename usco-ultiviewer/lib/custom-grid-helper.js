@@ -1,6 +1,10 @@
 
 THREE.TextDrawHelper = function () {
+  THREE.Object3D.call( this );
 }
+
+THREE.TextDrawHelper.prototype = Object.create( THREE.Object3D.prototype );
+
 
 THREE.TextDrawHelper.prototype.drawText = function(text, displaySize, background, scale) {
   var borderThickness, canvas, context, fontSize, metrics, rect, sprite, spriteMaterial, textWidth, texture;
@@ -49,16 +53,16 @@ THREE.TextDrawHelper.prototype.drawText = function(text, displaySize, background
   return sprite;
 };
 
-THREE.TextDrawHelper.prototype.drawTextOnPlane = function(text, size) {
-  var canvas, context, material, plane, texture;
-  if (size == null) {
-    size = 256;
-  }
+THREE.TextDrawHelper.prototype.drawTextOnPlane = function(text, fontSize) {
+  var canvas, context, material, plane, texture, size;
+  size = 256;
+  
+  var fontSize = fontSize || 18;
   canvas = document.createElement('canvas');
   canvas.width = size;
   canvas.height = size;
   context = canvas.getContext('2d');
-  context.font = "18px sans-serif";
+  context.font = fontSize+"px sans-serif";
   context.textAlign = 'center';
   context.fillStyle = this.textColor;
   context.fillText(text, canvas.width / 2, canvas.height / 2);
@@ -80,8 +84,6 @@ THREE.TextDrawHelper.prototype.drawTextOnPlane = function(text, size) {
   plane.overdraw = true;
   return plane;
 };
-
-THREE.TextDrawHelper.prototype = Object.create( THREE.Object3D.prototype );
 
 
 THREE.CustomGridHelper = function ( size, step , upVector, color, opacity, text, textColor, textPosition) {
@@ -270,8 +272,6 @@ THREE.CustomGridHelper.prototype._drawNumbering = function() {
       //TypeError: Argument 6 is not valid for any of the 6-argument overloads of WebGLRenderingContext.texImage2D.
       //any attempts at rendering a texture from canvas seem to fail as well (sprite material tested as well)
 		      
-		/*var totot =  this.drawTextOnPlane("blabla blabla", 32);
-	  this.mainGrid.add(totot)	*/
 	  
       if (this.labels != null) {
         this.mainGrid.remove(this.labels);
