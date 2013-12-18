@@ -35,20 +35,18 @@
         <div style="cursor:pointer" on-tap="{{onDownloadTap}}" on-mouseDown="{{onDownloadTap}}">Download</div>
       </template>
 
-      <div style="position:absolute;top:0px;right:20px">
-        <div>
-          Fullscreen<input type="checkbox" checked="{{fullScreen}}"> 
-          Grid<input type="checkbox" checked="{{showGrid}}">
-          Axes<input type="checkbox" checked="{{showAxes}}"> 
-          AutoRotate<input type="checkbox" checked="{{autoRotate}}"> 
-        </div>
+      <div id="viewControls" part="viewControls" style="position:absolute;top:20px;right:20px">
+          <input type="checkbox" checked="{{fullScreen}}" id="fullScreen"><label for="fullScreen">Fullscreen</label> 
+          <input type="checkbox" checked="{{showGrid}}" id="grid"><label for="grid">Grid</label> 
+          <input type="checkbox" checked="{{showAxes}}" id="axes"><label for="axes">Axes</label>
+          <input type="checkbox" checked="{{autoRotate}}" id="autoRotate"><label for="autoRotate">AutoRotate</label>
       </div>
 
       <!-- seperate this out to another component ?? -->
-      <div id="resourcesList" style="position:absolute;top:40px;right:20px">
+      <div id="resourcesList" part="resourcesList" style="position:absolute;top:40px;right:20px">
         <template repeat="{{resource in resources}}">
           <template if="{{!resource.loaded}}"> <!-- only display resources info if not yet fully loaded-->
-            <div id="resourceLoading" >Loading: {{resource.name}} Download: {{resource.fetchProgress}} % Total:{{resource.totalDisplaySize}} Loaded:{{resource.loaded}}</div>
+            <div class="resourceLoading" >Loading: {{resource.name}} Download: {{resource.fetchProgress}} % Total:{{resource.totalDisplaySize}} Loaded:{{resource.loaded}}</div>
             <template if="{{resource.totalRawSize > warningSize}}">
               <div style="color:red"> Warning: large file</div>
             </template>

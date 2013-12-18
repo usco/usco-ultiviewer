@@ -35,12 +35,12 @@ Polymer('usco-ultiviewer', {
     this.grid.toggle(this.showGrid)
 	  this.scene.add(this.grid);
 
-    /*experimental
+    /*experimental*/
     this.dimensionArrowTest = new SizeArrowHelper(100,10);
     this.scene.add( this.dimensionArrowTest );
 
     this.diamArrowTest = new DiameterHelper(100,30);
-    this.scene.add( this.diamArrowTest );*/
+    this.scene.add( this.diamArrowTest );
 
     //this.$.assetsMgr.addParser("amf",THREE.AMFParser);
     //this.$.assetsMgr._assetManager.addParser( "amf",THREE.AMFParser);
@@ -73,7 +73,8 @@ Polymer('usco-ultiviewer', {
           geometry.computeFaceNormals();
 
           //var material = new THREE.MeshNormalMaterial();//new THREE.MeshLambertMaterial({ color: 0x00a9ff});//THREE.MeshPhongMaterial( { color: 0x00a9ff, specular: 0xffffff, shininess: 10, shading: THREE.FlatShading} );
-          var material = new THREE.MeshPhongMaterial( { color: 0x00a9ff, specular: 0xffffff, shininess: 10, shading: THREE.FlatShading} );
+          //nice color: 0x00a9ff
+          var material = new THREE.MeshPhongMaterial( { color: 0x17a9f5, specular: 0xffffff, shininess: 10, shading: THREE.FlatShading} );
           var shape = new THREE.Mesh(geometry, material);
 
           //centering hack

@@ -8,11 +8,35 @@
         usco-ultiviewer{
           left:0px;top:0px;width:100%;height:100%;background-color:#ffffff;
         }
-        
+        /*selector for special elements within custom elements*/
+        usco-ultiviewer::part(viewControls) input[type=checkbox] {
+              display:none;
+        }
+        usco-ultiviewer::part(viewControls) input[type=checkbox] + label
+         {
+             background: #3c627a;
+             height: 16px;
+             width: 16px;
+             display:inline-block;
+             padding: 0 0 0 0px;
+
+             /*hide text*/
+            text-indent: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+         }
+         usco-ultiviewer::part(viewControls) input[type=checkbox]:checked + label
+          {
+              background: #17a9f5;
+              height: 16px;
+              width: 16px;
+              display:inline-block;
+              padding: 0 0 0 0px;
+          }
       </style>
   </head>
 <body>
-  <usco-ultiviewer orientation="diagonal" showShadows  postProcess></usco-ultiviewer>
+  <usco-ultiviewer orientation="diagonal" showShadows postProcess></usco-ultiviewer>
 
   <script>
     window.addEventListener('WebComponentsReady', function() {
