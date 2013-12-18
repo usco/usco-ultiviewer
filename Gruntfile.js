@@ -35,18 +35,38 @@ module.exports = function (grunt) {
       }
     },
     uglify: {
-      options: {
-        banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
-      },
-      dist: {
-        files: {
-          'public/<%= pkg.name %>.min.js': ['public/main.js']
+      main:{
+        options: {
+          banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+        },
+        dist: {
+          files: {
+            'public/<%= pkg.name %>.min.js': ['public/main.js']
+          }
         }
+      },
+      integration:
+      {
+        options:{
+          //compress:true,
+          //sourceMap:'build/integration/usco-ultiviewer.js.map',
+          //sourceMappingURL:'/'
+          //sourceMapIn:'build/integration/platform.js.map'
+        },
+        files: {
+            'build/integration/usco-ultiviewer.min.js': ['build/integration/usco-ultiviewer.js'],
+            'build/integration/platform.min.js': ['build/integration/platform.js']
+          }
       }
     },
     exec: {
       vulcan: {
-        command: 'vulcanize -i index.html -o build/build.html',
+        command: 'vulcanize --csp -i index.html -o build/build.html',
+        stdout: true,
+        stderr: true
+      },
+      integration: {
+        command: 'vulcanize --csp -i smoke.html -o build/integration/usco-ultiviewer.html',
         stdout: true,
         stderr: true
       }
@@ -59,19 +79,66 @@ module.exports = function (grunt) {
           linux32: false, // We don't need linux32
           linux64: true // We don't need linux64
       },
-      src: ['./bla/**'] // Your node-wekit app
-    }
+      src: ['./release/**'] // Your node-wekit app
+    },
+    replace: {
+      integration:{
+        src: ['build/integration/usco-ultiviewer.html'],
+        dest: 'build/integration/usco-ultiviewer.html', 
+        replacements: [
+            {from:'../components/platform', to:''},
+            {from: '../components/',      to: ''}, 
+            {from: 'usco-ultiviewer.js',      to: 'usco-ultiviewer.min.js'}, 
+            ] 
+      },    
+      testing:{
+        src: ['components/platform/platform.js'],
+        dest: 'components/platform/platform_.js',  
+        replacements: [{ 
+              from: 'global',                   // string replacement
+              to: 'fakeGlobal' 
+            }] 
+       }
+    },
+    copy: {
+      integration: {
+        files:[
+        //{src: 'components/platform/platform.js.map',dest: 'build/integration/platform.js.map'} ,
+        {src: 'components/platform/platform.js',dest: 'build/integration/platform.js'} ,
+       ]
+     },
+    },
+
+    htmlmin: {                                     
+    integration: {                                      
+      options: {                                 
+      },
+      files: {                                   // Dictionary of files
+        'build/integration/usco-ultiviewer.html': 'build/integration/usco-ultiviewer.html',   
+      }
+    },
+  },
+  clean:{
+    integration:["build/integration"],
+    postIntegration:["build/integration/platform.js","build/integration/usco-ultiviewer.js"]     
+  }
+
   });
 
   //generic
   grunt.loadNpmTasks('grunt-exec');
+  grunt.loadNpmTasks('grunt-text-replace');
+  grunt.loadNpmTasks('grunt-contrib-clean');
 
   //builds generation
+  grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-node-webkit-builder');
 
   //release cycle
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-htmlmin');
 
   // Task(s).
   grunt.registerTask('test', ['jshint', 'jasmine_node']);
@@ -84,6 +151,10 @@ module.exports = function (grunt) {
 
   //should be a sub task/target
   grunt.registerTask('desktopBuild', ['nodewebkit']);
+
+  //integration
+  grunt.registerTask('fullbuild', ['clean:integration', 'copy:integration','exec:integration','replace:integration','uglify:integration','clean:postIntegration']);
+  //issues with ,'htmlmin:integration'
 
 };
 
