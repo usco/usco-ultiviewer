@@ -1,7 +1,6 @@
 Polymer('usco-ultiviewer', {
   selectedObject : null,
   showGrid: false,
-
   resources : [], //TODO: move this to asset manager ??
   created: function()
   {
@@ -36,11 +35,13 @@ Polymer('usco-ultiviewer', {
     this.grid.toggle(this.showGrid)
 	  this.scene.add(this.grid);
 
+    /*experimental
     this.dimensionArrowTest = new SizeArrowHelper(100,10);
     this.scene.add( this.dimensionArrowTest );
 
     this.diamArrowTest = new DiameterHelper(100,30);
-    this.scene.add( this.diamArrowTest );
+    this.scene.add( this.diamArrowTest );*/
+
     //this.$.assetsMgr.addParser("amf",THREE.AMFParser);
     //this.$.assetsMgr._assetManager.addParser( "amf",THREE.AMFParser);
   },
