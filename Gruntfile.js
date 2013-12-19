@@ -1,7 +1,16 @@
 
 module.exports = function (grunt) {
+
+
+  //different builds:
+  // browser, standalone
+  // browser, integration
+  // desktop
+  // node.js 
+
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+
     browserify: {
       basic: {
         src: ['node_modules/usco-assetmanager/src/assetManager.coffee',
@@ -60,7 +69,7 @@ module.exports = function (grunt) {
       }
     },
     exec: {
-      vulcan: {
+      standalone: {
         command: 'vulcanize --csp -i index.html -o build/build.html',
         stdout: true,
         stderr: true
@@ -73,13 +82,14 @@ module.exports = function (grunt) {
     },
     nodewebkit: {
       options: {
-          build_dir: './build/desktop', // Where the build version of my node-webkit app is saved
+          version:"0.8.2",// 0.6.3 works with polymer , does not work from 0.7.0 onwards
+          build_dir: 'build/desktop', // Where the build version of my node-webkit app is saved
           mac: false, // We want to build it for mac
           win: false, // We want to build it for win
           linux32: false, // We don't need linux32
           linux64: true // We don't need linux64
       },
-      src: ['./release/**'] // Your node-wekit app
+      src: ['build/**'] // Your node-wekit app
     },
     replace: {
       integration:{
@@ -152,9 +162,13 @@ module.exports = function (grunt) {
   //should be a sub task/target
   grunt.registerTask('desktopBuild', ['nodewebkit']);
 
-  //integration
-  grunt.registerTask('fullbuild', ['clean:integration', 'copy:integration','exec:integration','replace:integration','uglify:integration','clean:postIntegration']);
-  //issues with ,'htmlmin:integration'
+  //integration build
+  grunt.registerTask('integrationbuild', ['clean:integration', 'copy:integration','exec:integration','replace:integration','uglify:integration','clean:postIntegration']);//issues with ,'htmlmin:integration'
+
+  //desktop build
+  grunt.registerTask('desktopbuild', ['clean:integration', 'copy:integration','exec:standalone','replace:integration','uglify:integration','clean:postIntegration']);
+
+  
 
 };
 
