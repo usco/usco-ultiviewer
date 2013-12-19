@@ -5,6 +5,11 @@
       <link rel="import" href="components/polymer/polymer.html">
       <link rel="import" href="usco-ultiviewer/usco-ultiviewer.html">
       <style>
+
+        .error{
+          color:red;
+        }
+
         usco-ultiviewer{
           left:0px;top:0px;width:100%;height:100%;background-color:#ffffff;
         }
@@ -44,14 +49,17 @@
 
       var currentUrl = window.location.origin;
 
+      //pseudo tests: TODO: find a way to do actual unit tests
+      ultiViewer.loadResource(currentUrl+"/demo-data/design.dae");
+
       //stl files
       //ultiViewer.loadResource(currentUrl+"/demo-data/pr2_head_tilt.stl");
       //ultiViewer.loadResource(currentUrl+"/demo-data/femur.stl");
       //ultiViewer.loadResource(currentUrl+"/demo-data/pr2_head_pan.stl");
       //ultiViewer.loadResource(currentUrl+"/demo-data/UM2CableChain_BedEnd.STL");
-      ultiViewer.loadResource(currentUrl+"/demo-data/UM2CableChain_ChainSegment.STL");
+      //ultiViewer.loadResource(currentUrl+"/demo-data/UM2CableChain_ChainSegment.STL");
       //ultiViewer.loadResource("https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/1609/10mm_Shaft_bearing_mount__lower__A_v3.stl");
-     // ultiViewer.loadResource("https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/1078/Extruder_Big_Gear_V1.stl");
+      ultiViewer.loadResource("https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/1078/Extruder_Big_Gear_V1.stl");
 
 
       //obj files
@@ -62,7 +70,7 @@
         
       //ply files
       //preload ??
-      ultiViewer.loadResource(currentUrl+"/demo-data/dolphins.ply",true,true,false);
+      //ultiViewer.loadResource(currentUrl+"/demo-data/dolphins.ply",true,true,false);
       setTimeout(function(){
 
           //ultiViewer.loadResource(currentUrl+"/demo-data/dolphins.ply",true,true,true);

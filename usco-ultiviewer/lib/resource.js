@@ -2,6 +2,7 @@ function Resource(uri)
 {
   this.uri = uri;
   this.name = uri.split("/").pop();
+  this.ext = this.name.split(".").pop();
   this.fetchProgress = 10;
   this.parseProgress = 0;
   this.totalRawSize = 0;
@@ -9,6 +10,8 @@ function Resource(uri)
   //temporary, this needs to be a filter
   this.totalDisplaySize = "";
   this.loaded = false;
+
+  this.error = null;
 }
 
 Resource.prototype.onLoaded = function()

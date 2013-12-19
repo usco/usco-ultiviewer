@@ -36,16 +36,20 @@ Polymer('usco-ultiviewer', {
 	  this.scene.add(this.grid);
 
     /*experimental*/
+    /*
     this.dimensionArrowTest = new SizeArrowHelper(100,10);
     this.scene.add( this.dimensionArrowTest );
 
     this.diamArrowTest = new DiameterHelper(100,30);
-    this.scene.add( this.diamArrowTest );
+    this.scene.add( this.diamArrowTest );*/
 
     //this.$.assetsMgr.addParser("amf",THREE.AMFParser);
     //this.$.assetsMgr._assetManager.addParser( "amf",THREE.AMFParser);
   },
-
+  leftView:function()
+  {
+    //alert("left view")
+  },
   //public api
   loadResource: function(uri, autoCenter, autoResize, display, keepRawData)
   {
@@ -135,11 +139,24 @@ Polymer('usco-ultiviewer', {
         }
       }
       
+      function loadFailed(res)
+      {
+        //console.log("load failed",res.error);
+        //TODO: do this cleanly via type checking or somethg
+        var error = res.error;
+        if( error.indexOf("No parser found") != -1)
+        {
+          error = "sorry, the "+resource.ext+" format is not supported";
+        }
+        resource.error = error;
+      }
+
       this.resources.push(resource);
       
       var resourcePromise = this._assetManager.load( uri, null, {keepRawData:keepRawData} );//this.$.assetsMgr.read( uri );
+      //console.log("resourcePromise",resourcePromise)
       if (display) resourcePromise.then(addResource.bind(this));
-      resourcePromise.then(resource.onLoaded.bind(resource), null, resource.onDownloadProgress.bind(resource) );
+      resourcePromise.then(resource.onLoaded.bind(resource), loadFailed, resource.onDownloadProgress.bind(resource) );
   },
   //event handlers
   onLongstatictap:function(event)
@@ -199,6 +216,11 @@ Polymer('usco-ultiviewer', {
 		 link.click();
      event.preventDefault();
      event.stopPropagation();
+  },
+  dismissResource:function(event, detail, sender) {
+    var model = sender.templateInstance.model.resource;
+    var index = this.resources.indexOf(model);
+    if (index > -1) this.resources.splice(index, 1);
   },
   //attribute change handlers
   showGridChanged:function(){this.grid.toggle(this.showGrid)},
