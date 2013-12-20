@@ -152,7 +152,7 @@ module.exports = function (grunt) {
 
   // Task(s).
   grunt.registerTask('test', ['jshint', 'jasmine_node']);
-  grunt.registerTask('build', ['jshint', 'jasmine_node','concat','uglify']);
+  grunt.registerTask('__build', ['jshint', 'jasmine_node','concat','uglify']);
   grunt.registerTask('release', ['concat','uglify','jasmine_node','release']);
   grunt.registerTask('default', ['browserify','uglify']);
 
@@ -162,13 +162,17 @@ module.exports = function (grunt) {
   //should be a sub task/target
   grunt.registerTask('desktopBuild', ['nodewebkit']);
 
+  //various build
+
   //integration build
   grunt.registerTask('integrationbuild', ['clean:integration', 'copy:integration','exec:integration','replace:integration','uglify:integration','clean:postIntegration']);//issues with ,'htmlmin:integration'
 
   //desktop build
   grunt.registerTask('desktopbuild', ['clean:integration', 'copy:integration','exec:standalone','replace:integration','uglify:integration','clean:postIntegration']);
 
-  
+
+
+
 
 };
 

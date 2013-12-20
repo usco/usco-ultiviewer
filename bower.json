@@ -5,9 +5,10 @@
   "dependencies": {
     "platform": "Polymer/platform#master",
     "polymer": "Polymer/polymer#master",
+
+    "file-saver"    : "eligrey/FileSaver.js",
     "usco-viewer-base": "usco/usco-viewer-base#master",
     "asset-manager": "usco/usco-asset-manager#master",
-
     "usco-xhr-store": "usco/usco-xhr-store#master",
     "usco-stl-parser": "usco/usco-stl-parser#master"
   }
