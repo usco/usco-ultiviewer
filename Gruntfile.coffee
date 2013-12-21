@@ -55,7 +55,7 @@ module.exports = (grunt) ->
 
     exec:
       standalone:
-        command: "vulcanize --csp -i index.html -o build/<%= currentBuild %>/index.html"
+        command: "vulcanize -i index.html -o build/<%= currentBuild %>/index.html"
         stdout: true
         stderr: true
 
@@ -66,13 +66,14 @@ module.exports = (grunt) ->
 
     nodewebkit:
       options:
-        version: "0.8.2" # 0.6.3 works with polymer , does not work from 0.7.0 onwards
+        version: "0.6.3" #0.8.2 0.6.3 works with polymer but unresolved does not get removed, does not work from 0.7.0 onwards, 0.8.2 works only partially (wrong order of events)
         build_dir: "_tmp/desktop" # Where the build version of my node-webkit app is saved
         mac: false # We want to build it for mac
         win: false # We want to build it for win
         linux32: false # We don't need linux32
         linux64: true # We don't need linux64
-      src: ["build/<%= currentBuild %>/*"] # Your node-wekit app
+        keep_nw: true
+      src: ["build/<%= currentBuild %>/**"] # Your node-wekit app
 
     replace:
       integration:
@@ -89,6 +90,26 @@ module.exports = (grunt) ->
           to: "usco-ultiviewer.min.js"
         ]
 
+      bla:
+        src: ["build/<%= currentBuild %>/index.html"]
+        overwrite:true
+        replacements: [
+          from: "../../components/platform/"
+          to: ""
+        ,
+          from: "../components/"
+          to: ""
+
+        ]
+
+      bli:
+        src: ['components/platform/platform.js']
+        dest: 'components/platform/platform_.js',  
+        replacements: [
+              from: 'global',                 
+              to: 'fakeGlobal' 
+        ] 
+
       standalone:
         src: ["build/<%= currentBuild %>/platform.js"]
         dest: "build/<%= currentBuild %>/platform.js"
@@ -96,6 +117,7 @@ module.exports = (grunt) ->
           from: "global" # string replacement
           to: "fakeGlobal"
         ]
+        
 
     copy:
       integration:
@@ -106,6 +128,7 @@ module.exports = (grunt) ->
         ]
       standalone:
         files: [
+          {src: 'components/platform/platform.js.map',dest: 'build/<%= currentBuild %>/platform.js.map'}
           src: "components/platform/platform.js"
           dest: "build/<%= currentBuild %>/platform.js"
         ]
@@ -113,6 +136,8 @@ module.exports = (grunt) ->
         files: [
           src: "package.json"
           dest: "build/<%= currentBuild %>/package.json"
+          {src: ['demo-data/**'], dest: 'build/<%= currentBuild %>/'}
+          #{expand: true, src: ['components/**'], dest: 'build/<%= currentBuild %>'}
         ]
       desktopFinal:
         files: [
@@ -146,24 +171,20 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks "grunt-text-replace"
   grunt.loadNpmTasks "grunt-contrib-clean"
   
-  
   #builds generation
   grunt.loadNpmTasks "grunt-browserify"
   grunt.loadNpmTasks "grunt-node-webkit-builder"
-  
-  #release cycle
   grunt.loadNpmTasks "grunt-contrib-uglify"
   grunt.loadNpmTasks "grunt-contrib-htmlmin"
+  
+  #release cycle
+
   
   # Task(s).
   grunt.registerTask "test", ["jshint", "jasmine_node"]
   grunt.registerTask "release", ["concat", "uglify", "jasmine_node", "release"]
-  grunt.registerTask "default", ["browserify", "uglify"]
+  grunt.registerTask "core", ["browserify", "uglify"]
   
-
-  #integration build
-  grunt.registerTask "integrationbuild", ["clean:integration", "copy:integration", "exec:integration", "replace:integration", "uglify:integration", "clean:postIntegration"] #issues with ,'htmlmin:integration'
-
   #Builds
   @registerTask 'build', 'Build usco-viewer for the chosen target/platform etc', (target = 'browser', subTarget='standalone') =>
     minify = grunt.option('minify');
@@ -178,10 +199,12 @@ module.exports = (grunt) ->
 
     if minify
       @task.run "uglify:#{subTarget}"
+      #issues with ,'htmlmin:integration'
       postClean = subTarget[0].toUpperCase() + subTarget[1..-1].toLowerCase()
       @task.run "clean:post#{postClean}"
 
     if target is 'desktop'
+      @task.run "replace:bla"
       @task.run "copy:desktop"
       @task.run "nodewebkit"
       @task.run "rename:desktopFinal"

@@ -1,7 +1,8 @@
 <html>
   <head>
-    <title>UltiViewer example</title>
-      <script src="components/platform/platform.js"></script>
+    <meta charset="utf-8">
+    <title>Example</title>
+      <script src="components/platform/platform_.js"></script>
       <link rel="import" href="components/polymer/polymer.html">
       <link rel="import" href="usco-ultiviewer/usco-ultiviewer.html">
       <style>
@@ -38,6 +39,22 @@
               display:inline-block;
               padding: 0 0 0 0px;
           }
+
+          /* flash of u content prevention*/
+          :unresolved {
+            /*display: flex;
+            justify-content: center;
+            background: rgba(255,255,255,0.5);
+            border: 1px dashed #ccc;
+            border-radius: 5px;*/
+          }
+          :unresolved:after {
+            padding: 15px;
+            content: 'loading...';
+            color: #ccc;
+          }
+
+      
       </style>
   </head>
 <body>
@@ -45,12 +62,18 @@
 
   <script>
     window.addEventListener('WebComponentsReady', function() {
+
+      console.log("web components ready");
+      document.body.style.opacity = 1; // show body now that registration is done.
 	    var ultiViewer = document.querySelector('usco-ultiviewer');
+      //workaround for node-webkit 0.6.3      
+      ultiViewer.style.opacity = 1;
+      //ultiViewer.className = ultiViewer.className.replace( /(?:^|\s)unresolved(?!\S)/ , '' )
 
       var currentUrl = window.location.origin;
 
       //pseudo tests: TODO: find a way to do actual unit tests
-      ultiViewer.loadResource(currentUrl+"/demo-data/design.dae");
+      //ultiViewer.loadResource(currentUrl+"/demo-data/design.dae");
 
       //stl files
       //ultiViewer.loadResource(currentUrl+"/demo-data/pr2_head_tilt.stl");
