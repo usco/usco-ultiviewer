@@ -181,9 +181,9 @@ module.exports = (grunt) ->
 
   
   # Task(s).
-  grunt.registerTask "test", ["jshint", "jasmine_node"]
-  grunt.registerTask "release", ["concat", "uglify", "jasmine_node", "release"]
-  grunt.registerTask "core", ["browserify", "uglify"]
+  #grunt.registerTask "test", ["jshint", "jasmine_node"]
+  #grunt.registerTask "release", ["concat", "uglify", "jasmine_node", "release"]
+  grunt.registerTask "core", ["browserify", "uglify:main"]
   
   #Builds
   @registerTask 'build', 'Build usco-viewer for the chosen target/platform etc', (target = 'browser', subTarget='standalone') =>
