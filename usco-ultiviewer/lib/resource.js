@@ -1,8 +1,11 @@
 function Resource(uri)
 {
   this.uri = uri;
-  this.name = uri.split("/").pop();
-  this.ext = this.name.split(".").pop();
+  var _uriElems = uri.split("?")
+  this.name = _uriElems.shift().split("/").pop();
+  this.ext = this.name.split(".").pop().toLowerCase();
+  this.queryParams = _uriElems.pop();
+  //console.log("params", this.queryParams,"name:",this.name,"ext",this.ext)
   this.fetchProgress = 10;
   this.parseProgress = 0;
   this.totalRawSize = 0;
