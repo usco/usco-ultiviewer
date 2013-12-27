@@ -1,3 +1,4 @@
+
 Polymer('usco-ultiviewer', {
   selectedObject : null,
   showGrid: false,
@@ -223,6 +224,62 @@ Polymer('usco-ultiviewer', {
     var index = this.resources.indexOf(model);
     if (index > -1) this.resources.splice(index, 1);
   },
+  handleDragOver:function(e) {
+    if (e.preventDefault) {
+      e.preventDefault();
+    }
+    //console.log("drag over")
+  },
+  handleDragEnter:function(e) {
+    //console.log("drag enter")
+  },
+  handleDragLeave:function(e) {
+    //console.log("drag leave")
+  },
+  handleDrop:function(e) {
+    //this.classList.remove('over');  // this / e.target is previous target element.
+     if (e.preventDefault) {
+      e.preventDefault(); // Necessary. Allows us to drop.
+    }
+    console.log("drag drop",e.dataTransfer);
+    var data=e.dataTransfer.getData("Text");
+    console.log("data",data)
+    if(data)
+    {
+      this.loadResource(data);
+    }
+    
+    //we have files (desktop dnd)
+    var files = e.dataTransfer.files;
+    console.log("files",files);
+    if (!(window.File && window.FileReader && window.FileList && window.Blob)) {
+      console.log('The File APIs are not fully supported in this browser.');
+      //TODO: handle error
+    }
+    else {
+      var self= this;
+      for (var i = 0, f; f = files[i]; i++) {
+        var reader = new FileReader();
+        var fileName = f.name;
+        console.log("here",f)
+        reader.onload = function(e){
+          console.log("pouet")
+          var geometry=  self._assetManager.parsers["stl"].parse(e.target.result);
+          var material = new THREE.MeshPhongMaterial( { color: 0x17a9f5, specular: 0xffffff, shininess: 10, shading: THREE.FlatShading} );
+          var shape = new THREE.Mesh(geometry, material);
+          self.addToScene(shape);
+        }
+
+        reader.onprogress = function(e){
+          if (e.lengthComputable) {
+            var percentage = Math.round((e.loaded * 100) / e.total);
+            console.log( 'Loaded : '+percentage+'%'+' of '+fileName);
+          }  
+        }
+        reader.readAsBinaryString(f);
+      }
+    }
+  },
   //attribute change handlers
   showGridChanged:function(){this.grid.toggle(this.showGrid)},
   highlightedObjectChanged:function(oldHovered)
@@ -308,9 +365,5 @@ Polymer('usco-ultiviewer', {
         //newSelection.material.color.setHex(0xff5400);
     }
   },
-  //helpers
-  _associateResourceWithInstance:function()
-  {
 
-  }
 });
