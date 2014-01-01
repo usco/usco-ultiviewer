@@ -16,13 +16,13 @@ module.exports = (grunt) ->
     currentBuild: null
     browserify:
       basic:
-        src: ["node_modules/usco-assetmanager/src/assetManager.coffee", "node_modules/usco-xhr-store/src/xhrStore.coffee", "node_modules/usco-stl-parser/STLParser.js", "node_modules/usco-amf-parser/AMFParser_stream.js", "node_modules/usco-obj-parser/OBJParser.js", "node_modules/usco-ply-parser/PLYParser.js"]
+        src: ["node_modules/usco-assetmanager/src/assetManager.coffee", "node_modules/usco-xhr-store/src/xhrStore.coffee", "node_modules/usco-stl-parser/STLParser.js", "node_modules/usco-amf-parser/AMFParser_stream.js", "node_modules/usco-obj-parser/OBJParser.js", "node_modules/usco-ply-parser/PLYParser.js","node_modules/usco-ctm-parser/CTMParser.js"]
         dest: "public/main.js"
         options:
-          transform: ["coffeeify"]
+          transform: ["coffeeify","workerify"]
           ignore: ["three"]
           external: []
-          alias: ["node_modules/usco-assetmanager/src/assetManager.coffee:assetManager", "node_modules/usco-xhr-store/src/xhrStore.coffee:usco-xhr-store", "node_modules/usco-stl-parser/STLParser.js:usco-stl-parser", "node_modules/usco-amf-parser/AMFParser_stream.js:usco-amf-parser", "node_modules/usco-obj-parser/OBJParser.js:usco-obj-parser", "node_modules/usco-ply-parser/PLYParser.js:usco-ply-parser"]
+          alias: ["node_modules/usco-assetmanager/src/assetManager.coffee:assetManager", "node_modules/usco-xhr-store/src/xhrStore.coffee:usco-xhr-store", "node_modules/usco-stl-parser/STLParser.js:usco-stl-parser", "node_modules/usco-amf-parser/AMFParser_stream.js:usco-amf-parser", "node_modules/usco-obj-parser/OBJParser.js:usco-obj-parser", "node_modules/usco-ply-parser/PLYParser.js:usco-ply-parser","node_modules/usco-ctm-parser/CTMParser.js:usco-ctm-parser"]
           aliasMappings: [
             cwd: "shared"
             src: ["**/*.js"]

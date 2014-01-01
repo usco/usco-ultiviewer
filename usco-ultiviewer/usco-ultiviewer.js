@@ -12,6 +12,7 @@ Polymer('usco-ultiviewer', {
     var amfParser = require("usco-amf-parser");
     var objParser = require("usco-obj-parser");
     var plyParser = require("usco-ply-parser");
+    var ctmParser = require("usco-ctm-parser");
     //console.log("AssetManager",AssetManager, "xhrStore",xhrStore)
     //console.log("stlParser", stlParser, "amfParser",amfParser );
 
@@ -21,6 +22,7 @@ Polymer('usco-ultiviewer', {
     this._assetManager.addParser("amf", amfParser );
     this._assetManager.addParser("obj", objParser );
     this._assetManager.addParser("ply", plyParser );
+    this._assetManager.addParser("ctm", ctmParser );
   
     this.warningSize = 100000;//byte size above which to display a warning to the user
     this.minObjectSize = 40;//minimum size (in arbitrarty/opengl units) before requiring re-scaling (upwards)

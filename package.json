@@ -22,7 +22,8 @@
     "usco-stl-parser": "git://github.com/usco/usco-stl-parser",
     "usco-amf-parser": "git://github.com/usco/usco-amf-parser",
     "usco-obj-parser": "git://github.com/usco/usco-obj-parser",
-    "usco-ply-parser": "git://github.com/usco/usco-ply-parser"
+    "usco-ply-parser": "git://github.com/usco/usco-ply-parser",
+    "usco-ctm-parser": "git://github.com/usco/usco-ctm-parser"
   },
   "devDependencies": {
     "http-server": "~0.5.5",
@@ -31,6 +32,7 @@
     "grunt-browserify": "~1.2.12",
     "browserify": "~2.36.1",
     "coffeeify": "~0.5.2",
+    "workerify": "~0.2.3",
     "grunt-contrib-uglify": "~0.2.7",
     "grunt-usemin": "~2.0.2",
     "grunt-node-webkit-builder": "~0.1.13",
