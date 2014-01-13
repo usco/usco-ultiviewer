@@ -34,6 +34,11 @@ on-dragleave="{{handleDragLeave}}" on-drop="{{handleDrop}}">
           <input type="checkbox" checked="{{showGrid}}" id="grid"><label for="grid">Grid</label> 
           <input type="checkbox" checked="{{showAxes}}" id="axes"><label for="axes">Axes</label>
           <input type="checkbox" checked="{{autoRotate}}" id="autoRotate"><label for="autoRotate">AutoRotate</label>
+          <button id="centerView" on-click="{{centerView}}"><label for="centerView">CenterView</label>
+          <button id="rotateLeft" on-click="{{rotateViewLeft}}" ><label for="rotateLeft">RotateLeft</label>
+          <button id="rotateRight" on-click="{{rotateViewRight}}"><label for="rotateRight">RotateRight</label>
+          <button id="rotateUp" on-click="{{rotateViewUp}}">  <label for="rotateUp">RotateUp</label>
+          <button id="rotateDown" on-click="{{rotateViewDown}}"><label for="rotateDown">RotateDown</label>
       </div>
 
       <!-- seperate this out to another component ?? -->

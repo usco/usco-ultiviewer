@@ -367,5 +367,22 @@ Polymer('usco-ultiviewer', {
         //newSelection.material.color.setHex(0xff5400);
     }
   },
+  //FIXME: for some reason, cannot bind the camera's methods? these are cumbersom
+  centerView:function(){
+    //this.controls.object.sub( );// = new THREE.Vector3();
+    //this.camera.centerView();
+  },
+  rotateViewLeft:function(){
+    //this.camera.rotateViewLeft();
+  },
+  rotateViewRight:function(){
+    //this.camera.rotateViewRight();
+  },
+  rotateViewUp:function(){
+    //this.camera.rotateViewUp();
+  },
+  rotateViewDown:function(){
+    //this.camera.rotateViewDown();
+  },
 
 });
