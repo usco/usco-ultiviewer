@@ -5,6 +5,7 @@
 <!--<link rel="import" href="../components/asset-manager/element/asset-manager.html">-->
 <link rel="import" href="../components/usco-viewer-base/three-viewer.html">
 <link rel="import" href="../components/polymer/polymer.html">
+<link rel="import" href="../components/polymer-ui-accordion/polymer-ui-accordion.html">
 
 <script src="../public/main.js"></script>
 
@@ -61,10 +62,24 @@ on-dragleave="{{handleDragLeave}}" on-drop="{{handleDrop}}">
         <button id="zoomOut" on-holdpulse="{{zoomViewOut}}" on-click="{{zoomViewOut}}"/><label for="zoomOut">-</label>
       </div>
 
-      <div id="viewHelpers" part="viewHelpers" style="position:absolute;top:20px;right:20px">
-          <input type="checkbox" checked="{{showGrid}}" id="gridToggle" class="gridToggle"><label for="gridToggle"><span>Grid</span></label> 
-          <input type="checkbox" checked="{{showAxes}}" id="axesToggle" class="axesToggle"><label for="axesToggle"><span>Axes</span></label>
-      </div>
+      <polymer-ui-accordion  selectedClass="polymer-ui-collapsible-selected" style="position:absolute;top:20px;right:20px" part="viewHelpers">
+        <polymer-ui-collapsible >
+          <div class="polymer-ui-collapsible-header">
+            <span class="collapsible-header-arrow"></span>View Settings
+          </div>
+          <div class="content">
+            <div class="accordion-item-inner">
+            <input type="checkbox" checked="{{showGrid}}" id="gridToggle" class="gridToggle"><label for="gridToggle"><span>Grid</span></label> 
+            </div>
+            <div class="accordion-item-inner">
+              <input type="checkbox" checked="{{showAxes}}" id="axesToggle" class="axesToggle"><label for="axesToggle"><span>Axes</span></label>
+            </div>
+          </div>
+        </polymer-ui-collapsible>
+  
+      </polymer-ui-accordion>
+      <!--<div id="viewHelpers" part="viewHelpers" style="position:absolute;top:20px;right:20px">
+      </div>-->
 
       <div id="viewControls" part="viewControls" style="position:absolute;bottom:40px;right:20px">
         <input type="checkbox" checked="{{autoRotate}}" id="autoRotate" class="autoRotate"><label for="autoRotate"><span>AutoRotate</span></label>

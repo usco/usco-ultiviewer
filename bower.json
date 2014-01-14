@@ -6,6 +6,10 @@
     "platform": "Polymer/platform#master",
     "polymer": "Polymer/polymer#master",
 
+    "polymer-ui-accordion":"Polymer/polymer-ui-accordion#master",
+
+    "polymer-ui-collapsible":"kaosat-dev/polymer-ui-collapsible#master",
+
     "file-saver"    : "eligrey/FileSaver.js",
     "usco-viewer-base": "usco/usco-viewer-base#master",
     "asset-manager": "usco/usco-asset-manager#master",
