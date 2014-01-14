@@ -23,23 +23,37 @@
         usco-ultiviewer::part(viewHelpers) input[type="checkbox"] + label
         {
              background: #494949;
+            color:white;
              height: 16px;
              width: 16px;
              display:inline-block;
              padding: 0 0 0 0px;
+            text-align:center;
 
-             /*hide text*/
-            text-indent: 100%;
-            white-space: nowrap;
-            overflow: hidden;
+            line-height:16px;
+            
          }
          usco-ultiviewer::part(viewHelpers) input[type=checkbox]:checked + label
           {
               background: #17a9f5;
-              height: 16px;
-              width: 16px;
-              display:inline-block;
-              padding: 0 0 0 0px;
+          }
+          usco-ultiviewer::part(viewHelpers) input[type=checkbox] + label > span
+          {
+            display:none;
+          }
+
+          usco-ultiviewer::part(viewHelpers) input.gridToggle[type="checkbox"] + label:before
+         {
+            font-family: 'FontAwesome';
+            font-size: 12px;
+            content:"\f00a";
+          }
+
+           usco-ultiviewer::part(viewHelpers) input.axesToggle[type="checkbox"] + label:before
+         {
+            font-family: 'FontAwesome';
+            font-size: 12px;
+            content:"\f047";
           }
 
         /****/
@@ -88,9 +102,11 @@
             content:"\f01e";
           }
 
+
+
+          /*all camera controls*/
           usco-ultiviewer::part(cameraControls)
           {
-            background: #494949;
             color:white;
           }
 
@@ -107,6 +123,24 @@
             font-weight:bold;
           }
 
+        usco-ultiviewer::part(cameraControls) button + label > span
+        {
+          /*hide text*/
+          display:none;
+        }
+
+          usco-ultiviewer::part(cameraControls) table
+          {
+            border-collapse: collapse;
+          }
+
+
+          usco-ultiviewer::part(cameraControls) th, td
+          {
+            padding: 0;
+          }
+  
+
           usco-ultiviewer::part(cameraControls) label
           {
             /*hide text*/
@@ -115,17 +149,60 @@
             overflow: hidden;
           }
 
+           #centerView:before
+          {
+            color: #17a9f5;
+            font-family: 'FontAwesome';
+            font-size: 18px;
+            content:"\f015";
+          }
+          
+           #rotateLeft:before
+          {
+            color:white;
+            font-family: 'FontAwesome';
+            font-size: 18px;
+            content:"\f053";
+          }
+
+          #rotateRight:before
+          {
+            color:white;
+            font-family: 'FontAwesome';
+            font-size: 18px;
+            content:"\f054";
+          }
+
+          #rotateDown:before
+          {
+            color:white;
+            font-family: 'FontAwesome';
+            font-size: 18px;
+            content:"\f078";
+          }
+
+          #rotateUp:before
+          {
+            color:white;
+            font-family: 'FontAwesome';
+            font-size: 18px;
+            content:"\f077";
+          }
+         
+
+
           #zoomIn
           {
-            left: 10px;
             position: absolute;
+            left: 24px;
+            top:90px;
           }
 
           #zoomOut
           {
-            left: 10px;
-            top:25px;
-            position:absolute;
+            position: absolute;
+            left: 24px;
+            top:115px;
           }
 
 
