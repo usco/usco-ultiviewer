@@ -6,6 +6,8 @@ Polymer('usco-ultiviewer', {
   created: function()
   {
     this.super();
+    window.PointerGestures.dispatcher.recognizers.hold.HOLD_DELAY = 40;//HACK !!see https://github.com/Polymer/PointerGestures/issues/17
+
     var AssetManager = require("assetManager");
     var xhrStore = require("usco-xhr-store");
     var stlParser = require("usco-stl-parser");
@@ -367,22 +369,29 @@ Polymer('usco-ultiviewer', {
         //newSelection.material.color.setHex(0xff5400);
     }
   },
-  //FIXME: for some reason, cannot bind the camera's methods? these are cumbersom
+  //FIXME: for some reason, cannot bind the camera's methods? these are cumbersome
   centerView:function(){
-    //this.controls.object.sub( );// = new THREE.Vector3();
-    //this.camera.centerView();
+    //this.controls.object.position =  new THREE.Vector3(); //.sub( this.controls.object.position.clone());// 
+    this.controls.center = new THREE.Vector3();//.sub( this.controls.center.clone());
+    this.camera.centerView();
   },
   rotateViewLeft:function(){
-    //this.camera.rotateViewLeft();
+    this.controls.rotateLeft();
   },
   rotateViewRight:function(){
-    //this.camera.rotateViewRight();
+    this.controls.rotateRight();
   },
   rotateViewUp:function(){
-    //this.camera.rotateViewUp();
+    this.controls.rotateDown();
   },
   rotateViewDown:function(){
-    //this.camera.rotateViewDown();
+    this.controls.rotateUp();
+  },
+  zoomViewIn:function(){
+    this.controls.zoomOut();
+  },
+  zoomViewOut:function(){
+    this.controls.zoomIn();
   },
 
 });
