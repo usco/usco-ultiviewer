@@ -3,7 +3,7 @@
 <link rel="import" href="components/usco-viewer-base/three-viewer/three-viewer.html">
 -->
 <!--<link rel="import" href="../components/asset-manager/element/asset-manager.html">-->
-<link rel="import" href="../components/usco-viewer-base/three-viewer/three-viewer.html">
+<link rel="import" href="../components/usco-viewer-base/three-viewer.html">
 <link rel="import" href="../components/polymer/polymer.html">
 
 <script src="../public/main.js"></script>
@@ -29,18 +29,26 @@ on-dragleave="{{handleDragLeave}}" on-drop="{{handleDrop}}">
         <div style="cursor:pointer" on-tap="{{onDownloadTap}}" on-mouseDown="{{onDownloadTap}}">Download</div>
       </template>
 
-      <div id="viewControls" part="viewControls" style="position:absolute;top:20px;right:20px">
-          <input type="checkbox" checked="{{fullScreen}}" id="fullScreen"><label for="fullScreen">Fullscreen</label> 
-          <input type="checkbox" checked="{{showGrid}}" id="grid"><label for="grid">Grid</label> 
-          <input type="checkbox" checked="{{showAxes}}" id="axes"><label for="axes">Axes</label>
-          <input type="checkbox" checked="{{autoRotate}}" id="autoRotate"><label for="autoRotate">AutoRotate</label>
-          <button id="centerView" on-click="{{centerView}}"><label for="centerView">CenterView</label>
-          <button id="rotateLeft" on-click="{{rotateViewLeft}}" ><label for="rotateLeft">RotateLeft</label>
-          <button id="rotateRight" on-click="{{rotateViewRight}}"><label for="rotateRight">RotateRight</label>
-          <button id="rotateUp" on-click="{{rotateViewUp}}">  <label for="rotateUp">RotateUp</label>
-          <button id="rotateDown" on-click="{{rotateViewDown}}"><label for="rotateDown">RotateDown</label>
+      <div id="cameraControls" part="cameraControls" style="position:absolute;top:60px;left:20px">
+        <button id="centerView" on-click="{{centerView}}"><label for="centerView">CenterView</label>
+        <button id="rotateLeft" on-holdpulse="{{rotateViewLeft}}" on-click="{{rotateViewLeft}}" ><label for="rotateLeft">RotateLeft</label>
+        <button id="rotateRight" on-holdpulse="{{rotateViewRight}}" on-click="{{rotateViewRight}}"><label for="rotateRight">RotateRight</label>
+        <button id="rotateUp" on-holdpulse="{{rotateViewUp}}" on-mousedown="{{rotateViewUp}}">  <label for="rotateUp">RotateUp</label>
+        <button id="rotateDown" on-holdpulse="{{rotateViewDown}}" on-mousedown="{{rotateViewDown}}"><label for="rotateDown">RotateDown</label>
+
+        <button id="zoomIn" on-holdpulse="{{zoomViewIn}}" on-click="{{zoomViewIn}}" /><label for="zoomIn">+</label>
+        <button id="zoomOut" on-holdpulse="{{zoomViewOut}}" on-click="{{zoomViewOut}}"/><label for="zoomOut">-</label>
       </div>
 
+      <div id="viewHelpers" part="viewHelpers" style="position:absolute;top:20px;right:20px">
+          <input type="checkbox" checked="{{showGrid}}" id="grid"><label for="grid"><span>Grid</span></label> 
+          <input type="checkbox" checked="{{showAxes}}" id="axes"><label for="axes"><span>Axes</span></label>
+      </div>
+
+      <div id="viewControls" part="viewControls" style="position:absolute;bottom:20px;right:20px">
+        <input type="checkbox" checked="{{autoRotate}}" id="autoRotate" class="autoRotate"><label for="autoRotate"><span>AutoRotate</span></label>
+        <input type="checkbox" checked="{{fullScreen}}" id="fullScreen" class="fullScreen"/> <label for="fullScreen"><span>Fullscreen</span></label> 
+      </div>
       <!-- seperate this out to another component ?? -->
       <div id="resourcesList" part="resourcesList" style="position:absolute;top:40px;right:20px">
         <template repeat="{{resource in resources}}">

@@ -2,7 +2,9 @@
   <head>
     <meta charset="utf-8">
     <title>Example</title>
-      <script src="components/platform/platform_.js"></script>
+      <script src="components/platform/platform.js"></script>
+
+      <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
       <link rel="import" href="components/polymer/polymer.html">
       <link rel="import" href="usco-ultiviewer/usco-ultiviewer.html">
       <style>
@@ -15,12 +17,12 @@
           left:0px;top:0px;width:100%;height:100%;background-color:#ffffff;
         }
         /*selector for special elements within custom elements*/
-        usco-ultiviewer::part(viewControls) input[type=checkbox] {
+        usco-ultiviewer::part(viewHelpers) input[type="checkbox"] {
               display:none;
         }
-        usco-ultiviewer::part(viewControls) input[type=checkbox] + label
-         {
-             background: #3c627a;
+        usco-ultiviewer::part(viewHelpers) input[type="checkbox"] + label
+        {
+             background: #494949;
              height: 16px;
              width: 16px;
              display:inline-block;
@@ -31,7 +33,7 @@
             white-space: nowrap;
             overflow: hidden;
          }
-         usco-ultiviewer::part(viewControls) input[type=checkbox]:checked + label
+         usco-ultiviewer::part(viewHelpers) input[type=checkbox]:checked + label
           {
               background: #17a9f5;
               height: 16px;
@@ -39,6 +41,93 @@
               display:inline-block;
               padding: 0 0 0 0px;
           }
+
+        /****/
+       usco-ultiviewer::part(viewControls) input[type="checkbox"] {
+              display:none;
+        }
+        usco-ultiviewer::part(viewControls) input[type=checkbox] + label
+        {
+             background: #494949;
+             height: 24px;
+             width: 24px;
+             display:inline-block;
+             line-height:24px;
+             text-align:center;
+         }
+        usco-ultiviewer::part(viewControls) input[type=checkbox] + label > span
+        {
+          /*hide text*/
+          display:none;
+        }
+        usco-ultiviewer::part(viewControls) input[type=checkbox]:checked + label
+        {
+            background: #17a9f5;
+        }
+
+
+        /*full screen icon*/
+         usco-ultiviewer::part(viewControls) input.fullScreen[type="checkbox"] + label:before
+         {
+            color:white;
+            font-family: 'FontAwesome';
+            font-size: 18px;
+            content:"\f065";
+          }
+          usco-ultiviewer::part(viewControls) input[type="checkbox"]:checked + label:before
+         {
+            content:"\f066";
+          }
+        
+        /*autorotate  icon*/
+          usco-ultiviewer::part(viewControls) input.autoRotate[type="checkbox"] + label:before
+         {
+            color:white;
+            font-family: 'FontAwesome';
+            font-size: 18px;
+            content:"\f01e";
+          }
+
+          usco-ultiviewer::part(cameraControls)
+          {
+            background: #494949;
+            color:white;
+          }
+
+          usco-ultiviewer::part(cameraControls) button
+          {
+            background: #494949;
+            color:white;
+
+            height: 24px;
+              width: 24px;
+              display:inline-block;
+              padding: 0 0 0 0px;
+            border:none;
+            font-weight:bold;
+          }
+
+          usco-ultiviewer::part(cameraControls) label
+          {
+            /*hide text*/
+            text-indent: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+          }
+
+          #zoomIn
+          {
+            left: 10px;
+            position: absolute;
+          }
+
+          #zoomOut
+          {
+            left: 10px;
+            top:25px;
+            position:absolute;
+          }
+
 
           /* flash of u content prevention*/
           :unresolved {
