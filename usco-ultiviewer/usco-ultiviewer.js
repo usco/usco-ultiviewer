@@ -364,7 +364,7 @@ Polymer('usco-ultiviewer', {
   visualFocusOnSelection : function(selection)
   {
     //visual helper: make object other than main selection slightly transparent
-      console.log("this.rootAssembly.children",this.rootAssembly.children)
+      //console.log("this.rootAssembly.children",this.renderer)
       for(var i = 0; i < this.rootAssembly.children.length;i++)
       {
         var child = this.rootAssembly.children[i];
@@ -372,14 +372,24 @@ Polymer('usco-ultiviewer', {
         {
           child.material.opacity = child.material._oldOpacity;
           child.material.transparent = child.material._oldTransparent;
+          child.renderDepth = child.material._oldRenderDepth;
+
+          /*child.material.renderDepth = 1e20;
+          child.material.depthTest=false;
+          child.material.depthWrite=false
+          child.renderDepth = 1e20;*/
+        
           continue;
         }
         child.material._oldOpacity = child.material.opacity;
         child.material._oldTransparent = child.material.transparent;
+        child.oldRenderDepth = child.renderDepth;
     
+        child.renderDepth = 0;
+        //child.material.renderDepth = 0;
         child.material.opacity = 0.3;
         child.material.transparent = true;
-        console.log("setting opacity of",child)
+        
       }
   },
   //TODO: move this somewhere else, preferably a helper
@@ -390,6 +400,7 @@ Polymer('usco-ultiviewer', {
         var child = this.rootAssembly.children[i];
         child.material.opacity = child.material._oldOpacity;
         child.material.transparent = child.material._oldTransparent;
+        child.renderDepth = child.material._oldRenderDepth;
       }
   },
 
@@ -398,7 +409,7 @@ Polymer('usco-ultiviewer', {
     this.selectionColor = 0xfffccc;
     if(oldSelection != null && newSelection != null)
     {    
-      console.log("SELECTED object changed",newSelection.name,"OLD",oldSelection.name);
+      //console.log("SELECTED object changed",newSelection.name,"OLD",oldSelection.name);
     }
     //remove from old selection
     if(oldSelection != null)

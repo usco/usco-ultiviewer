@@ -47,7 +47,6 @@ SizeArrowHelper = function(mainLength, sideLength, position, direction, color, t
 
   this.position = position; 
 
-  console.log("direction",direction);
   var angle = new THREE.Vector3(1,0,0).angleTo(direction); //new THREE.Vector3(1,0,0).cross( direction );
   this.setRotationFromAxisAngle(direction,angle);
 
@@ -55,7 +54,6 @@ SizeArrowHelper = function(mainLength, sideLength, position, direction, color, t
   rightSideLine.renderDepth = 1e20;
   mainArrowLeft.renderDepth = 1e20;
   mainArrowRight.renderDepth = 1e20;
-  
 }
 
 SizeArrowHelper.prototype = Object.create( THREE.Object3D.prototype );
@@ -137,22 +135,20 @@ ObjectDimensionsHelper = function (options) {
   var cage = new THREE.Object3D()
   var lineMat = new THREE.MeshBasicMaterial({color: color, wireframe: true, shading:THREE.FlatShading});
 
-  console.log("mesh",mesh)
-
-  //TODO: "meshes" should have bounding box/sphere informations, not just shapes/geometries should have it
+  //console.log("mesh",mesh)
 
   this.getBounds(mesh);
   var delta = this.computeMiddlePoint(mesh);
   cage.position = delta
   
-  var widthArrowPos = new THREE.Vector3( this.length/2+10, 0, -this.height/2 )
-  var lengthArrowPos = new THREE.Vector3( 0, this.width/2+10, -this.height/2)
-  var heightArrowPos = new THREE.Vector3( -this.length/2-5,-this.width/2-5,0)
+  var widthArrowPos = new THREE.Vector3(delta.x+this.length/2+10,delta.y,delta.z-this.height/2); 
+  var lengthArrowPos = new THREE.Vector3( delta.x, delta.y+this.width/2+10, delta.z-this.height/2)
+  var heightArrowPos = new THREE.Vector3( delta.x-this.length/2-5,delta.y-this.width/2-5,delta.z)
 
-  console.log("width", this.width, "length", this.length, "height", this.height,"delta",delta, "widthArrowPos", widthArrowPos)
+  //console.log("width", this.width, "length", this.length, "height", this.height,"delta",delta, "widthArrowPos", widthArrowPos)
 
   dashMaterial = new THREE.LineDashedMaterial( { color: 0x000000, dashSize: 2.5, gapSize: 2, depthTest: false,linewidth:1} )
-  baseCubeGeom = new THREE.CubeGeometry(this.length, this.width,0)
+  baseCubeGeom = new THREE.CubeGeometry(this.length, this.width,this.height)
 
   var geometry = new THREE.Geometry();
     geometry.vertices.push(new THREE.Vector3(-this.length/2, -this.width/2, 0));
@@ -164,11 +160,16 @@ ObjectDimensionsHelper = function (options) {
   
   geometry.computeLineDistances();
 
-  baseOutline = new THREE.Line( geometry, dashMaterial, THREE.Lines )//, dashSize: 3, gapSize: 1, linewidth: 2
+  var baseOutline = new THREE.Line( geometry, dashMaterial, THREE.Lines );
   baseOutline.renderDepth = 1e20
-  baseOutline.position = new THREE.Vector3(delta.x,delta.y,-this.height/2)
-
+  baseOutline.position = new THREE.Vector3(delta.x,delta.y,delta.z-this.height/2)
   this.add(baseOutline);
+
+
+  var bla = new THREE.Mesh(baseCubeGeom,new THREE.MeshBasicMaterial({wireframe:true,color:0xff0000}))
+  bla.position = new THREE.Vector3(delta.x,delta.y,delta.z);
+  //this.add( bla )
+  
 
   var sideLength =10;
   var widthArrow = new SizeArrowHelper(this.width,sideLength,widthArrowPos,new THREE.Vector3(0,0,1));
@@ -178,7 +179,6 @@ ObjectDimensionsHelper = function (options) {
   this.add( widthArrow );
   this.add( lengthArrow );
   this.add( heightArrow );
-
 
 }
 
@@ -198,6 +198,7 @@ ObjectDimensionsHelper.prototype.getBounds=function(mesh)
 {
   if( !(mesh.boundingBox))
   {
+    //TODO: "meshes" should have bounding box/sphere informations, not just shapes/geometries should have it
       mesh.boundingBox = computeObject3DBoundingBox(mesh);
   }
           
