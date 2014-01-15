@@ -42,8 +42,8 @@ Polymer('usco-ultiviewer', {
 	  this.scene.add(this.grid);
 
     /*experimental*/
-    /*
-    this.dimensionArrowTest = new SizeArrowHelper(100,10);
+    
+    /*this.dimensionArrowTest = new SizeArrowHelper(100,10);
     this.scene.add( this.dimensionArrowTest );
 
     this.diamArrowTest = new DiameterHelper(100,30);
@@ -267,7 +267,6 @@ Polymer('usco-ultiviewer', {
         var fileName = f.name;
         console.log("here",f)
         reader.onload = function(e){
-          console.log("pouet")
           var geometry=  self._assetManager.parsers["stl"].parse(e.target.result);
           var material = new THREE.MeshPhongMaterial( { color: 0x17a9f5, specular: 0xffffff, shininess: 10, shading: THREE.FlatShading} );
           var shape = new THREE.Mesh(geometry, material);
@@ -337,7 +336,63 @@ Polymer('usco-ultiviewer', {
   {
     var newSelection = this.selectedObject;
     this.selectObject(newSelection, oldSelection);
+
+    this.clearVisualFocusOnSelection();
+
+    if(oldSelection && oldSelection.helpers)
+      {
+        var dims = oldSelection.helpers.dims;
+        if(dims)
+        {
+          oldSelection.remove(dims);
+          oldSelection.helpers.dims = null;
+        }
+      }
+
+    if(newSelection)
+    {
+      //TODO: refactor
+      var objDims = new ObjectDimensionsHelper({mesh:newSelection});
+      newSelection.add( objDims );
+      if(!(newSelection.helpers)) newSelection.helpers = {}
+      newSelection.helpers.dims = objDims;
+      this.visualFocusOnSelection(newSelection);
+    }
+
   },
+  //TODO: move this somewhere else, preferably a helper
+  visualFocusOnSelection : function(selection)
+  {
+    //visual helper: make object other than main selection slightly transparent
+      console.log("this.rootAssembly.children",this.rootAssembly.children)
+      for(var i = 0; i < this.rootAssembly.children.length;i++)
+      {
+        var child = this.rootAssembly.children[i];
+        if(selection == child)
+        {
+          child.material.opacity = child.material._oldOpacity;
+          child.material.transparent = child.material._oldTransparent;
+          continue;
+        }
+        child.material._oldOpacity = child.material.opacity;
+        child.material._oldTransparent = child.material.transparent;
+    
+        child.material.opacity = 0.3;
+        child.material.transparent = true;
+        console.log("setting opacity of",child)
+      }
+  },
+  //TODO: move this somewhere else, preferably a helper
+  clearVisualFocusOnSelection : function()
+  {
+      for(var i = 0; i < this.rootAssembly.children.length;i++)
+      {
+        var child = this.rootAssembly.children[i];
+        child.material.opacity = child.material._oldOpacity;
+        child.material.transparent = child.material._oldTransparent;
+      }
+  },
+
   selectObject:function(newSelection, oldSelection)
   {
     this.selectionColor = 0xfffccc;
@@ -376,10 +431,10 @@ Polymer('usco-ultiviewer', {
     this.camera.centerView();
   },
   rotateViewLeft:function(){
-    this.controls.rotateLeft();
+    this.controls.rotateRight();
   },
   rotateViewRight:function(){
-    this.controls.rotateRight();
+    this.controls.rotateLeft();
   },
   rotateViewUp:function(){
     this.controls.rotateDown();

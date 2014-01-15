@@ -1,5 +1,6 @@
 
-computeObject3DBoundingSphere = function(object)
+
+computeObject3DBoundingBox = function(object)
 {
   if( object.geometry === undefined)
   {
@@ -31,5 +32,10 @@ computeObject3DBoundingSphere = function(object)
         }
     }
   });
-  return bbox.getBoundingSphere();
+  return bbox
+}
+
+computeObject3DBoundingSphere = function(object)
+{
+  return computeObject3DBoundingBox().getBoundingSphere();
 }
