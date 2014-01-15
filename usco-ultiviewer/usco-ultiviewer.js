@@ -372,8 +372,7 @@ Polymer('usco-ultiviewer', {
         {
           child.material.opacity = child.material._oldOpacity;
           child.material.transparent = child.material._oldTransparent;
-          child.renderDepth = child.material._oldRenderDepth;
-
+          //child.renderDepth = child.material._oldRenderDepth;
           /*child.material.renderDepth = 1e20;
           child.material.depthTest=false;
           child.material.depthWrite=false
@@ -385,7 +384,7 @@ Polymer('usco-ultiviewer', {
         child.material._oldTransparent = child.material.transparent;
         child.oldRenderDepth = child.renderDepth;
     
-        child.renderDepth = 0;
+        //child.renderDepth = 0;
         //child.material.renderDepth = 0;
         child.material.opacity = 0.3;
         child.material.transparent = true;
@@ -400,7 +399,7 @@ Polymer('usco-ultiviewer', {
         var child = this.rootAssembly.children[i];
         child.material.opacity = child.material._oldOpacity;
         child.material.transparent = child.material._oldTransparent;
-        child.renderDepth = child.material._oldRenderDepth;
+        //child.renderDepth = child.material._oldRenderDepth;
       }
   },
 
