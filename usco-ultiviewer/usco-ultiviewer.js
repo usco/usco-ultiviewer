@@ -25,6 +25,10 @@ Polymer('usco-ultiviewer', {
     this._assetManager.addParser("obj", objParser );
     this._assetManager.addParser("ply", plyParser );
     this._assetManager.addParser("ctm", ctmParser );
+
+    //prevent timeout
+    this._assetManager.stores["xhr"].timeout = 0;
+    
   
     this.warningSize = 100000;//byte size above which to display a warning to the user
     this.minObjectSize = 40;//minimum size (in arbitrarty/opengl units) before requiring re-scaling (upwards)
