@@ -18,7 +18,8 @@
 
 <polymer-element name="usco-ultiviewer" extends="three-viewer" attributes="showGrid" 
 on-dragenter="{{handleDragEnter}}" on-dragover="{{handleDragOver}}"
-on-dragleave="{{handleDragLeave}}" on-drop="{{handleDrop}}">
+on-dragleave="{{handleDragLeave}}" on-drop="{{handleDrop}}" 
+on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" >
   <template >
     <link rel="stylesheet" type="text/css" href="usco-ultiviewer.css">
     <!--<asset-manager id="assetsMgr"> </asset-manager>-->

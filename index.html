@@ -279,11 +279,9 @@
   </head>
 <body>
   <usco-ultiviewer orientation="diagonal" showShadows postProcess></usco-ultiviewer>
-
   <script>
-    window.addEventListener('WebComponentsReady', function() {
-
-      console.log("web components ready");
+    window.addEventListener('polymer-ready', function() {
+      console.log("polymer components ready");
       document.body.style.opacity = 1; // show body now that registration is done.
 	    var ultiViewer = document.querySelector('usco-ultiviewer');
       //workaround for node-webkit 0.6.3      
@@ -294,14 +292,17 @@
 
       //pseudo tests: TODO: find a way to do actual unit tests
       //ultiViewer.loadResource(currentUrl+"/demo-data/design.dae");
-
-     // ultiViewer.loadResource(currentUrl+"/demo-data/LeePerry.ctm");
+      console.log("ultiViewer", ultiViewer);
+      //ultiViewer.loadResource(currentUrl+"/demo-data/hand.ctm");
+  
+      ultiViewer.autoRotate = true;
+      ultiViewer.controls.autoRotateSpeed = 0.4;
 
       //stl files
       //ultiViewer.loadResource(currentUrl+"/demo-data/pr2_head_tilt.stl");
       //ultiViewer.loadResource(currentUrl+"/demo-data/femur.stl");
       //ultiViewer.loadResource(currentUrl+"/demo-data/pr2_head_pan.stl");
-      ultiViewer.loadResource(currentUrl+"/demo-data/UM2CableChain_BedEnd.STL");
+      //ultiViewer.loadResource(currentUrl+"/demo-data/UM2CableChain_BedEnd.STL");
       //ultiViewer.loadResource(currentUrl+"/demo-data/UM2CableChain_ChainSegment.STL");
       //ultiViewer.loadResource("https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/1609/10mm_Shaft_bearing_mount__lower__A_v3.stl");
       //ultiViewer.loadResource("https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/1078/Extruder_Big_Gear_V1.stl");
