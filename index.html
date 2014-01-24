@@ -279,11 +279,9 @@
   </head>
 <body>
   <usco-ultiviewer orientation="diagonal" showShadows postProcess></usco-ultiviewer>
-
   <script>
-    window.addEventListener('WebComponentsReady', function() {
-
-      console.log("web components ready");
+    window.addEventListener('polymer-ready', function() {
+      console.log("polymer components ready");
       document.body.style.opacity = 1; // show body now that registration is done.
 	    var ultiViewer = document.querySelector('usco-ultiviewer');
       //workaround for node-webkit 0.6.3      
@@ -294,8 +292,11 @@
 
       //pseudo tests: TODO: find a way to do actual unit tests
       //ultiViewer.loadResource(currentUrl+"/demo-data/design.dae");
-
-     // ultiViewer.loadResource(currentUrl+"/demo-data/LeePerry.ctm");
+      console.log("ultiViewer", ultiViewer);
+      //ultiViewer.loadResource(currentUrl+"/demo-data/hand.ctm");
+  
+      ultiViewer.autoRotate = true;
+      ultiViewer.controls.autoRotateSpeed = 1.4;
 
       //stl files
       //ultiViewer.loadResource(currentUrl+"/demo-data/pr2_head_tilt.stl");

@@ -3,9 +3,10 @@
 <link rel="import" href="components/usco-viewer-base/three-viewer/three-viewer.html">
 -->
 <!--<link rel="import" href="../components/asset-manager/element/asset-manager.html">-->
-<link rel="import" href="../components/usco-viewer-base/three-viewer.html">
 <link rel="import" href="../components/polymer/polymer.html">
 <link rel="import" href="../components/polymer-ui-accordion/polymer-ui-accordion.html">
+<link rel="import" href="../components/polymer-localstorage/polymer-localstorage.html">
+<link rel="import" href="../components/usco-viewer-base/three-viewer.html">
 
 <script src="../public/main.js"></script>
 
@@ -18,10 +19,17 @@
 
 <polymer-element name="usco-ultiviewer" extends="three-viewer" attributes="showGrid" 
 on-dragenter="{{handleDragEnter}}" on-dragover="{{handleDragOver}}"
-on-dragleave="{{handleDragLeave}}" on-drop="{{handleDrop}}">
+on-dragleave="{{handleDragLeave}}" on-drop="{{handleDrop}}" 
+on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" >
   <template >
     <link rel="stylesheet" type="text/css" href="usco-ultiviewer.css">
     <!--<asset-manager id="assetsMgr"> </asset-manager>-->
+
+    <!--AutoSaving settings to localstorage-->
+      <polymer-localstorage name="ultiviewer-settings-showGrid"   value="{{showGrid}}"></polymer-localstorage>
+      <polymer-localstorage name="ultiviewer-settings-showAxes"   value="{{showAxes}}"></polymer-localstorage>
+      <polymer-localstorage name="ultiviewer-settings-autoRotate" value="{{autoRotate}}"></polymer-localstorage>
+    <!--------------------------------------->
 
     <div id="viewWrapper" touch-action="none" on-pointermove="{{onPointerMove}}" on-pointerdown="{{onPointerDown}}" on-pointerup="{{onPointerUp}}" on-longstatictap="{{onLongstatictap}}" on-longmovetap="{{onLongmovetap}}">
       <div id="viewer"></div>

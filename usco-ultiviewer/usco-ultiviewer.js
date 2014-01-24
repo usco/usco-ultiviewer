@@ -462,5 +462,11 @@ Polymer('usco-ultiviewer', {
   zoomViewOut:function(){
     this.controls.zoomIn();
   },
+  //prevents scrolling whole page if using scroll & mouse is within viewer
+  onMouseWheel:function (event)
+  {
+    event.preventDefault();
+    return false;
+  }
 
 });

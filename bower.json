@@ -6,6 +6,8 @@
     "platform": "Polymer/platform#master",
     "polymer": "Polymer/polymer#master",
 
+    "polymer-localstorage":"Polymer/polymer-localstorage#master",
+
     "polymer-ui-accordion":"Polymer/polymer-ui-accordion#master",
 
     "polymer-ui-collapsible":"kaosat-dev/polymer-ui-collapsible#master",
