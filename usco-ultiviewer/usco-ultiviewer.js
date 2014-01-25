@@ -441,7 +441,7 @@ Polymer('usco-ultiviewer', {
   //FIXME: for some reason, cannot bind the camera's methods? these are cumbersome
   centerView:function(){
     //this.controls.object.position =  new THREE.Vector3(); //.sub( this.controls.object.position.clone());// 
-    this.controls.center = new THREE.Vector3();//.sub( this.controls.center.clone());
+    this.controls.center = new THREE.Vector3();
     this.camera.centerView();
   },
   rotateViewLeft:function(){
