@@ -46,12 +46,51 @@ Polymer('usco-ultiviewer', {
 	  this.scene.add(this.grid);
 
     /*experimental*/
+    var width = 20;
+    var length = 20;
+    var height = 50;
     
-    /*this.dimensionArrowTest = new SizeArrowHelper(100,10);
-    this.scene.add( this.dimensionArrowTest );
+    var geometry = new THREE.Geometry();
+    geometry.vertices.push(new THREE.Vector3(-length/2, -width/2, 0));
+    geometry.vertices.push(new THREE.Vector3(length/2, -width/2, 0));
+    geometry.vertices.push(new THREE.Vector3(length/2, width/2, 0));
+    geometry.vertices.push(new THREE.Vector3(-length/2, width/2, 0));
+    geometry.vertices.push(new THREE.Vector3(-length/2, -width/2, 0));     
 
-    this.diamArrowTest = new DiameterHelper(100,30);
-    this.scene.add( this.diamArrowTest );*/
+    geometry.vertices.push(new THREE.Vector3(-length/2, -width/2, height));
+    geometry.vertices.push(new THREE.Vector3(length/2, -width/2, height));
+    geometry.vertices.push(new THREE.Vector3(length/2, width/2, height));
+    geometry.vertices.push(new THREE.Vector3(-length/2, width/2, height));
+    geometry.vertices.push(new THREE.Vector3(-length/2, -width/2, height));     
+
+    var dashMaterial = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth:2 } )
+    var baseOutline = new THREE.Line( geometry, dashMaterial, THREE.Lines );
+    //baseOutline.type = THREE.LineStrip
+    baseOutline.renderDepth = 1e50
+
+
+    var level = 10;
+    var levelGeom = new THREE.Geometry();
+    levelGeom.vertices.push(new THREE.Vector3(-length/2, -width/2, level));
+    levelGeom.vertices.push(new THREE.Vector3(length/2, -width/2, level));
+    levelGeom.vertices.push(new THREE.Vector3(length/2, width/2, level));
+    levelGeom.vertices.push(new THREE.Vector3(-length/2, width/2, level));
+    levelGeom.vertices.push(new THREE.Vector3(-length/2, -width/2, level));  
+    var levelMesh = new THREE.Line( levelGeom, dashMaterial, THREE.Lines );
+
+
+    var innerColor = 0x4EBCF6;
+    var bg = new THREE.Mesh(new THREE.CubeGeometry(20,20,height-1), new THREE.MeshBasicMaterial({color:innerColor,depthTest: true,depthWrite:false, opacity:0.1,transparent:true}));
+    bg.position.z = height/2;
+    bg.renderDepth = 0;
+
+    var loaderMesh = new THREE.Mesh(new THREE.CubeGeometry(20,20,level), new THREE.MeshBasicMaterial({color:innerColor}));
+    loaderMesh.position.z = level/2;
+    /*this.scene.add(loaderMesh);
+    this.scene.add(bg);
+    this.scene.add(baseOutline);
+    this.scene.add(levelMesh);*/
+    
 
     //this.$.assetsMgr.addParser("amf",THREE.AMFParser);
     //this.$.assetsMgr._assetManager.addParser( "amf",THREE.AMFParser);
@@ -361,7 +400,11 @@ Polymer('usco-ultiviewer', {
       if(!(newSelection.helpers)) newSelection.helpers = {}
       newSelection.helpers.dims = objDims;
       this.visualFocusOnSelection(newSelection);
+
+      if(this.autoRotate) this.autoRotate = false;//TODO: this should be a selection effect aswell
     }
+
+
 
   },
   //TODO: move this somewhere else, preferably a helper
