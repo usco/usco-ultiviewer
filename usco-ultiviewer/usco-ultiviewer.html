@@ -39,13 +39,14 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" >
 
      <!-- <cubic-loader class="resourceLoading" style="position:absolute;top:300px;text-align: center;width:100%;z-index:999"  percentComplete="50"></cubic-loader>-->
 
+    <!--resource loading on screen display-->
     <template repeat="{{resource in resources}}">
         <template if="{{!resource.error && !resource.loaded  }}">
-          <cubic-loader class="resourceLoading" style="position:absolute;top:30%;text-align: center;width:100%;z-index:999" percentComplete="{{resource.fetchProgress}}"></cubic-loader>
+          <cubic-loader class="resourceLoading" style="position:absolute;top:20%;text-align: center;width:100%;z-index:999" percentComplete="{{resource.fetchProgress}}" resource="{{resource}}"></cubic-loader>
         </template>
     </template>
 
-
+    <!--on screen display of 2d ui-->
     <usco-ultiviewer-osc style="position: absolute;top: 0px;left: 0px;height:100%;width:100%;pointer-events: none;z-index:99;" 
     camera="{{camera}}" controls="{{controls}}" autoRotate="{{autoRotate}}" fullScreen="{{fullScreen}}" showGrid="{{showGrid}}"         showAxes="{{showAxes}}">
     </usco-ultiviewer-osc>
@@ -64,9 +65,10 @@ on-tap="{{onDownloadTap}}" on-mouseDown="{{onDownloadTap}}">
       <three-stats id="stats" show="{{showStats}}"></three-stats>
 
       <!-- seperate this out to another component ?? -->
+      <!--
       <div id="resourcesList" part="resourcesList" style="position:absolute;top:40px;right:20px">
         <template repeat="{{resource in resources}}">
-          <template if="{{!resource.error && !resource.loaded  }}"> <!-- only display resources info if not yet fully loaded-->
+          <template if="{{!resource.error && !resource.loaded  }}">
             <div class="resourceLoading" >Loading: {{resource.name}} Download: {{resource.fetchProgress}} % Total:{{resource.totalDisplaySize}} Loaded:{{resource.loaded}} </div>
             <template if="{{resource.totalRawSize > warningSize}}">
               <div style="color:orange"> Warning: large file</div>
@@ -76,7 +78,7 @@ on-tap="{{onDownloadTap}}" on-mouseDown="{{onDownloadTap}}">
             <div class="error">{{resource.error}} <button on-tap={{dismissResource}}>X</button></div>
           </template>
         </template>
-      </div>
+      </div>-->
 
     </div>
   </template>

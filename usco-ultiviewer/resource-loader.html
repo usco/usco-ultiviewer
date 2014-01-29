@@ -1,9 +1,17 @@
 
-<polymer-element name="cubic-loader" attributes="width, depth, height, percentComplete">
+<polymer-element name="cubic-loader" attributes="width, depth, height, percentComplete, resource">
 
 <template>
-  <div style="font-weight: bold;font-size:1.3em">
-  <span> Loading:</span> <span style="color:#4EBCF6"> {{percentComplete}} % </span>
+  <div style="font-weight: bold;font-size:1.2em">
+    <template if="{{resource.totalRawSize > warningSize}}">
+      <div style="background:#FF7226;color:white;display: inline-block;margin-bottom:10px;padding:5px;font-size:0.8em" >
+        <div style="text-transform:uppercase;">Large file detected</div>
+        <div style="font-size:0.8em">This might take a while</div>
+      </div>
+    </template>  
+    <div>
+      <span> Loading:</span> <span style="color:#4EBCF6"> {{percentComplete}} % </span>
+    </div>
   </div>
 </template>
 
@@ -13,11 +21,13 @@
     depth :20,
     height: 30,
     percentComplete: 0, 
+    resource: null,
     linesColor : 0xffffff,
     fillColor : 0x4EBCF6,
+
+    warningSize: 100000,//byte size above which to display a warning to the user
     created:function()
     {
-      /*experimental*/
       var width = this.width;
       var length = this.depth;
       var height = this.height;
@@ -72,20 +82,16 @@
         if (this.parentNode.host.add3 && !this.objectParent) {
           this.objectParent = this.parentNode.host;
           this.parentNode.host.add3(this);
-          //var parentName = this.parentNode.localName;
-          //console.log('[%s]: request adding to [%s]', this.localName + (this.id ? '#' + this.id : ''), parentName);
         }
     },
     leftView:function()
     {
-      console.log("loader leaving view");
       this.objectParent.remove3(this);
     },
     percentCompleteChanged:function()
     {
         var level = this.percentComplete/100 * this.height;
         this.levelMesh.position.z = level;
-
         var loaderMesh = this.loaderMesh;
         loaderMesh.position.z = level/2;
         loaderMesh.scale.z = level;
