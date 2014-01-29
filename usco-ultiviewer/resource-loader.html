@@ -13,6 +13,8 @@
     depth :20,
     height: 30,
     percentComplete: 0, 
+    linesColor : 0xffffff,
+    fillColor : 0x4EBCF6,
     created:function()
     {
       /*experimental*/
@@ -33,12 +35,11 @@
       geometry.vertices.push(new THREE.Vector3(-length/2, width/2, height));
       geometry.vertices.push(new THREE.Vector3(-length/2, -width/2, height));     
 
-      var dashMaterial = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth:2 } )
+      var dashMaterial = new THREE.LineBasicMaterial( { color: this.linesColor, linewidth:2 } )
       var baseOutline = new THREE.Line( geometry, dashMaterial, THREE.Lines );
       baseOutline.renderDepth = 1e50
 
-      var innerColor = 0x4EBCF6;
-      var bg = new THREE.Mesh(new THREE.CubeGeometry(width,length,height-1), new THREE.MeshBasicMaterial({color:innerColor,depthTest: true,depthWrite:false, opacity:0.1,transparent:true}));
+      var bg = new THREE.Mesh(new THREE.CubeGeometry(width,length,height-1), new THREE.MeshBasicMaterial({color:this.fillColor,depthTest: true,depthWrite:false, opacity:0.1,transparent:true}));
       bg.position.z = height/2;
       bg.renderDepth = 0;
 
@@ -53,7 +54,7 @@
       levelGeom.vertices.push(new THREE.Vector3(-length/2, -width/2, level));  
       var levelMesh = new THREE.Line( levelGeom, dashMaterial, THREE.Lines );
 
-      var loaderMesh = new THREE.Mesh(new THREE.CubeGeometry(width,length,1), new THREE.MeshBasicMaterial({color:innerColor}));
+      var loaderMesh = new THREE.Mesh(new THREE.CubeGeometry(width,length,1), new THREE.MeshBasicMaterial({color:this.fillColor}));
       //loaderMesh.position.z = level/2;
 
 

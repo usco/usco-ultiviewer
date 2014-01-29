@@ -274,7 +274,6 @@
             border-color: 2E2E2E;
           }
 
-      
       </style>
   </head>
 <body>
@@ -282,7 +281,7 @@
   <script>
     window.addEventListener('polymer-ready', function() {
       console.log("polymer components ready");
-      document.body.style.opacity = 1; // show body now that registration is done.
+      //document.body.style.opacity = 1; // show body now that registration is done.
 	    var ultiViewer = document.querySelector('usco-ultiviewer');
       //workaround for node-webkit 0.6.3      
       ultiViewer.style.opacity = 1;
@@ -302,10 +301,13 @@
       //ultiViewer.loadResource(currentUrl+"/demo-data/pr2_head_tilt.stl");
       //ultiViewer.loadResource(currentUrl+"/demo-data/femur.stl");
       //ultiViewer.loadResource(currentUrl+"/demo-data/pr2_head_pan.stl");
+
+      setTimeout(function(){ultiViewer.loadResource("https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/1078/Extruder_Big_Gear_V1.stl");},1000 )
       //ultiViewer.loadResource(currentUrl+"/demo-data/UM2CableChain_BedEnd.STL");
+      
       //ultiViewer.loadResource(currentUrl+"/demo-data/UM2CableChain_ChainSegment.STL");
       //ultiViewer.loadResource("https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/1609/10mm_Shaft_bearing_mount__lower__A_v3.stl");
-      ultiViewer.loadResource("https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/1078/Extruder_Big_Gear_V1.stl");
+      //ultiViewer.loadResource("https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/1078/Extruder_Big_Gear_V1.stl");
 
 
       //obj files
