@@ -46,19 +46,22 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" >
     </template>
 
 
-<usco-ultiviewer-osc style="position: absolute;top: 0px;left: 0px;height:100%;width:100%;pointer-events: none;z-index:99;" 
-camera="{{camera}}" controls="{{controls}}" autoRotate="{{autoRotate}}" fullScreen="{{fullScreen}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}"> </usco-ultiviewer-osc>
+    <usco-ultiviewer-osc style="position: absolute;top: 0px;left: 0px;height:100%;width:100%;pointer-events: none;z-index:99;" 
+    camera="{{camera}}" controls="{{controls}}" autoRotate="{{autoRotate}}" fullScreen="{{fullScreen}}" showGrid="{{showGrid}}"         showAxes="{{showAxes}}">
+    </usco-ultiviewer-osc>
+
+    <template if="{{selectedObject != null}}">
+        <div  part="selectionDownload" style="cursor:pointer;position:absolute;left:20px;bottom:40px;z-index:999;background:#494949;color:white;padding:5px;font-weight: bold;" 
+on-tap="{{onDownloadTap}}" on-mouseDown="{{onDownloadTap}}">
+        Download
+        </div>
+    </template>
 
   <!--<div id="trackerTest" style="background:red;position: absolute;top: 0; left: 0;width: 36px; height: 36px;z-index: 999;"> </div>
   -->
     <div id="viewWrapper" touch-action="none" on-pointermove="{{onPointerMove}}" on-pointerdown="{{onPointerDown}}" on-pointerup="{{onPointerUp}}" on-longstatictap="{{onLongstatictap}}" on-longmovetap="{{onLongmovetap}}">
       <div id="viewer"></div>
       <three-stats id="stats" show="{{showStats}}"></three-stats>
-
-      <template if="{{selectedObject != null}}">
-        <div style="width:100%;height:10px;position:absolute;top:0px" id="testHover">
-        <div style="cursor:pointer;position:absolute:left:100px" on-tap="{{onDownloadTap}}" on-mouseDown="{{onDownloadTap}}">Download</div>
-      </template>
 
       <!-- seperate this out to another component ?? -->
       <div id="resourcesList" part="resourcesList" style="position:absolute;top:40px;right:20px">
