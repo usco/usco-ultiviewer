@@ -201,7 +201,6 @@ ObjectDimensionsHelper.prototype.getBounds=function(mesh)
     //TODO: "meshes" should have bounding box/sphere informations, not just shapes/geometries should have it
       mesh.boundingBox = computeObject3DBoundingBox(mesh);
   }
-          
   var bbox = mesh.boundingBox;
 
   var length = (bbox.max.x-bbox.min.x).toFixed(2);

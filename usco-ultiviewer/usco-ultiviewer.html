@@ -8,6 +8,9 @@
 <link rel="import" href="../components/polymer-localstorage/polymer-localstorage.html">
 <link rel="import" href="../components/usco-viewer-base/three-viewer.html">
 
+<link rel="import" href="resource-loader.html">
+
+
 <script src="../public/main.js"></script>
 
 <script src="lib/textDraw-helper.js"></script>
@@ -30,6 +33,22 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" >
       <polymer-localstorage name="ultiviewer-settings-showAxes"   value="{{showAxes}}"></polymer-localstorage>
       <polymer-localstorage name="ultiviewer-settings-autoRotate" value="{{autoRotate}}"></polymer-localstorage>
     <!--------------------------------------->
+
+    
+
+     <!-- <cubic-loader class="resourceLoading" style="position:absolute;top:300px;text-align: center;width:100%;z-index:999"  percentComplete="50"></cubic-loader>-->
+
+    <template repeat="{{resource in resources}}">
+        <template if="{{!resource.error && !resource.loaded  }}">
+          <cubic-loader class="resourceLoading" style="position:absolute;top:150px;text-align: center;width:100%;z-index:999" percentComplete="{{resource.fetchProgress}}"></cubic-loader>
+        </template>
+    </template>
+
+
+
+
+
+
 
     <div id="viewWrapper" touch-action="none" on-pointermove="{{onPointerMove}}" on-pointerdown="{{onPointerDown}}" on-pointerup="{{onPointerUp}}" on-longstatictap="{{onLongstatictap}}" on-longmovetap="{{onLongmovetap}}">
       <div id="viewer"></div>
@@ -95,6 +114,8 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" >
         <input type="checkbox" checked="{{autoRotate}}" id="autoRotate" class="autoRotate"><label for="autoRotate"><span>AutoRotate</span></label>
         <input type="checkbox" checked="{{fullScreen}}" id="fullScreen" class="fullScreen"/> <label for="fullScreen"><span>Fullscreen</span></label> 
       </div>
+
+
       <!-- seperate this out to another component ?? -->
       <div id="resourcesList" part="resourcesList" style="position:absolute;top:40px;right:20px">
         <template repeat="{{resource in resources}}">

@@ -38,59 +38,11 @@ Polymer('usco-ultiviewer', {
   enteredView:function()
   {
     this.super();
-    this.addEventListener('longstatictap', this.onLongstatictap);
-
+    //this.addEventListener('longstatictap', this.onLongstatictap);
     //add grid
     this.grid = new THREE.CustomGridHelper(200,10,this.cameraUp);
     this.grid.toggle(this.showGrid)
 	  this.scene.add(this.grid);
-
-    /*experimental*/
-    var width = 20;
-    var length = 20;
-    var height = 50;
-    
-    var geometry = new THREE.Geometry();
-    geometry.vertices.push(new THREE.Vector3(-length/2, -width/2, 0));
-    geometry.vertices.push(new THREE.Vector3(length/2, -width/2, 0));
-    geometry.vertices.push(new THREE.Vector3(length/2, width/2, 0));
-    geometry.vertices.push(new THREE.Vector3(-length/2, width/2, 0));
-    geometry.vertices.push(new THREE.Vector3(-length/2, -width/2, 0));     
-
-    geometry.vertices.push(new THREE.Vector3(-length/2, -width/2, height));
-    geometry.vertices.push(new THREE.Vector3(length/2, -width/2, height));
-    geometry.vertices.push(new THREE.Vector3(length/2, width/2, height));
-    geometry.vertices.push(new THREE.Vector3(-length/2, width/2, height));
-    geometry.vertices.push(new THREE.Vector3(-length/2, -width/2, height));     
-
-    var dashMaterial = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth:2 } )
-    var baseOutline = new THREE.Line( geometry, dashMaterial, THREE.Lines );
-    //baseOutline.type = THREE.LineStrip
-    baseOutline.renderDepth = 1e50
-
-
-    var level = 10;
-    var levelGeom = new THREE.Geometry();
-    levelGeom.vertices.push(new THREE.Vector3(-length/2, -width/2, level));
-    levelGeom.vertices.push(new THREE.Vector3(length/2, -width/2, level));
-    levelGeom.vertices.push(new THREE.Vector3(length/2, width/2, level));
-    levelGeom.vertices.push(new THREE.Vector3(-length/2, width/2, level));
-    levelGeom.vertices.push(new THREE.Vector3(-length/2, -width/2, level));  
-    var levelMesh = new THREE.Line( levelGeom, dashMaterial, THREE.Lines );
-
-
-    var innerColor = 0x4EBCF6;
-    var bg = new THREE.Mesh(new THREE.CubeGeometry(20,20,height-1), new THREE.MeshBasicMaterial({color:innerColor,depthTest: true,depthWrite:false, opacity:0.1,transparent:true}));
-    bg.position.z = height/2;
-    bg.renderDepth = 0;
-
-    var loaderMesh = new THREE.Mesh(new THREE.CubeGeometry(20,20,level), new THREE.MeshBasicMaterial({color:innerColor}));
-    loaderMesh.position.z = level/2;
-    /*this.scene.add(loaderMesh);
-    this.scene.add(bg);
-    this.scene.add(baseOutline);
-    this.scene.add(levelMesh);*/
-    
 
     //this.$.assetsMgr.addParser("amf",THREE.AMFParser);
     //this.$.assetsMgr._assetManager.addParser( "amf",THREE.AMFParser);
@@ -98,6 +50,16 @@ Polymer('usco-ultiviewer', {
   leftView:function()
   {
     //alert("left view")
+  },
+
+  add3:function(node)
+  {
+    console.log("request to add", node);
+    this.scene.add(node.object);
+  },
+  remove3:function(node)
+  {
+    this.scene.remove(node.object);
   },
   //public api
   loadResource: function(uri, autoCenter, autoResize, display, keepRawData)
@@ -180,8 +142,6 @@ Polymer('usco-ultiviewer', {
             }
             }catch(error)
             {console.log("failed to auto resize ",error)}
-      
-     
             resourceData.meta = {};
             resourceData.meta.resource = res;
             self.addToScene(resourceData);

@@ -1,0 +1,94 @@
+
+<polymer-element name="cubic-loader" attributes="width, depth, height, percentComplete">
+
+<template>
+  <div style="font-weight: bold;font-size:1.3em">
+  <span> Loading:</span> <span style="color:#4EBCF6"> {{percentComplete}} % </span>
+  </div>
+</template>
+
+<script>
+  Polymer("cubic-loader",{
+    width : 20,
+    depth :20,
+    height: 30,
+    percentComplete: 0, 
+    created:function()
+    {
+      /*experimental*/
+      var width = this.width;
+      var length = this.depth;
+      var height = this.height;
+      
+      var geometry = new THREE.Geometry();
+      geometry.vertices.push(new THREE.Vector3(-length/2, -width/2, 0));
+      geometry.vertices.push(new THREE.Vector3(length/2, -width/2, 0));
+      geometry.vertices.push(new THREE.Vector3(length/2, width/2, 0));
+      geometry.vertices.push(new THREE.Vector3(-length/2, width/2, 0));
+      geometry.vertices.push(new THREE.Vector3(-length/2, -width/2, 0));     
+
+      geometry.vertices.push(new THREE.Vector3(-length/2, -width/2, height));
+      geometry.vertices.push(new THREE.Vector3(length/2, -width/2, height));
+      geometry.vertices.push(new THREE.Vector3(length/2, width/2, height));
+      geometry.vertices.push(new THREE.Vector3(-length/2, width/2, height));
+      geometry.vertices.push(new THREE.Vector3(-length/2, -width/2, height));     
+
+      var dashMaterial = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth:2 } )
+      var baseOutline = new THREE.Line( geometry, dashMaterial, THREE.Lines );
+      baseOutline.renderDepth = 1e50
+
+      var innerColor = 0x4EBCF6;
+      var bg = new THREE.Mesh(new THREE.CubeGeometry(width,length,height-1), new THREE.MeshBasicMaterial({color:innerColor,depthTest: true,depthWrite:false, opacity:0.1,transparent:true}));
+      bg.position.z = height/2;
+      bg.renderDepth = 0;
+
+
+      var level = this.percentComplete/100 * height;
+
+      var levelGeom = new THREE.Geometry();
+      levelGeom.vertices.push(new THREE.Vector3(-length/2, -width/2, level));
+      levelGeom.vertices.push(new THREE.Vector3(length/2, -width/2, level));
+      levelGeom.vertices.push(new THREE.Vector3(length/2, width/2, level));
+      levelGeom.vertices.push(new THREE.Vector3(-length/2, width/2, level));
+      levelGeom.vertices.push(new THREE.Vector3(-length/2, -width/2, level));  
+      var levelMesh = new THREE.Line( levelGeom, dashMaterial, THREE.Lines );
+
+      var loaderMesh = new THREE.Mesh(new THREE.CubeGeometry(width,length,1), new THREE.MeshBasicMaterial({color:innerColor}));
+      //loaderMesh.position.z = level/2;
+
+
+      this.object = new THREE.Object3D();
+      this.object.add(loaderMesh);
+      this.object.add(bg);
+      this.object.add(baseOutline);
+      this.object.add(levelMesh);
+
+      this.levelMesh = levelMesh;
+      this.loaderMesh = loaderMesh;
+    },
+    enteredView:function()
+    {
+        if (this.parentNode.host.add3 && !this.objectParent) {
+          this.objectParent = this.parentNode.host;
+          this.parentNode.host.add3(this);
+          //var parentName = this.parentNode.localName;
+          //console.log('[%s]: request adding to [%s]', this.localName + (this.id ? '#' + this.id : ''), parentName);
+        }
+    },
+    leftView:function()
+    {
+      console.log("loader leaving view");
+      this.objectParent.remove3(this);
+    },
+    percentCompleteChanged:function()
+    {
+        var level = this.percentComplete/100 * this.height;
+        this.levelMesh.position.z = level;
+
+        var loaderMesh = this.loaderMesh;
+        loaderMesh.position.z = level/2;
+        loaderMesh.scale.z = level;
+    }
+  });
+</script>
+</polymer-element>
