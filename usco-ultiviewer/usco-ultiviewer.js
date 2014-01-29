@@ -2,6 +2,7 @@
 Polymer('usco-ultiviewer', {
   selectedObject : null,
   showGrid: false,
+  showDimensions: false,
   resources : [], //TODO: move this to asset manager ??
   created: function()
   {
@@ -30,8 +31,8 @@ Polymer('usco-ultiviewer', {
     this._assetManager.stores["xhr"].timeout = 0;
     
   
-    this.minObjectSize = 40;//minimum size (in arbitrarty/opengl units) before requiring re-scaling (upwards)
-    this.maxObjectSize = 100;//maximum size (in arbitrarty/opengl units) before requiring re-scaling (downwards)
+    this.minObjectSize = 20;//minimum size (in arbitrarty/opengl units) before requiring re-scaling (upwards)
+    this.maxObjectSize = 200;//maximum size (in arbitrarty/opengl units) before requiring re-scaling (downwards)
 
   },
   enteredView:function()
@@ -121,7 +122,23 @@ Polymer('usco-ultiviewer', {
               geometry.applyMatrix( new THREE.Matrix4().makeScale( scaling, scaling, scaling ) );
             }
           }
-          
+
+          //possible alternative to resizing : zooming in on objects
+          /*var viewOffset = this.camera.position.clone().sub( this.camera.target ) ;
+          var stuff =viewOffset.clone().normalize();
+          stuff.multiplyScalar( geometry.boundingSphere.radius*4 );
+          //this.camera.position.copy(stuff);          
+          var camPos = this.camera.position.clone();
+          var tgt = stuff;
+          var cam = this.camera;
+          var tween = new TWEEN.Tween( camPos )
+            .to( tgt , 700 )
+            .easing( TWEEN.Easing.Quadratic.In )
+            .onUpdate( function () {
+              cam.position.copy(camPos);   
+            } )
+            .start();*/
+
           shape.meta = {};
           shape.meta.resource = res;
           self.addToScene(shape);
@@ -365,21 +382,28 @@ Polymer('usco-ultiviewer', {
 
     if(oldSelection && oldSelection.helpers)
       {
-        var dims = oldSelection.helpers.dims;
-        if(dims)
+
+        if(this.showDimensions)
         {
-          oldSelection.remove(dims);
-          oldSelection.helpers.dims = null;
+          var dims = oldSelection.helpers.dims;
+          if(dims)
+          {
+            oldSelection.remove(dims);
+            oldSelection.helpers.dims = null;
+          }
         }
       }
 
     if(newSelection)
     {
       //TODO: refactor
-      var objDims = new ObjectDimensionsHelper({mesh:newSelection});
-      newSelection.add( objDims );
-      if(!(newSelection.helpers)) newSelection.helpers = {}
-      newSelection.helpers.dims = objDims;
+      if(this.showDimensions)
+      {
+        var objDims = new ObjectDimensionsHelper({mesh:newSelection});
+        newSelection.add( objDims );
+        if(!(newSelection.helpers)) newSelection.helpers = {}
+        newSelection.helpers.dims = objDims;
+      }
       this.visualFocusOnSelection(newSelection);
 
       if(this.autoRotate) this.autoRotate = false;//TODO: this should be a selection effect aswell
