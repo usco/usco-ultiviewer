@@ -63,6 +63,7 @@
 Polymer("usco-ultiviewer-osc",{
   camera: null,
   controls:null,
+  autoRotate:false,
   //FIXME: for some reason, cannot bind the camera's methods? these are cumbersome
   centerView:function(){
     //this.controls.object.position =  new THREE.Vector3(); //.sub( this.controls.object.position.clone());// 
@@ -71,9 +72,11 @@ Polymer("usco-ultiviewer-osc",{
   },
   rotateViewLeft:function(){
     this.controls.rotateRight();
+    this.autoRotate = false;
   },
   rotateViewRight:function(){
     this.controls.rotateLeft();
+    this.autoRotate = false;
   },
   rotateViewUp:function(){
     this.controls.rotateDown();

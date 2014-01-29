@@ -47,9 +47,12 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" >
     </template>
 
     <!--on screen display of 2d ui-->
-    <usco-ultiviewer-osc style="position: absolute;top: 0px;left: 0px;height:100%;width:100%;pointer-events: none;z-index:99;" 
-    camera="{{camera}}" controls="{{controls}}" autoRotate="{{autoRotate}}" fullScreen="{{fullScreen}}" showGrid="{{showGrid}}"         showAxes="{{showAxes}}">
-    </usco-ultiviewer-osc>
+    <template if="{{showControls}}">
+      <usco-ultiviewer-osc style="position: absolute;top: 0px;left: 0px;height:100%;width:100%;pointer-events: none;z-index:99;" 
+      camera="{{camera}}" controls="{{controls}}" autoRotate="{{autoRotate}}" fullScreen="{{fullScreen}}" showGrid="{{showGrid}}"         showAxes="{{showAxes}}">
+      </usco-ultiviewer-osc>
+    </template>
+
 
     <template if="{{selectedObject != null}}">
         <div  part="selectionDownload" style="cursor:pointer;position:absolute;left:20px;bottom:40px;z-index:999;background:#494949;color:white;padding:5px;font-weight: bold;" 

@@ -2,6 +2,7 @@
 Polymer('usco-ultiviewer', {
   selectedObject : null,
   showGrid: false,
+  showControls: true,
   showDimensions: false,
   resources : [], //TODO: move this to asset manager ??
   created: function()
@@ -78,6 +79,8 @@ Polymer('usco-ultiviewer', {
 
       function addResource(res)
       {
+        this.showControls = true;
+
         var resourceData = res.data;
 
         if( !(resourceData instanceof THREE.Object3D) )

@@ -22,8 +22,8 @@
     height: 30,
     percentComplete: 0, 
     resource: null,
-    linesColor : 0xffffff,
-    fillColor : 0x4EBCF6,
+    linesColor : 0xffffff,//0x4EBCF6,//0xffffff,
+    fillColor : 0x414141,//0x4EBCF6,
 
     warningSize: 100000,//byte size above which to display a warning to the user
     created:function()
@@ -49,6 +49,24 @@
       var baseOutline = new THREE.Line( geometry, dashMaterial, THREE.Lines );
       baseOutline.renderDepth = 1e50
 
+      var geometry = new THREE.Geometry();
+
+      geometry.vertices.push(new THREE.Vector3(-length/2, width/2, 0));
+      geometry.vertices.push(new THREE.Vector3(-length/2, width/2, height));
+
+      geometry.vertices.push(new THREE.Vector3(-length/2, width/2, 0));
+
+      geometry.vertices.push(new THREE.Vector3(length/2, width/2, 0));
+      geometry.vertices.push(new THREE.Vector3(length/2, width/2, height));
+
+      geometry.vertices.push(new THREE.Vector3(length/2, -width/2, height));
+      geometry.vertices.push(new THREE.Vector3(length/2, -width/2, 0));
+      geometry.vertices.push(new THREE.Vector3(length/2, -width/2, height));
+
+      var baseOutline2 = new THREE.Line( geometry, dashMaterial, THREE.Lines );
+      baseOutline2.renderDepth = 1e50
+
+
       var bg = new THREE.Mesh(new THREE.CubeGeometry(width,length,height-1), new THREE.MeshBasicMaterial({color:this.fillColor,depthTest: true,depthWrite:false, opacity:0.1,transparent:true}));
       bg.position.z = height/2;
       bg.renderDepth = 0;
@@ -72,6 +90,7 @@
       this.object.add(loaderMesh);
       this.object.add(bg);
       this.object.add(baseOutline);
+      this.object.add(baseOutline2);
       this.object.add(levelMesh);
 
       this.levelMesh = levelMesh;
