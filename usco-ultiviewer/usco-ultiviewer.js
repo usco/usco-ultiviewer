@@ -51,15 +51,19 @@ Polymer('usco-ultiviewer', {
   {
     //alert("left view")
   },
-
   add3:function(node)
   {
-    console.log("request to add", node);
     this.scene.add(node.object);
   },
   remove3:function(node)
   {
     this.scene.remove(node.object);
+  },
+
+  update:function()
+  {
+    this.super();
+    if(window.TWEEN !== undefined) TWEEN.update();
   },
   //public api
   loadResource: function(uri, autoCenter, autoResize, display, keepRawData)
@@ -288,6 +292,24 @@ Polymer('usco-ultiviewer', {
   },
   //attribute change handlers
   showGridChanged:function(){this.grid.toggle(this.showGrid)},
+
+  autoRotateChanged:function()
+  {
+    this.controls.autoRotate = this.autoRotate;
+
+    if(this.autoRotate ==false ) return;
+    
+    var rotSpeed = {rotSpeed:0.0};
+    var rotSpeedTarget = {rotSpeed:2.0}
+    var controls = this.controls;
+    var tween = new TWEEN.Tween( rotSpeed )
+            .to( rotSpeedTarget , 1000 )
+            .easing( TWEEN.Easing.Linear.None )
+            .onUpdate( function () {
+              controls.autoRotateSpeed = rotSpeed.rotSpeed;
+            } )
+            .start();
+  },
   highlightedObjectChanged:function(oldHovered)
   {
       this.selectionColor = 0xff5400;//0xfffccc;
@@ -485,6 +507,19 @@ Polymer('usco-ultiviewer', {
     /*$trackingOverlay
         .css('left', (left - $trackingOverlay.width() / 2) + 'px')
         .css('top', (top - $trackingOverlay.height() / 2) + 'px');*/
+  },
+  various:function()
+  {
+       var tween = new TWEEN.Tween( { x: 50, y: 0 } )
+            .to( { x: 400 }, 2000 )
+            .easing( TWEEN.Easing.Elastic.InOut )
+            .onUpdate( function () {
+
+                output.innerHTML = 'x == ' + Math.round( this.x );
+                output.style.left = this.x + 'px';
+
+            } )
+            .start();
   }
 
     
