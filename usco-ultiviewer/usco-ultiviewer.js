@@ -3,7 +3,7 @@ Polymer('usco-ultiviewer', {
   selectedObject : null,
   showGrid: false,
   showControls: true,
-  showDimensions: false,
+  showDimensions: true,
   resources : [], //TODO: move this to asset manager ??
   created: function()
   {
@@ -50,7 +50,9 @@ Polymer('usco-ultiviewer', {
   },
   leftView:function()
   {
-    //alert("left view")
+    //alert("left view");
+    //TODO: add correct methods to asset manager itself
+    this._assetManager.assetCache = {}
   },
   add3:function(node)
   {
