@@ -9,6 +9,7 @@
 <link rel="import" href="../components/usco-viewer-base/three-viewer.html">
 
 <link rel="import" href="resource-loader.html">
+<link rel="import" href="usco-ultiviewer-osc.html">
 
 
 <script src="../public/main.js"></script>
@@ -40,16 +41,16 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" >
 
     <template repeat="{{resource in resources}}">
         <template if="{{!resource.error && !resource.loaded  }}">
-          <cubic-loader class="resourceLoading" style="position:absolute;top:150px;text-align: center;width:100%;z-index:999" percentComplete="{{resource.fetchProgress}}"></cubic-loader>
+          <cubic-loader class="resourceLoading" style="position:absolute;top:30%;text-align: center;width:100%;z-index:999" percentComplete="{{resource.fetchProgress}}"></cubic-loader>
         </template>
     </template>
 
 
+<usco-ultiviewer-osc style="position: absolute;top: 0px;left: 0px;height:100%;width:100%;pointer-events: none;z-index:99;" 
+camera="{{camera}}" controls="{{controls}}" autoRotate="{{autoRotate}}" fullScreen="{{fullScreen}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}"> </usco-ultiviewer-osc>
 
-
-
-
-
+  <!--<div id="trackerTest" style="background:red;position: absolute;top: 0; left: 0;width: 36px; height: 36px;z-index: 999;"> </div>
+  -->
     <div id="viewWrapper" touch-action="none" on-pointermove="{{onPointerMove}}" on-pointerdown="{{onPointerDown}}" on-pointerup="{{onPointerUp}}" on-longstatictap="{{onLongstatictap}}" on-longmovetap="{{onLongmovetap}}">
       <div id="viewer"></div>
       <three-stats id="stats" show="{{showStats}}"></three-stats>
@@ -58,63 +59,6 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" >
         <div style="width:100%;height:10px;position:absolute;top:0px" id="testHover">
         <div style="cursor:pointer;position:absolute:left:100px" on-tap="{{onDownloadTap}}" on-mouseDown="{{onDownloadTap}}">Download</div>
       </template>
-
-      <div id="cameraControls" part="cameraControls" style="position:absolute;top:20px;left:5px">
-        <table style="text-align: center;">
-          <tr>
-            <td colspan="3">
-             <button id="rotateUp" on-holdpulse="{{rotateViewUp}}" on-mousedown="{{rotateViewUp}}"></button>
-                <label for="rotateUp"><span>RotateUp<span></label>
-            </td>
-          </tr>
-          <tr>
-            <td>
-             <button id="rotateLeft" on-holdpulse="{{rotateViewLeft}}" on-click="{{rotateViewLeft}}" ></button>
-                <label for="rotateLeft"><span>RotateLeft</span></label>
-            </td>
-            <td>
-              <button id="centerView" on-click="{{centerView}}"></button><label for="centerView"><span>CenterView</span></label>
-            </td>
-            <td>
-               <button id="rotateRight" on-holdpulse="{{rotateViewRight}}" on-click="{{rotateViewRight}}"></button><label for="rotateRight"><span>RotateRight</span></label>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="3">
-              <button id="rotateDown" on-holdpulse="{{rotateViewDown}}" on-mousedown="{{rotateViewDown}}"></button>
-                <label for="rotateDown"><span>RotateDown</span></label>
-            </td>
-          </tr>
-        </table>
-
-        <button id="zoomIn" on-holdpulse="{{zoomViewIn}}" on-click="{{zoomViewIn}}" /><label for="zoomIn">+</label>
-        <button id="zoomOut" on-holdpulse="{{zoomViewOut}}" on-click="{{zoomViewOut}}"/><label for="zoomOut">-</label>
-      </div>
-
-      <polymer-ui-accordion  selectedClass="polymer-ui-collapsible-selected" style="position:absolute;top:20px;right:20px" part="viewHelpers">
-        <polymer-ui-collapsible >
-          <div class="polymer-ui-collapsible-header">
-            <span class="collapsible-header-arrow"></span>View Settings
-          </div>
-          <div class="content">
-            <div class="accordion-item-inner">
-            <input type="checkbox" checked="{{showGrid}}" id="gridToggle" class="gridToggle"><label for="gridToggle"><span>Grid</span></label> 
-            </div>
-            <div class="accordion-item-inner">
-              <input type="checkbox" checked="{{showAxes}}" id="axesToggle" class="axesToggle"><label for="axesToggle"><span>Axes</span></label>
-            </div>
-          </div>
-        </polymer-ui-collapsible>
-  
-      </polymer-ui-accordion>
-      <!--<div id="viewHelpers" part="viewHelpers" style="position:absolute;top:20px;right:20px">
-      </div>-->
-
-      <div id="viewControls" part="viewControls" style="position:absolute;bottom:40px;right:20px">
-        <input type="checkbox" checked="{{autoRotate}}" id="autoRotate" class="autoRotate"><label for="autoRotate"><span>AutoRotate</span></label>
-        <input type="checkbox" checked="{{fullScreen}}" id="fullScreen" class="fullScreen"/> <label for="fullScreen"><span>Fullscreen</span></label> 
-      </div>
-
 
       <!-- seperate this out to another component ?? -->
       <div id="resourcesList" part="resourcesList" style="position:absolute;top:40px;right:20px">

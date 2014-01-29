@@ -437,39 +437,57 @@ Polymer('usco-ultiviewer', {
         outline.scale.multiplyScalar(1.02);
         newSelection.outline = outline;
         newSelection.add(outline);
-        //newSelection.currentSelectHex = newSelection.material.color.getHex();
-        //newSelection.material.color.setHex(0xff5400);
     }
   },
-  //FIXME: for some reason, cannot bind the camera's methods? these are cumbersome
-  centerView:function(){
-    //this.controls.object.position =  new THREE.Vector3(); //.sub( this.controls.object.position.clone());// 
-    this.controls.center = new THREE.Vector3();
-    this.camera.centerView();
-  },
-  rotateViewLeft:function(){
-    this.controls.rotateRight();
-  },
-  rotateViewRight:function(){
-    this.controls.rotateLeft();
-  },
-  rotateViewUp:function(){
-    this.controls.rotateDown();
-  },
-  rotateViewDown:function(){
-    this.controls.rotateUp();
-  },
-  zoomViewIn:function(){
-    this.controls.zoomOut();
-  },
-  zoomViewOut:function(){
-    this.controls.zoomIn();
-  },
+  
   //prevents scrolling whole page if using scroll & mouse is within viewer
   onMouseWheel:function (event)
   {
     event.preventDefault();
     return false;
+  },
+  onPointerMove:function(event)
+  {
+    this.super(arguments);
+
+    //if(!(this.selectedObject)) return;
+    
+    //this.onScreenTrackin();
+  },
+  onScreenTrackin:function()
+  {
+    var p, v, percX, percY, left, top;
+
+    // this will give us position relative to the world
+    //p = THREE.Vector3.getPositionFromMatrix( this.selectedObject.matrixWorld )
+    p = this.selectedObject.matrixWorld.getPosition().clone();
+
+    // projectVector will translate position to 2d
+    var projector = new THREE.Projector();
+    v = projector.projectVector(p, this.camera);
+
+    // translate our vector so that percX=0 represents
+    // the left edge, percX=1 is the right edge,
+    // percY=0 is the top edge, and percY=1 is the bottom edge.
+    percX = (v.x + 1) / 2;
+    percY = (-v.y + 1) / 2;
+
+    // scale these values to our viewport size
+    left = percX * this.width;
+    top = percY * this.height;
+
+    // position the overlay so that it's center is on top of
+    // the sphere we're tracking
+    console.log("tracker",this.$.trackerTest);
+
+    this.$.trackerTest.style.left = (left -16 /2) + "px"
+    this.$.trackerTest.style.top = (top -16 /2) + "px"
+    /*$trackingOverlay
+        .css('left', (left - $trackingOverlay.width() / 2) + 'px')
+        .css('top', (top - $trackingOverlay.height() / 2) + 'px');*/
   }
+
+    
+
 
 });

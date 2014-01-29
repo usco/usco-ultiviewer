@@ -1,0 +1,94 @@
+<link rel="import" href="../components/polymer/polymer.html">
+
+<polymer-element name="usco-ultiviewer-osc" attributes="camera, controls, autoRotate, fullScreen, showGrid, showAxes">
+  <template >
+      <div style="width:inherit;" >
+      <div id="cameraControls" part="cameraControls" style="position:absolute;top:20px;left:5px;pointer-events: all;">
+        <table style="text-align: center;">
+          <tr>
+            <td colspan="3">
+             <button id="rotateUp" on-holdpulse="{{rotateViewUp}}" on-mousedown="{{rotateViewUp}}"></button>
+                <label for="rotateUp"><span>RotateUp<span></label>
+            </td>
+          </tr>
+          <tr>
+            <td>
+             <button id="rotateLeft" on-holdpulse="{{rotateViewLeft}}" on-click="{{rotateViewLeft}}" ></button>
+                <label for="rotateLeft"><span>RotateLeft</span></label>
+            </td>
+            <td>
+              <button id="centerView" on-click="{{centerView}}"></button><label for="centerView"><span>CenterView</span></label>
+            </td>
+            <td>
+               <button id="rotateRight" on-holdpulse="{{rotateViewRight}}" on-click="{{rotateViewRight}}"></button><label for="rotateRight"><span>RotateRight</span></label>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="3">
+              <button id="rotateDown" on-holdpulse="{{rotateViewDown}}" on-mousedown="{{rotateViewDown}}"></button>
+                <label for="rotateDown"><span>RotateDown</span></label>
+            </td>
+          </tr>
+        </table>
+
+        <button id="zoomIn" on-holdpulse="{{zoomViewIn}}" on-click="{{zoomViewIn}}" /><label for="zoomIn">+</label>
+        <button id="zoomOut" on-holdpulse="{{zoomViewOut}}" on-click="{{zoomViewOut}}"/><label for="zoomOut">-</label>
+      </div>
+
+      <polymer-ui-accordion  selectedClass="polymer-ui-collapsible-selected" style="position:absolute;top:20px;right:20px;pointer-events: all;" part="viewHelpers">
+        <polymer-ui-collapsible >
+          <div class="polymer-ui-collapsible-header">
+            <span class="collapsible-header-arrow"></span>View Settings
+          </div>
+          <div class="content">
+            <div class="accordion-item-inner">
+            <input type="checkbox" checked="{{showGrid}}" id="gridToggle" class="gridToggle"><label for="gridToggle"><span>Grid</span></label> 
+            </div>
+            <div class="accordion-item-inner">
+              <input type="checkbox" checked="{{showAxes}}" id="axesToggle" class="axesToggle"><label for="axesToggle"><span>Axes</span></label>
+            </div>
+          </div>
+        </polymer-ui-collapsible>
+  
+      </polymer-ui-accordion>
+
+      <div id="viewControls" part="viewControls" style="position:absolute;bottom:40px;right:20px;pointer-events: all;">
+        <input type="checkbox" checked="{{autoRotate}}" id="autoRotate" class="autoRotate"><label for="autoRotate"><span>AutoRotate</span></label>
+        <input type="checkbox" checked="{{fullScreen}}" id="fullScreen" class="fullScreen"/> <label for="fullScreen"><span>Fullscreen</span></label> 
+      </div>
+
+    </div>
+  </template>
+<script>
+Polymer("usco-ultiviewer-osc",{
+  camera: null,
+  controls:null,
+  //FIXME: for some reason, cannot bind the camera's methods? these are cumbersome
+  centerView:function(){
+    //this.controls.object.position =  new THREE.Vector3(); //.sub( this.controls.object.position.clone());// 
+    this.controls.center = new THREE.Vector3();
+    this.camera.centerView();
+  },
+  rotateViewLeft:function(){
+    this.controls.rotateRight();
+  },
+  rotateViewRight:function(){
+    this.controls.rotateLeft();
+  },
+  rotateViewUp:function(){
+    this.controls.rotateDown();
+  },
+  rotateViewDown:function(){
+    this.controls.rotateUp();
+  },
+  zoomViewIn:function(){
+    this.controls.zoomOut();
+  },
+  zoomViewOut:function(){
+    this.controls.zoomIn();
+  },
+
+});
+</script>
+</polymer-element>
+
