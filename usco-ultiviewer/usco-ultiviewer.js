@@ -5,6 +5,7 @@ Polymer('usco-ultiviewer', {
   showControls: true,
   showDimensions: true,
   resources : [], //TODO: move this to asset manager ??
+  resouceDeferreds : [],
   created: function()
   {
     this.super();
@@ -35,6 +36,10 @@ Polymer('usco-ultiviewer', {
     this.minObjectSize = 20;//minimum size (in arbitrarty/opengl units) before requiring re-scaling (upwards)
     this.maxObjectSize = 200;//maximum size (in arbitrarty/opengl units) before requiring re-scaling (downwards)
 
+    //workaround/hack for some css issues
+    try{
+    $('<style></style>').appendTo($(document.body)).remove();
+    }catch(error){}
   },
   enteredView:function()
   {
@@ -52,7 +57,7 @@ Polymer('usco-ultiviewer', {
   {
     //alert("left view");
     //TODO: add correct methods to asset manager itself
-    this._assetManager.assetCache = {}
+    this.clearResources({clearCache:true});
   },
   add3:function(node)
   {
@@ -187,10 +192,25 @@ Polymer('usco-ultiviewer', {
 
       this.resources.push(resource);
       
-      var resourcePromise = this._assetManager.load( uri, null, {keepRawData:keepRawData} );//this.$.assetsMgr.read( uri );
+      var resourceDeferred = this._assetManager.load( uri, null, {keepRawData:keepRawData} );//this.$.assetsMgr.read( uri );
+      var resourcePromise = resourceDeferred.promise;
       //console.log("resourcePromise",resourcePromise)
       if (display) resourcePromise.then(addResource.bind(this));
       resourcePromise.then(resource.onLoaded.bind(resource), loadFailed, resource.onDownloadProgress.bind(resource) );
+
+      this.resouceDeferreds.push( resourceDeferred );
+  },
+
+  clearResources:function(options)
+  {
+    var clearCache = options.clearCache || false;
+    //TODO:impact this on asset manager, for cleaner "cleanup"
+    while((deferred=this.resouceDeferreds.pop()) != null){
+      deferred.reject();
+    }
+    this.resources = [];
+
+    if( clearCache ) this._assetManager.assetCache = {};
   },
   //event handlers
   onLongstatictap:function(event)

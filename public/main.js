@@ -16926,7 +16926,7 @@ AssetManager = (function() {
       loadedResource = this.assetCache[filename];
       deferred.resolve(loadedResource);
     }
-    return deferred.promise;
+    return deferred;
   };
 
   AssetManager.prototype._loadParser = function(extension) {

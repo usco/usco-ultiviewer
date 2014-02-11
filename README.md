@@ -37,6 +37,35 @@ Some optional build flags are also available
 
 **Note**: the *grunt core* build should be done *before* building a release
 
+
+viewer element public api
+------------------
+ 
+API usage:
+
+Since we are dealing with Polymer.js custom elements, all the following have to be used after the component
+was loaded (for example using the 'polymer-ready' callback)
+
+first, get the instance of the viewer :
+
+    var ultiViewer = document.querySelector('usco-ultiviewer');
+
+load a resource/model:
+
+    ultiViewer.loadResource("http://foo/demo-data/pr2_head_tilt.stl");
+
+removing all displayed models from the scene
+
+    ultiViewer.clearScene();
+
+removing all resources 
+    
+    ultiViewer.clearResources();
+
+removing all resouces, and flush cache
+    
+    ultiViewer.clearResources({clearCache:true});
+
 Licence
 =======
 MIT
