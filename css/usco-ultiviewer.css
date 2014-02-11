@@ -1,0 +1,266 @@
+
+.error{
+  color:red;
+}
+
+usco-ultiviewer{
+  left:0px;top:0px;width:100%;height:100%;background-color:#ffffff;
+}
+/*selector for special elements within custom elements*/
+usco-ultiviewer::part(viewHelpers) input[type="checkbox"] {
+      display:none;
+}
+usco-ultiviewer::part(viewHelpers) input[type="checkbox"] + label
+{
+     background: #494949;
+    color:white;
+     height: 16px;
+     width: 16px;
+     display:inline-block;
+     padding: 0 0 0 0px;
+    text-align:center;
+
+    line-height:16px;
+    
+ }
+ usco-ultiviewer::part(viewHelpers) input[type=checkbox]:checked + label
+  {
+  }
+  usco-ultiviewer::part(viewHelpers) input[type=checkbox] + label > span
+  {
+    /*display:none;*/
+    text-align:right;        
+    margin-left: 20px;  
+  }
+
+  usco-ultiviewer::part(viewHelpers) input[type="checkbox"] + label:before
+ {
+    font-family: 'FontAwesome';
+    font-size: 12px;
+    content:"\f10c";
+  }
+
+  usco-ultiviewer::part(viewHelpers) input[type="checkbox"]:checked + label:before
+ {
+    font-family: 'FontAwesome';
+    font-size: 12px;
+    content:"\f111";
+    color: #17a9f5;
+  }
+
+
+/****/
+usco-ultiviewer::part(viewControls) input[type="checkbox"] {
+      display:none;
+}
+usco-ultiviewer::part(viewControls) input[type=checkbox] + label
+{
+     background: #494949;
+     height: 24px;
+     width: 24px;
+     display:inline-block;
+     line-height:24px;
+     text-align:center;
+ }
+usco-ultiviewer::part(viewControls) input[type=checkbox] + label > span
+{
+  /*hide text*/
+  display:none;
+}
+usco-ultiviewer::part(viewControls) input[type=checkbox]:checked + label
+{
+    background: #17a9f5;
+}
+
+
+/*full screen icon*/
+ usco-ultiviewer::part(viewControls) input.fullScreen[type="checkbox"] + label:before
+ {
+    color:white;
+    font-family: 'FontAwesome';
+    font-size: 18px;
+    content:"\f065";
+  }
+  usco-ultiviewer::part(viewControls) input[type="checkbox"]:checked + label:before
+ {
+    content:"\f066";
+  }
+
+/*autorotate  icon*/
+  usco-ultiviewer::part(viewControls) input.autoRotate[type="checkbox"] + label:before
+ {
+    color:white;
+    font-family: 'FontAwesome';
+    font-size: 18px;
+    content:"\f01e";
+  }
+
+
+
+  /*all camera controls*/
+  usco-ultiviewer::part(cameraControls)
+  {
+    color:white;
+  }
+
+  usco-ultiviewer::part(cameraControls) button
+  {
+    background: #494949;
+    color:white;
+
+    height: 24px;
+      width: 24px;
+      display:inline-block;
+      padding: 0 0 0 0px;
+    border:none;
+    font-weight:bold;
+  }
+
+usco-ultiviewer::part(cameraControls) button + label > span
+{
+  /*hide text*/
+  display:none;
+}
+
+  usco-ultiviewer::part(cameraControls) table
+  {
+    border-collapse: collapse;
+  }
+
+
+  usco-ultiviewer::part(cameraControls) th, td
+  {
+    padding: 0;
+  }
+
+
+  usco-ultiviewer::part(cameraControls) label
+  {
+    /*hide text*/
+    text-indent: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+   #centerView:before
+  {
+    color: #17a9f5;
+    font-family: 'FontAwesome';
+    font-size: 18px;
+    content:"\f015";
+  }
+  
+   #rotateLeft:before
+  {
+    color:white;
+    font-family: 'FontAwesome';
+    font-size: 18px;
+    content:"\f053";
+  }
+
+  #rotateRight:before
+  {
+    color:white;
+    font-family: 'FontAwesome';
+    font-size: 18px;
+    content:"\f054";
+  }
+
+  #rotateDown:before
+  {
+    color:white;
+    font-family: 'FontAwesome';
+    font-size: 18px;
+    content:"\f078";
+  }
+
+  #rotateUp:before
+  {
+    color:white;
+    font-family: 'FontAwesome';
+    font-size: 18px;
+    content:"\f077";
+  }
+ 
+
+
+  #zoomIn
+  {
+    position: absolute;
+    left: 24px;
+    top:90px;
+  }
+
+  #zoomOut
+  {
+    position: absolute;
+    left: 24px;
+    top:115px;
+  }
+
+
+  /* flash of u content prevention*/
+  :unresolved {
+    /*display: flex;
+    justify-content: center;
+    background: rgba(255,255,255,0.5);
+    border: 1px dashed #ccc;
+    border-radius: 5px;*/
+  }
+  :unresolved:after {
+    padding: 15px;
+    content: 'loading...';
+    color: #ccc;
+  }
+
+  /*POLYMER UI ACCORDION*/
+   polymer-ui-collapsible {
+    margin-bottom: 2px;
+    border: 1px solid black;
+
+    color:white;
+    background: #494949;
+    
+  }
+  .collapsible-header-arrow{
+    color:white;
+    padding-right:10px;
+    text-align:center;
+  }
+  .collapsible-header-arrow:before
+  {
+    font-family: 'FontAwesome';
+    font-size: 15px;
+    content:"\f054";
+    padding-left:4px;
+  }
+  
+  .polymer-ui-collapsible-header {
+    padding: 4px;
+    padding-left:8px;
+    padding-right:8px;
+    font-weight: bold;
+    cursor: pointer;
+    color:#17a9f5;
+    font-size: 15px;
+
+    background:#2E2E2E;
+  }
+
+  .polymer-ui-collapsible-active .collapsible-header-arrow:before{
+    font-size: 15px;
+    content:"\f078";
+  }
+  
+  .content {
+    padding: 2px;
+  }
+
+  .accordion-item-inner{
+    padding:2px;
+    padding-left: 8px;
+    border: solid;
+    border-width: 1px;
+    border-color: 2E2E2E;
+  }
+
