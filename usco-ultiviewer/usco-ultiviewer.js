@@ -203,6 +203,7 @@ Polymer('usco-ultiviewer', {
 
   clearResources:function(options)
   {
+    var options = options || {};
     var clearCache = options.clearCache || false;
     //TODO:impact this on asset manager, for cleaner "cleanup"
     while((deferred=this.resouceDeferreds.pop()) != null){
@@ -304,6 +305,7 @@ Polymer('usco-ultiviewer', {
     //we have files (desktop dnd)
     var files = e.dataTransfer.files;
     console.log("files",files);
+
     if (!(window.File && window.FileReader && window.FileList && window.Blob)) {
       console.log('The File APIs are not fully supported in this browser.');
       //TODO: handle error
@@ -313,12 +315,49 @@ Polymer('usco-ultiviewer', {
       for (var i = 0, f; f = files[i]; i++) {
         var reader = new FileReader();
         var fileName = f.name;
-        console.log("here",f)
+        var extension = fileName.split(".").pop().toLowerCase();
         reader.onload = function(e){
-          var geometry=  self._assetManager.parsers["stl"].parse(e.target.result);
-          var material = new THREE.MeshPhongMaterial( { color: 0x17a9f5, specular: 0xffffff, shininess: 10, shading: THREE.FlatShading} );
-          var shape = new THREE.Mesh(geometry, material);
-          self.addToScene(shape);
+          var geometry=  self._assetManager.parsers[extension].parse(e.target.result);
+           function addToSceneHack(data)
+          {
+            if(data instanceof THREE.Geometry)
+            {
+              var geometry = data;
+              var material = new THREE.MeshPhongMaterial( { color: 0x17a9f5, specular: 0xffffff, shininess: 10, shading: THREE.FlatShading} );
+              var shape = new THREE.Mesh(geometry, material);
+
+              geometry.computeBoundingBox();
+				      geometry.computeCentroids();
+				      geometry.computeBoundingSphere();
+              geometry.computeVertexNormals();
+              geometry.computeFaceNormals();
+              self.addToScene(shape);
+            }
+            else
+            {
+              data.traverse (function (current) {
+			          if (current instanceof THREE.Mesh) {
+                  var geometry = current.geometry;
+                  geometry.computeBoundingBox();
+				      geometry.computeCentroids();
+				      geometry.computeBoundingSphere();
+              geometry.computeVertexNormals();
+              geometry.computeFaceNormals();
+			          }
+		          });
+              
+               self.addToScene(data);
+            }
+          }
+          if("promiseDispatch" in geometry)
+          {
+            var promise = geometry;
+            promise.then(addToSceneHack)
+          }else
+          {
+            addToSceneHack(geometry);
+          }
+          
         }
 
         reader.onprogress = function(e){
@@ -353,7 +392,7 @@ Polymer('usco-ultiviewer', {
   },
   highlightedObjectChanged:function(oldHovered)
   {
-      this.selectionColor = 0xff5400;//0xfffccc;
+      this.selectionColor = 0xf7c634;//0xff5400;//0xfffccc;
 		  this.outlineColor = 0xffc200;
       function validForOutline(selection)
       {
@@ -368,6 +407,12 @@ Polymer('usco-ultiviewer', {
         var outline, outlineMaterial;
         curHovered.currentHoverHex = curHovered.material.color.getHex();
         curHovered.material.color.setHex(this.selectionColor);
+        //curHovered.material.vertexColors = THREE.FaceColors;
+        curHovered.currentHoverHexSpec = curHovered.material.specular.getHex();
+        curHovered.material.specular.setHex(this.selectionColor);
+        //curHovered.material.shininess=8; //.setHex(this.selectionColor);
+
+
         outlineMaterial = new THREE.MeshBasicMaterial({
             color: 0xffc200,
             side: THREE.BackSide
@@ -393,6 +438,9 @@ Polymer('usco-ultiviewer', {
         if (oldHovered.hoverOutline != null)
         {
           oldHovered.material.color.setHex(oldHovered.currentHoverHex);
+          oldHovered.material.specular.setHex(oldHovered.currentHoverHexSpec);
+          oldHovered.material.shininess = 10;
+
           oldHovered.remove(oldHovered.hoverOutline);
           oldHovered.hoverOutline = null;
         }
