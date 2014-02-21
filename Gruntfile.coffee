@@ -64,6 +64,28 @@ module.exports = (grunt) ->
         stdout: true
         stderr: true
 
+      update_git:
+        command: "git pull"
+        stdout: true
+        stderr: true
+      update_bower1:
+        command: "rm -r components"
+        stdout: true
+        stderr: true
+      update_bower2:
+        command: "bower install"
+        stdout: true
+        stderr: true
+      update_npm1:
+        command: "rm -r node_modules"
+        stdout: true
+        stderr: true
+      update_npm2:
+        command: "npm install"
+        stdout: true
+        stderr: true
+  
+
     nodewebkit:
       options:
         version: "0.6.3" #0.8.2 0.6.3 works with polymer but unresolved does not get removed, does not work from 0.7.0 onwards, 0.8.2 works only partially (wrong order of events)
@@ -185,6 +207,14 @@ module.exports = (grunt) ->
   #grunt.registerTask "release", ["concat", "uglify", "jasmine_node", "release"]
   grunt.registerTask "core", ["browserify", "uglify:main"]
   
+  #Project update (dependencies etc)
+  @registerTask 'update', 'update the project s dependencies', () =>
+    @task.run "exec:update_git"
+    @task.run "exec:update_bower1"
+    @task.run "exec:update_bower2"
+    #@task.run "exec:update_npm1"
+    #@task.run "exec:update_npm2"
+
   #Builds
   @registerTask 'build', 'Build usco-viewer for the chosen target/platform etc', (target = 'browser', subTarget='standalone') =>
     minify = grunt.option('minify');
