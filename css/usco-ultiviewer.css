@@ -4,13 +4,13 @@
 }
 
 usco-ultiviewer{
-  left:0px;top:0px;width:100%;height:100%;background-color:#ffffff;
+  left:0px;top:0px;width:100%;height:100%;background-color:#ffffff;position:absolute;
 }
 /*selector for special elements within custom elements*/
-usco-ultiviewer::part(viewHelpers) input[type="checkbox"] {
+usco-ultiviewer .viewHelpers input[type="checkbox"] {
       display:none;
 }
-usco-ultiviewer::part(viewHelpers) input[type="checkbox"] + label
+usco-ultiviewer .viewHelpers input[type="checkbox"] + label
 {
      background: #494949;
     color:white;
@@ -23,24 +23,24 @@ usco-ultiviewer::part(viewHelpers) input[type="checkbox"] + label
     line-height:16px;
     
  }
- usco-ultiviewer::part(viewHelpers) input[type=checkbox]:checked + label
+ usco-ultiviewer .viewHelpers input[type=checkbox]:checked + label
   {
   }
-  usco-ultiviewer::part(viewHelpers) input[type=checkbox] + label > span
+  usco-ultiviewer .viewHelpers input[type=checkbox] + label > span
   {
     /*display:none;*/
     text-align:right;        
     margin-left: 20px;  
   }
 
-  usco-ultiviewer::part(viewHelpers) input[type="checkbox"] + label:before
+  usco-ultiviewer .viewHelpers input[type="checkbox"] + label:before
  {
     font-family: 'FontAwesome';
     font-size: 12px;
     content:"\f10c";
   }
 
-  usco-ultiviewer::part(viewHelpers) input[type="checkbox"]:checked + label:before
+  usco-ultiviewer .viewHelpers input[type="checkbox"]:checked + label:before
  {
     font-family: 'FontAwesome';
     font-size: 12px;
@@ -50,10 +50,10 @@ usco-ultiviewer::part(viewHelpers) input[type="checkbox"] + label
 
 
 /****/
-usco-ultiviewer::part(viewControls) input[type="checkbox"] {
+usco-ultiviewer .viewControls input[type="checkbox"] {
       display:none;
 }
-usco-ultiviewer::part(viewControls) input[type=checkbox] + label
+usco-ultiviewer .viewControls input[type=checkbox] + label
 {
      background: #494949;
      height: 24px;
@@ -62,32 +62,32 @@ usco-ultiviewer::part(viewControls) input[type=checkbox] + label
      line-height:24px;
      text-align:center;
  }
-usco-ultiviewer::part(viewControls) input[type=checkbox] + label > span
+usco-ultiviewer .viewControls input[type=checkbox] + label > span
 {
   /*hide text*/
   display:none;
 }
-usco-ultiviewer::part(viewControls) input[type=checkbox]:checked + label
+usco-ultiviewer .viewControls input[type=checkbox]:checked + label
 {
     background: #17a9f5;
 }
 
 
 /*full screen icon*/
- usco-ultiviewer::part(viewControls) input.fullScreen[type="checkbox"] + label:before
+ usco-ultiviewer .viewControls input.fullScreen[type="checkbox"] + label:before
  {
     color:white;
     font-family: 'FontAwesome';
     font-size: 18px;
     content:"\f065";
   }
-  usco-ultiviewer::part(viewControls) input[type="checkbox"]:checked + label:before
+  usco-ultiviewer .viewControls input[type="checkbox"]:checked + label:before
  {
     content:"\f066";
   }
 
 /*autorotate  icon*/
-  usco-ultiviewer::part(viewControls) input.autoRotate[type="checkbox"] + label:before
+  usco-ultiviewer .viewControls input.autoRotate[type="checkbox"] + label:before
  {
     color:white;
     font-family: 'FontAwesome';
@@ -98,12 +98,12 @@ usco-ultiviewer::part(viewControls) input[type=checkbox]:checked + label
 
 
   /*all camera controls*/
-  usco-ultiviewer::part(cameraControls)
+  usco-ultiviewer .cameraControls
   {
     color:white;
   }
 
-  usco-ultiviewer::part(cameraControls) button
+  usco-ultiviewer .cameraControls button
   {
     background: #494949;
     color:white;
@@ -116,25 +116,25 @@ usco-ultiviewer::part(viewControls) input[type=checkbox]:checked + label
     font-weight:bold;
   }
 
-usco-ultiviewer::part(cameraControls) button + label > span
+usco-ultiviewer .cameraControls button + label > span
 {
   /*hide text*/
   display:none;
 }
 
-  usco-ultiviewer::part(cameraControls) table
+  usco-ultiviewer .cameraControls table
   {
     border-collapse: collapse;
   }
 
 
-  usco-ultiviewer::part(cameraControls) th, td
+  usco-ultiviewer .cameraControls th, td
   {
     padding: 0;
   }
 
 
-  usco-ultiviewer::part(cameraControls) label
+  usco-ultiviewer .cameraControls label
   {
     /*hide text*/
     text-indent: 100%;
