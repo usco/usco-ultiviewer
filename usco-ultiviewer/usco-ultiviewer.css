@@ -1,6 +1,5 @@
-:host {
-	* {
-		opacity: 0;
+:host{
+    opacity:1;
     -webkit-transition: opacity 0.5s ease-in;
     position: absolute;
 		overflow:hidden;
@@ -13,11 +12,11 @@
 		-moz-user-select: none;
 		-ms-user-select: none;
 		user-select: none;
-	}
 
-	*:unresolved {
-	    opacity: 0;
-	 }
+  :unresolved{
+    opacity:0;
+
+  }
   :-webkit-full-screen 
   {
     width:100% !important;
@@ -32,9 +31,9 @@
       height:100%;
       left:0px;
       top:0px;
-      background-color:red;
    }
 }
+
 
 .unselectable
 {

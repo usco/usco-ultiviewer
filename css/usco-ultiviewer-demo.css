@@ -6,6 +6,17 @@
 usco-ultiviewer{
   left:0px;top:0px;width:100%;height:100%;background-color:#ffffff;position:absolute;
 }
+
+
+usco-ultiviewer-osc{
+    -webkit-transition: opacity 2.5s ease-in;
+    transition: opacity 2.5s ease-in;
+     opacity: 1;
+}
+usco-ultiviewer-osc[unresolved]{
+	    opacity: 0;
+	 }
+
 /*selector for special elements within custom elements*/
 usco-ultiviewer .viewHelpers input[type="checkbox"] {
       display:none;
@@ -207,11 +218,11 @@ usco-ultiviewer .cameraControls button + label > span
     border: 1px dashed #ccc;
     border-radius: 5px;*/
   }
-  :unresolved:after {
+  /*usco-ultiviewer :unresolved:after {
     padding: 15px;
     content: 'loading...';
     color: #ccc;
-  }
+  }*/
 
   /*POLYMER UI ACCORDION*/
    polymer-ui-collapsible {
