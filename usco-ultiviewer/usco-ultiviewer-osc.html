@@ -2,9 +2,9 @@
 
 <polymer-element name="usco-ultiviewer-osc" attributes="camera, controls, autoRotate, fullScreen, showGrid, showAxes">
   <template >
-      <div style="width:inherit;" >
-      <div id="cameraControls" class="cameraControls" style="position:absolute;top:20px;left:5px;pointer-events: all;">
-        <table style="text-align: center;">
+      <div style="width:inherit;">
+      <div id="cameraControls" class="cameraControls">
+        <table>
           <tr>
             <td colspan="3">
              <button id="rotateUp" on-holdpulse="{{rotateViewUp}}" on-mousedown="{{rotateViewUp}}"></button>
@@ -35,7 +35,7 @@
         <button id="zoomOut" on-holdpulse="{{zoomViewOut}}" on-click="{{zoomViewOut}}"/><label for="zoomOut">-</label>
       </div>
 
-      <polymer-ui-accordion  selectedClass="polymer-ui-collapsible-selected" style="position:absolute;top:20px;right:20px;pointer-events: all;" class="viewHelpers">
+      <polymer-ui-accordion  selectedClass="polymer-ui-collapsible-selected" class="viewHelpers">
         <polymer-ui-collapsible >
           <div class="polymer-ui-collapsible-header">
             <span class="collapsible-header-arrow"></span>View Settings
@@ -52,7 +52,7 @@
   
       </polymer-ui-accordion>
 
-      <div id="viewControls" class="viewControls" style="position:absolute;bottom:40px;right:20px;pointer-events: all;">
+      <div id="viewControls" class="viewControls">
         <input type="checkbox" checked="{{autoRotate}}" id="autoRotate" class="autoRotate"><label for="autoRotate"><span>AutoRotate</span></label>
         <input type="checkbox" checked="{{fullScreen}}" id="fullScreen" class="fullScreen"/> <label for="fullScreen"><span>Fullscreen</span></label> 
       </div>

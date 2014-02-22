@@ -42,20 +42,20 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" >
     <!--resource loading on screen display-->
     <template repeat="{{resource in resources}}">
         <template if="{{!resource.error && !resource.loaded  }}">
-          <cubic-loader class="resourceLoading" style="position:absolute;top:20%;text-align: center;width:100%;z-index:999" percentComplete="{{resource.fetchProgress}}" resource="{{resource}}"></cubic-loader>
+          <cubic-loader class="resourceLoader" percentComplete="{{resource.fetchProgress}}" resource="{{resource}}"></cubic-loader>
         </template>
     </template>
 
     <!--on screen display of 2d ui-->
     <template if="{{showControls}}">
-      <usco-ultiviewer-osc style="position: absolute;top: 0px;left: 0px;height:100%;width:100%;pointer-events: none;z-index:99;" 
+      <usco-ultiviewer-osc 
       camera="{{camera}}" controls="{{controls}}" autoRotate="{{autoRotate}}" fullScreen="{{fullScreen}}" showGrid="{{showGrid}}"         showAxes="{{showAxes}}">
       </usco-ultiviewer-osc>
     </template>
 
 
     <template if="{{selectedObject != null}}">
-        <div  part="selectionDownload" style="cursor:pointer;position:absolute;left:20px;bottom:40px;z-index:999;background:#494949;color:white;padding:5px;font-weight: bold;" 
+        <div  class="selectionDownload"
 on-tap="{{onDownloadTap}}" on-mouseDown="{{onDownloadTap}}">
         Download
         </div>

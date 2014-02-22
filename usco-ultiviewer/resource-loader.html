@@ -2,15 +2,15 @@
 <polymer-element name="cubic-loader" attributes="width, depth, height, percentComplete, resource">
 
 <template>
-  <div style="font-weight: bold;font-size:1.2em">
+  <div >
     <template if="{{resource.totalRawSize > warningSize}}">
-      <div style="background:#FF7226;color:white;display: inline-block;margin-bottom:10px;padding:5px;font-size:0.8em" >
-        <div style="text-transform:uppercase;">Large file detected</div>
-        <div style="font-size:0.8em">This might take a while</div>
+      <div class="messages">
+        <div class="warning">Large file detected</div>
+        <div class="info">This might take a while</div>
       </div>
     </template>  
-    <div>
-      <span> Loading:</span> <span style="color:#4EBCF6"> {{percentComplete}} % </span>
+    <div class="progress">
+      <span> Loading:</span> <span class="progressPercent"> {{percentComplete}} % </span>
     </div>
   </div>
 </template>

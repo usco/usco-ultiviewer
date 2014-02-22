@@ -9,15 +9,66 @@ usco-ultiviewer{
 
 
 usco-ultiviewer-osc{
-    -webkit-transition: opacity 2.5s ease-in;
-    transition: opacity 2.5s ease-in;
+    -webkit-transition: opacity 0.5s ease-in;
+    transition: opacity 0.5s ease-in;
      opacity: 1;
+    position: absolute;
+    top: 0px;left: 0px;height:100%;width:100%;
+    pointer-events: none;
+    z-index:99;
 }
 usco-ultiviewer-osc[unresolved]{
 	    opacity: 0;
 	 }
 
+cubic-loader{
+  font-weight: bold;font-size:1.2em;
+}
+
+cubic-loader .progressPercent{
+  color:#4EBCF6;
+}
+cubic-loader .messages{
+  
+  background:#FF7226;
+  color:white;
+  display: inline-block;
+  margin-bottom:10px;
+  padding:5px;
+  font-size:0.8em;
+}
+
+cubic-loader .warning{
+  text-transform:uppercase;
+}
+
+cubic-loader .info{
+  font-size:0.8em;
+}
+
+usco-ultiviewer .resourceLoader{
+  position:absolute;top:20%;
+  text-align: center;width:100%;
+  z-index:999;
+
+}
+
+usco-ultiviewer .selectionDownload{
+  cursor:pointer;
+  position:absolute;left:20px;bottom:40px;
+  z-index:999;
+  background:#494949;
+  color:white;padding:5px;
+  font-weight: bold;
+}
+
 /*selector for special elements within custom elements*/
+usco-ultiviewer .viewHelpers{
+  position:absolute;
+  top:20px;right:20px;
+  pointer-events: all;
+}
+
 usco-ultiviewer .viewHelpers input[type="checkbox"] {
       display:none;
 }
@@ -61,6 +112,12 @@ usco-ultiviewer .viewHelpers input[type="checkbox"] + label
 
 
 /****/
+usco-ultiviewer .viewControls{
+  position:absolute;
+  bottom:40px;right:20px;
+  pointer-events: all;
+}
+
 usco-ultiviewer .viewControls input[type="checkbox"] {
       display:none;
 }
@@ -112,6 +169,14 @@ usco-ultiviewer .viewControls input[type=checkbox]:checked + label
   usco-ultiviewer .cameraControls
   {
     color:white;
+    position:absolute;
+    top:20px;
+    left:5px;
+    pointer-events: all;
+  }
+
+  usco-ultiviewer .cameraControls>table{
+    text-align: center;
   }
 
   usco-ultiviewer .cameraControls button
