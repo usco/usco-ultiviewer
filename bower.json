@@ -5,17 +5,14 @@
   "dependencies": {
     "platform": "Polymer/platform#master",
     "polymer": "Polymer/polymer#master",
-
-    "polymer-localstorage":"Polymer/polymer-localstorage#master",
-
-    "polymer-ui-accordion":"Polymer/polymer-ui-accordion#master",
-
-    "polymer-ui-collapsible":"kaosat-dev/polymer-ui-collapsible#master",
-
-    "file-saver"    : "eligrey/FileSaver.js",
+    "polymer-localstorage": "Polymer/polymer-localstorage#master",
+    "polymer-ui-accordion": "Polymer/polymer-ui-accordion#master",
+    "polymer-ui-collapsible": "kaosat-dev/polymer-ui-collapsible#master",
+    "file-saver": "eligrey/FileSaver.js",
     "usco-viewer-base": "usco/usco-viewer-base#master",
     "asset-manager": "usco/usco-asset-manager#master",
     "usco-xhr-store": "usco/usco-xhr-store#master",
-    "usco-stl-parser": "usco/usco-stl-parser#master"
+    "usco-stl-parser": "usco/usco-stl-parser#master",
+    "polymer-gestures": "https://github.com/Polymer/polymer-gestures"
   }
 }

@@ -63,7 +63,8 @@ on-tap="{{onDownloadTap}}" on-mouseDown="{{onDownloadTap}}">
 
   <!--<div id="trackerTest" style="background:red;position: absolute;top: 0; left: 0;width: 36px; height: 36px;z-index: 999;"> </div>
   -->
-    <div id="viewWrapper" touch-action="none" on-pointermove="{{onPointerMove}}" on-pointerdown="{{onPointerDown}}" on-pointerup="{{onPointerUp}}" on-longstatictap="{{onLongstatictap}}" on-longmovetap="{{onLongmovetap}}">
+    <div id="viewWrapper" touch-action="none" on-mousemove="{{onPointerMove}}" on-down="{{onPointerDown}}" on-up="{{onPointerUp}}" on-longstatictap="{{onLongstatictap}}" on-longmovetap="{{onLongmovetap}}">
+    
       <div id="viewer"></div>
       <three-stats id="stats" show="{{showStats}}"></three-stats>
 

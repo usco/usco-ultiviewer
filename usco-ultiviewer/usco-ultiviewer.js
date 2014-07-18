@@ -9,7 +9,7 @@ Polymer('usco-ultiviewer', {
   created: function()
   {
     this.super();
-    window.PointerGestures.dispatcher.recognizers.hold.HOLD_DELAY = 40;//HACK !!see https://github.com/Polymer/PointerGestures/issues/17
+    //window.PointerGestures.dispatcher.recognizers.hold.HOLD_DELAY = 40;//HACK !!see https://github.com/Polymer/PointerGestures/issues/17
 
     var AssetManager = require("assetManager");
     var xhrStore = require("usco-xhr-store");
