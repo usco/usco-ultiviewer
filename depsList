@@ -1,0 +1,10 @@
+usco-asset-manager
+usco-client-deps
+usco-amf-parser
+usco-ctm-parser
+usco-obj-parser
+usco-ply-parser
+usco-stl-parser
+usco-xhr-store
+usco-desktop-store
+core-theme-aware

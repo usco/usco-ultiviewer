@@ -1,7 +1,9 @@
-<link rel="import" href="../components/polymer/polymer.html">
+<link rel="import" href="components/polymer/polymer.html">
+<link rel="import" href="components/core-theme-aware/core-theme-aware.html">
 
-<polymer-element name="usco-ultiviewer-osc" attributes="camera, controls, autoRotate, fullScreen, showGrid, showAxes">
-  <template >
+<polymer-element name="ulti-viewer-controls" attributes="camera, controls, autoRotate, fullScreen, showGrid, showAxes">
+  <template>
+    <core-theme-aware>
       <div style="width:inherit;">
       <div id="cameraControls" class="cameraControls">
         <table>
@@ -58,9 +60,10 @@
       </div>
 
     </div>
+    </core-theme-aware> 
   </template>
 <script>
-Polymer("usco-ultiviewer-osc",{
+Polymer("ulti-viewer-controls",{
   camera: null,
   controls:null,
   autoRotate:false,

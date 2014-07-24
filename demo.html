@@ -1,2 +1,47 @@
-<link rel="import" href="components/polymer/polymer.html">
-<link rel="import" href="usco-ultiviewer/usco-ultiviewer.html">
+<html>
+  <head>
+    <title>Ulti viewer example</title>
+      <script src="components/platform/platform.js"></script>
+      <link rel="import" href="ulti-viewer.html">
+
+      <style>
+         html, body, three-js, ulti-viewer{
+      margin: 0;
+      position: absolute;
+      height: 100%;
+      width:100%;
+      
+      -webkit-touch-callout: none;
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+    }
+    
+      #perspectiveView{
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        z-index:1;
+      }
+    
+          core-theme-aware.ultimaker-dark {
+            background: white;
+            color:black;
+          }
+      </style>
+  </head>
+<body theme="ultimaker-dark">
+  <ulti-viewer></ulti-viewer>
+
+  <script>
+      window.addEventListener('polymer-ready', function() {
+        console.log("web components ready");
+        var ultiViewer = document.querySelector('ulti-viewer');
+        console.log("ultiViewer",ultiViewer);
+    });
+  </script>  
+</body>
+</html>

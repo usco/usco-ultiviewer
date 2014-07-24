@@ -1,0 +1,80 @@
+<link rel="import" href="components/polymer/polymer.html">
+<link rel="import" href="components/polymer-three-js/three-js.html">
+<link rel="import" href="components/tween-js/tween-js.html">
+<link rel="import" href="components/three-js-helpers/axis-helper.html">
+<link rel="import" href="components/three-js-helpers/grid-helper.html">
+
+<link rel="import" href="components/usco-client-deps/usco-client-deps.html">
+<link rel="import" href="components/usco-asset-manager/usco-asset-manager.html">
+
+<link rel="import" href="components/usco-xhr-store/xhr-store.html">
+<link rel="import" href="components/usco-desktop-store/desktop-store.html">
+
+<link rel="import" href="components/usco-amf-parser/amf-parser.html">
+<link rel="import" href="components/usco-stl-parser/stl-parser.html">
+<link rel="import" href="components/usco-obj-parser/obj-parser.html">
+<link rel="import" href="components/usco-ply-parser/ply-parser.html">
+<link rel="import" href="components/usco-ctm-parser/ctm-parser.html">
+
+<link rel="import" href="components/core-theme-aware/core-theme-aware.html">
+
+
+<polymer-element name="ulti-viewer" attributes="showAxis showIndicators"
+on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragover="{{handleDragOver}}" on-drop="{{handleDrop}}"
+>
+    <template>
+      <!--<link rel="stylesheet" type="text/css" href="usco-ultiviewer.css">-->
+      <!--viewer itself-->
+      <three-js id="threeJs" 
+      selectedObject="{{selectedObject}}" selectedObjects="{{selectedObjects}}" highlightedObject="{{highlightedObject}}">
+          <three-stats id="stats" show={{showStats}}></three-stats>
+          <tween-js></tween-js>
+          <three-js-combinedCamera id="cam1" pos="[100,50,200]" orientation="diagonal" up=[0,0,1]></three-js-combinedCamera>
+          
+          <three-js-webglRenderer id="webglRenderer"></three-js-webglRenderer>
+          <three-js-scene name="main" active pickable>
+            <three-pointLight color="0xfcfc7e" intensity="0.5" pos=[100, 150, 200]> </three-pointLight>
+            <three-pointLight color="0xfcfc7e" intensity="0.5" pos=[100, -150, 200]> </three-pointLight>
+            <three-hemisphereLight color="0xffEEEE" gndColor="0xffEEEE" pos=[0, 1200, 5000]></three-hemisphereLight>
+            <three-directionalLight castShadow onlyShadow>  </three-directionalLight>
+            <three-ambientLight color="0x161515"> </three-ambientLight>
+          </three-js-scene>
+          
+          <three-js-scene name="helpers" active>
+            <axis-helper> </axis-helper>
+            <grid-helper> </grid-helper>
+            
+            <template if="{{showAxis}}">
+              <axis-helper> </axis-helper>
+            </template>
+            <template if="{{showGrid}}">
+              <grid-helper> </grid-helper>
+            </template>
+          </three-js-scene>
+        
+          <three-js-viewport name="perspective" id="perspectiveView" cameraId="#cam1" left=0 bottom=0 width=0.5 height=1.0>
+            <three-js-orbitControls cameraUp=[0,0,1] autoRotate="{{autoRotate}}" autoRotateSpeed="10"> </three-js-orbitControls>
+            <!--<three-js-combinedCamera id="cam1" pos="[100,50,200]" orientation="diagonal" up=[0,0,1]></three-js-combinedCamera>-->
+          </three-js-viewport>
+        </three-js>
+     
+      <!--core elements: loaders, etc-->
+      <usco-client-deps> </usco-client-deps>
+      <usco-asset-manager id="assetManager">
+        <xhr-store> </xhr-store>
+        <desktop-store> </desktop-store>
+
+        <amf-parser> </amf-parser>
+        <stl-parser> </stl-parser>
+        <obj-parser> </obj-parser>
+        <ply-parser> </ply-parser>
+        <ctm-parser> </ctm-parser>
+      </usco-asset-manager>
+      
+      <!--AutoSaving settings to localstorage-->
+      <polymer-localstorage name="ultiviewer-settings-showGrid"   value="{{showGrid}}"></polymer-localstorage>
+      <polymer-localstorage name="ultiviewer-settings-showAxes"   value="{{showAxes}}"></polymer-localstorage>
+      <polymer-localstorage name="ultiviewer-settings-autoRotate" value="{{autoRotate}}"></polymer-localstorage>    
+  </template>
+  <script src="ulti-viewer.js"></script>
+</polymer-element>
