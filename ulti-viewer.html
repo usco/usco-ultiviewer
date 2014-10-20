@@ -1,10 +1,11 @@
 <link rel="import" href="components/polymer/polymer.html">
-<link rel="import" href="components/core-theme-aware/core-theme-aware.html">
 
 <link rel="import" href="components/three-js/three-js.html">
 <link rel="import" href="components/tween-js/tween-js.html">
 <link rel="import" href="components/three-js-helpers/axis-helper.html">
 <link rel="import" href="components/three-js-helpers/grid-helper.html">
+<link rel="import" href="components/three-js-helpers/shadow-plane.html">
+<link rel="import" href="components/three-js-helpers/mirror-plane.html">
 
 <link rel="import" href="components/usco-client-deps/usco-client-deps.html">
 <link rel="import" href="components/usco-asset-manager/usco-asset-manager.html">
@@ -20,7 +21,7 @@
 
 <link rel="import" href="ulti-viewer-controls.html">
 
-<script src="lib/computeBounding.js"></script>
+<!--<script src="lib/computeBounding.js"></script>-->
 
 <polymer-element name="ulti-viewer" attributes="showAxis showIndicators"
 on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragover="{{handleDragOver}}" on-drop="{{handleDrop}}"
@@ -44,7 +45,7 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
       <!--viewer itself-->
       <three-js id="threeJs" 
       selectedObject="{{selectedObject}}" selectedObjects="{{selectedObjects}}" highlightedObject="{{highlightedObject}}">
-          <three-stats id="stats" show></three-stats>
+          <three-stats id="stats" show=false></three-stats>
           <tween-js></tween-js>
           
           <three-js-webglRenderer id="webglRenderer"></three-js-webglRenderer>
@@ -55,22 +56,16 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
             <three-hemisphereLight color="0xffEEEE" gndColor="0xffEEEE" pos="[0, 1200, 1500]" intensity=0.6></three-hemisphereLight>
             <three-ambientLight color="0x262525" intensity=3> </three-ambientLight>
           </three-js-scene>
-          
-          <!--
-      ambientLight = new THREE.AmbientLight(0x161515);
-      hemiLight = new THREE.HemisphereLight( 0xffEEEE, 0xffEEEE, 0.2 );
-		  hemiLight.position.set( 0, 1200, 5000 );
-		  -->
-          
           <three-js-scene name="helpers" active>
-            <template if="{{showAxis}}">
+            <template if="{{showAxes}}">
               <axis-helper up=[0,0,1]> </axis-helper>
             </template>
             <template if="{{showGrid}}">
               <grid-helper up=[0,0,1]> </grid-helper>
             </template>
           </three-js-scene>
-          <three-js-viewport name="perspective" id="perspectiveView">
+          
+          <three-js-viewport name="perspective" id="perspectiveView" class="perspectiveView">
             <three-js-combinedCamera pos=[100,50,200] orientation="diagonal" up=[0,0,1]></three-js-combinedCamera>
             <three-js-orbitControls cameraUp=[0,0,1] autoRotate="{{autoRotate}}" autoRotateSpeed=10> </three-js-orbitControls>
           </three-js-viewport>

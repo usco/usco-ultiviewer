@@ -2,10 +2,11 @@
 Polymer('ulti-viewer', {
   selectedObject : null,
   selectedObjects:null,
-  showGrid: false,
+  showGrid: true,
+  showAxes: true,
   showControls: true,
   showDimensions: true,
-  autoRotate: true,
+  autoRotate: false,
   resources : [], 
   created: function()
   {
@@ -13,18 +14,17 @@ Polymer('ulti-viewer', {
     this.minObjectSize = 20;//minimum size (in arbitrarty/opengl units) before requiring re-scaling (upwards)
     this.maxObjectSize = 200;//maximum size (in arbitrarty/opengl units) before requiring re-scaling (downwards)
   },
-  enteredView:function()
+  attached:function()
   {
     this.threeJs      = this.$.threeJs;
     this.assetManager = this.$.assetManager;
-    //window.PointerGestures.dispatcher.recognizers.hold.HOLD_DELAY = 40;//HACK !!see https://github.com/Polymer/PointerGestures/issues/17
-    //this.assetManager.stores["xhr"].timeout = 0;//prevent timeout
-    //workaround/hack for some css issues
+    
+    /*//workaround/hack for some css issues:FIXME: is this still necessary??
     try{
     $('<style></style>').appendTo($(document.body)).remove();
-    }catch(error){}
+    }catch(error){}*/
   },
-  leftView:function()
+  detached:function()
   {
     this.clearResources({clearCache:true});
   },
@@ -62,7 +62,7 @@ Polymer('ulti-viewer', {
     }
   },  
   //public api
-  addToScene:function( object, sceneName )
+  addToScene:function( object, sceneName, options )
   {
     var autoCenter = autoCenter === undefined ? true: autoCenter;
     var autoResize = autoResize === undefined ? true: autoResize;
@@ -75,13 +75,14 @@ Polymer('ulti-viewer', {
         geometry.computeVertexNormals();//needed at least for .ply files
         geometry.computeFaceNormals();*/
     
-    this.threeJs.addToScene( object, sceneName );
+    var options = {autoCenter:true,autoResize:true};
+    this.threeJs.addToScene( object, sceneName, options );
   },
   removeFromScene:function( object, sceneName )
   {
     this.threeJs.removeFromScene( object,sceneName );
   },
-  loadMesh:function( uriOrData )
+  loadMesh:function( uriOrData, options )
   {
     function onError(error){console.log("FAIL",error);};
     this.loadResource( uriOrData ).then( this.addToScene.bind(this) ).fail(onError);
@@ -91,7 +92,7 @@ Polymer('ulti-viewer', {
     var self = this;
     var resource = this.assetManager.loadResource( uriOrData, {parsing:{useWorker:true,useBuffers:true} } );
     this.resources.push( resource );
-    var resourceDeferred = resource.deferred;//this.assetManager.loadResource( uriOrData, {parsing:{useWorker:true} } );
+    var resourceDeferred = resource.deferred;
     function formatResource(resource)
     {
       //geometry
@@ -115,12 +116,9 @@ Polymer('ulti-viewer', {
       return shape;
     }
     
-    function resourceLoadFailed(reason)
-    {
-      console.log("failed to load resource", error);
-    }
     //TODO add correctly handling of errors
-    return resourceDeferred.promise.then( formatResource, resourceLoadFailed ).fail( resourceLoadFailed );
+    var self = this;
+    return resourceDeferred.promise.then( formatResource, self.resourceLoadFailed ).fail( self.resourceLoadFailed );
   },
   resourceLoadFailed:function(reason)
   {
@@ -376,6 +374,8 @@ Polymer('ulti-viewer', {
   },
   selectedObjectChanged:function(oldSelection)
   {
+    return;
+    //FIXME: removed for now
     var newSelection = this.selectedObject;
     this.selectObject(newSelection, oldSelection);
 

@@ -10,6 +10,7 @@
     "three-js"          : "usco/three-js",
     "three-js-helpers"  : "usco/three-js-helpers",
     "tween-js"          : "usco/tween-js",
+    
     "usco-asset-manager": "usco/usco-asset-manager#master",
     "usco-client-deps"  : "usco/usco-client-deps#master",
     "usco-xhr-store"    : "usco/usco-xhr-store#master",
@@ -18,6 +19,6 @@
     "usco-stl-parser"   : "usco/usco-stl-parser#master",
     "usco-amf-parser"   : "usco/usco-amf-parser#master",
     "usco-ply-parser"   : "usco/usco-ply-parser#master",
-    "usco-obj-parser"   : "usco/usco-obj-parser#master",
+    "usco-obj-parser"   : "usco/usco-obj-parser#master"
   }
 }
