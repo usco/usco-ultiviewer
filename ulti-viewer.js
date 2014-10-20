@@ -5,8 +5,8 @@ Polymer('ulti-viewer', {
   showGrid: false,
   showControls: true,
   showDimensions: true,
-  resources : [], //TODO: move this to asset manager ??
-  resouceDeferreds : [],
+  autoRotate: true,
+  resources : [], 
   created: function()
   {
     this.super();
@@ -18,8 +18,7 @@ Polymer('ulti-viewer', {
     this.threeJs      = this.$.threeJs;
     this.assetManager = this.$.assetManager;
     //window.PointerGestures.dispatcher.recognizers.hold.HOLD_DELAY = 40;//HACK !!see https://github.com/Polymer/PointerGestures/issues/17
-    //prevent timeout
-    //this.assetManager.stores["xhr"].timeout = 0;
+    //this.assetManager.stores["xhr"].timeout = 0;//prevent timeout
     //workaround/hack for some css issues
     try{
     $('<style></style>').appendTo($(document.body)).remove();
@@ -29,35 +28,90 @@ Polymer('ulti-viewer', {
   {
     this.clearResources({clearCache:true});
   },
+  //event handlers
+  //prevents scrolling whole page if using scroll & mouse is within viewer
+  onMouseWheel:function (event)
+  {
+    event.preventDefault();
+    return false;
+  },
+  //helpers
+  _centerMesh:function( object )
+  {
+    //TODO: should this be added to our object/mesh classes
+    //centering hack
+    if(!object.boundingSphere) computeObject3DBoundingSphere( object );
+    var offset = object.boundingSphere.center;
+    object.applyMatrix( new THREE.Matrix4().makeTranslation( -offset.x, -offset.y, -offset.z ) );
+  },
+  _resizeMesh:function( object )
+  {  
+    if(!object.boundingSphere) computeObject3DBoundingSphere( object );
+    var size = object.boundingSphere.radius;
+    if( size < this.minObjectSize)
+    {
+      var ratio = object.boundingSphere.radius/this.minObjectSize;
+      var scaling = 1/ratio;
+      object.applyMatrix( new THREE.Matrix4().makeScale( scaling, scaling, scaling ) );
+    }
+    else if(size > this.maxObjectSize)
+    {
+      var ratio = object.boundingSphere.radius/this.maxObjectSize;
+      var scaling = 1/ratio;
+      object.applyMatrix( new THREE.Matrix4().makeScale( scaling, scaling, scaling ) );
+    }
+  },  
   //public api
   addToScene:function( object, sceneName )
   {
+    var autoCenter = autoCenter === undefined ? true: autoCenter;
+    var autoResize = autoResize === undefined ? true: autoResize;
+    //if(autoCenter) this._centerMesh( object );
+    //if(autoResize) this._resizeMesh( object );
+    
+    //var geometry = object.geometry;
+    //geometry.computeBoundingBox();
+        /*geometry.computeBoundingSphere();
+        geometry.computeVertexNormals();//needed at least for .ply files
+        geometry.computeFaceNormals();*/
+    
     this.threeJs.addToScene( object, sceneName );
   },
   removeFromScene:function( object, sceneName )
   {
     this.threeJs.removeFromScene( object,sceneName );
   },
+  loadMesh:function( uriOrData )
+  {
+    function onError(error){console.log("FAIL",error);};
+    this.loadResource( uriOrData ).then( this.addToScene.bind(this) ).fail(onError);
+  },
   loadResource:function(uriOrData)
   {
     var self = this;
-    var resourceDeferred = this.assetManager.loadResource(uriOrData);
+    var resource = this.assetManager.loadResource( uriOrData, {parsing:{useWorker:true,useBuffers:true} } );
+    this.resources.push( resource );
+    var resourceDeferred = resource.deferred;//this.assetManager.loadResource( uriOrData, {parsing:{useWorker:true} } );
     function formatResource(resource)
     {
       //geometry
-      var geometry = resource.data;
-      geometry.computeBoundingBox();
-      //geometry.computeCentroids();
-      geometry.computeBoundingSphere();
-      //needed at least for .ply files
-      geometry.computeVertexNormals();
-      geometry.computeFaceNormals();
-
-      //nice color: 0x00a9ff
-      var material = new THREE.MeshPhongMaterial( { color: 0x17a9f5, shading: THREE.FlatShading} );
-      //FIXME: in THREE.js R67> issues with lambert material + lack of compute centroids
-      //new THREE.MeshLambertMaterial( {opacity:1,transparent:false,color: 0x0088ff} );
-      var shape = new THREE.Mesh(geometry, material);
+      var shape = resource.data;
+      if( !(shape instanceof THREE.Object3D) )
+      {
+        //nice color: 0x00a9ff
+        var material = new THREE.MeshPhongMaterial( { color: 0x17a9f5, specular: 0xffffff, shininess: 10, shading: THREE.FlatShading} );
+        //new THREE.MeshLambertMaterial( {opacity:1,transparent:false,color: 0x0088ff} );
+        var shape = new THREE.Mesh(shape, material);
+      }
+      
+      /*var geometry = shape.geometry;
+      if(geometry)
+      {
+        geometry.computeBoundingBox();
+        geometry.computeBoundingSphere();
+        geometry.computeVertexNormals();//needed at least for .ply files
+        geometry.computeFaceNormals();
+      }*/
       return shape;
     }
     
@@ -65,7 +119,12 @@ Polymer('ulti-viewer', {
     {
       console.log("failed to load resource", error);
     }
-    return resourceDeferred.promise.then(formatResource,resourceLoadFailed);
+    //TODO add correctly handling of errors
+    return resourceDeferred.promise.then( formatResource, resourceLoadFailed ).fail( resourceLoadFailed );
+  },
+  resourceLoadFailed:function(reason)
+  {
+    console.log("failed to load resource", error);
   },
   loadResource_OLD: function(uri, autoCenter, autoResize, display, keepRawData)
   {
@@ -87,7 +146,6 @@ Polymer('ulti-viewer', {
         {
           var geometry = resourceData;
           geometry.computeBoundingBox();
-				  geometry.computeCentroids();
 				  geometry.computeBoundingSphere();
 
           //needed at least for .ply files
@@ -98,33 +156,6 @@ Polymer('ulti-viewer', {
           //nice color: 0x00a9ff
           var material = new THREE.MeshPhongMaterial( { color: 0x17a9f5, specular: 0xffffff, shininess: 10, shading: THREE.FlatShading} );
           var shape = new THREE.Mesh(geometry, material);
-
-          //centering hack
-          if( autoCenter)
-          {
-            var offset = geometry.boundingSphere.center;
-            geometry.applyMatrix( new THREE.Matrix4().makeTranslation( -offset.x, -offset.y, -offset.z ) );
-          }
-          //resizing hacks
-          if( autoResize)
-          {
-            var size = geometry.boundingSphere.radius;
-
-            if( size < this.minObjectSize)
-            {
-              resource.centeringRequired = true;
-              var ratio = geometry.boundingSphere.radius/this.minObjectSize;
-              var scaling = 1/ratio;
-              geometry.applyMatrix( new THREE.Matrix4().makeScale( scaling, scaling, scaling ) );
-            }
-            else if(size > this.maxObjectSize)
-            {
-              resource.scalingRequired = true;
-              var ratio = geometry.boundingSphere.radius/this.maxObjectSize;
-              var scaling = 1/ratio;
-              geometry.applyMatrix( new THREE.Matrix4().makeScale( scaling, scaling, scaling ) );
-            }
-          }
 
           //possible alternative to resizing : zooming in on objects
           /*var viewOffset = this.camera.position.clone().sub( this.camera.target ) ;
@@ -148,23 +179,6 @@ Polymer('ulti-viewer', {
         }
         else
         {
-            try
-            {
-              if( autoResize)
-              {
-                var bSphere = computeObject3DBoundingSphere(resourceData);
-                var size = bSphere.radius;
-
-                if( size < this.minObjectSize)
-                {
-                  resource.centeringRequired = true;
-                  var ratio = size/this.minObjectSize;
-                  var scaling = 1/ratio;
-                  resourceData.applyMatrix( new THREE.Matrix4().makeScale( scaling, scaling, scaling ) );
-                }
-            }
-            }catch(error)
-            {console.log("failed to auto resize ",error)}
             resourceData.meta = {};
             resourceData.meta.resource = res;
             self.addToScene(resourceData);
@@ -209,9 +223,7 @@ Polymer('ulti-viewer', {
   //event handlers
   onDownloadTap:function(event)
   {
-     console.log("downloadTap")
      var link = document.createElement("a");
-
      //TODO: rethink this whole aspect: even when keeping the initial "raw" data
      //things are a bit convoluted : perhaps an intermediary step would be for the viewer
      //to be able to act as a "format converter": once we have working "writers/serialisers"
@@ -243,11 +255,14 @@ Polymer('ulti-viewer', {
      event.stopPropagation();
   },
   dismissResource:function(event, detail, sender) {
-    var model = sender.templateInstance.model.resource;
-    var index = this.resources.indexOf(model);
+    var resource = sender.templateInstance.model.resource;
+    console.log("resource",resource);
+    var index = this.resources.indexOf(resource);
+    resource.deferred.reject("canceling");
+    this.assetManager.unloadResource( resource.uri );
     if (index > -1) this.resources.splice(index, 1);
   },
-  
+  //event handlers  
   handleDragOver:function(e) {
     if (e.preventDefault) {
       e.preventDefault();
@@ -261,7 +276,7 @@ Polymer('ulti-viewer', {
     var data=e.dataTransfer.getData("Text");
     if( data!= "" ){
         this.asyncFire('text-dropped', {data:data} );
-        this.loadResource( e.detail.data ).then( this.addToScene.bind(this) );
+        this.loadMesh( e.detail.data );
     }
 
     var files = e.dataTransfer.files;
@@ -269,7 +284,7 @@ Polymer('ulti-viewer', {
     {
       this.asyncFire('files-dropped', {data:files});
       for (var i = 0, f; f = files[i]; i++) {
-        this.loadResource( f ).then( this.addToScene.bind(this) );
+        this.loadMesh( f );
       }
     }
   } ,
@@ -292,8 +307,9 @@ Polymer('ulti-viewer', {
             } )
             .start();
   },*/
-  highlightedObjectChanged:function(oldHovered)
+  highlightedObjectChanged:function(oldHovered,newHovered)
   {
+    console.log("highlightedObjectChanged",oldHovered,newHovered);
       this.selectionColor = 0xf7c634;//0xff5400;//0xfffccc;
 		  this.outlineColor = 0xffc200;
       function validForOutline(selection)
@@ -310,8 +326,10 @@ Polymer('ulti-viewer', {
         curHovered.currentHoverHex = curHovered.material.color.getHex();
         curHovered.material.color.setHex(this.selectionColor);
         //curHovered.material.vertexColors = THREE.FaceColors;
-        curHovered.currentHoverHexSpec = curHovered.material.specular.getHex();
-        curHovered.material.specular.setHex(this.selectionColor);
+        
+        //curHovered.currentHoverHexSpec = curHovered.material.specular.getHex();
+        //curHovered.material.specular.setHex(this.selectionColor);
+        
         //curHovered.material.shininess=8; //.setHex(this.selectionColor);
         outlineMaterial = new THREE.MeshBasicMaterial({
             color: 0xffc200,
@@ -327,7 +345,7 @@ Polymer('ulti-viewer', {
             color: 0xffc200,
             wireframe: true, wireframeLinewidth: 4 ,side: THREE.BackSide} );
 
-        outline = new THREE.Mesh(curHovered.geometry, outlineMaterial);
+        outline = new THREE.Object3D();//new THREE.Mesh(curHovered.geometry, outlineMaterial);
         outline.scale.multiplyScalar(1.03);
         outline.name = "hoverOutline";
         curHovered.hoverOutline = outline;
@@ -338,8 +356,8 @@ Polymer('ulti-viewer', {
         if (oldHovered.hoverOutline != null)
         {
           oldHovered.material.color.setHex(oldHovered.currentHoverHex);
-          oldHovered.material.specular.setHex(oldHovered.currentHoverHexSpec);
-          oldHovered.material.shininess = 10;
+          //oldHovered.material.specular.setHex(oldHovered.currentHoverHexSpec);
+          //oldHovered.material.shininess = 10;
 
           oldHovered.remove(oldHovered.hoverOutline);
           oldHovered.hoverOutline = null;
@@ -358,11 +376,10 @@ Polymer('ulti-viewer', {
   },
   selectedObjectChanged:function(oldSelection)
   {
-    console.log("foo");
     var newSelection = this.selectedObject;
     this.selectObject(newSelection, oldSelection);
 
-    this.clearVisualFocusOnSelection();
+    //this.clearVisualFocusOnSelection();
 
     if(oldSelection && oldSelection.helpers)
       {
@@ -388,7 +405,7 @@ Polymer('ulti-viewer', {
         if(!(newSelection.helpers)) newSelection.helpers = {}
         newSelection.helpers.dims = objDims;
       }
-      this.visualFocusOnSelection(newSelection);
+      //this.visualFocusOnSelection(newSelection);
       if(this.autoRotate) this.autoRotate = false;//TODO: this should be a selection effect aswell
     }
   },
@@ -427,7 +444,6 @@ Polymer('ulti-viewer', {
         //child.renderDepth = child.material._oldRenderDepth;
       }
   },
-
   selectObject:function(newSelection, oldSelection)
   {
     this.selectionColor = 0xfffccc;
@@ -458,10 +474,4 @@ Polymer('ulti-viewer', {
     }
   },
   
-  //prevents scrolling whole page if using scroll & mouse is within viewer
-  onMouseWheel:function (event)
-  {
-    event.preventDefault();
-    return false;
-  }
 });

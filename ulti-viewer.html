@@ -1,5 +1,7 @@
 <link rel="import" href="components/polymer/polymer.html">
-<link rel="import" href="components/polymer-three-js/three-js.html">
+<link rel="import" href="components/core-theme-aware/core-theme-aware.html">
+
+<link rel="import" href="components/three-js/three-js.html">
 <link rel="import" href="components/tween-js/tween-js.html">
 <link rel="import" href="components/three-js-helpers/axis-helper.html">
 <link rel="import" href="components/three-js-helpers/grid-helper.html">
@@ -16,51 +18,67 @@
 <link rel="import" href="components/usco-ply-parser/ply-parser.html">
 <link rel="import" href="components/usco-ctm-parser/ctm-parser.html">
 
-<link rel="import" href="components/core-theme-aware/core-theme-aware.html">
+<link rel="import" href="ulti-viewer-controls.html">
 
+<script src="lib/computeBounding.js"></script>
 
 <polymer-element name="ulti-viewer" attributes="showAxis showIndicators"
 on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragover="{{handleDragOver}}" on-drop="{{handleDrop}}"
 >
     <template>
-      <!--<link rel="stylesheet" type="text/css" href="usco-ultiviewer.css">-->
+      <link rel="stylesheet" type="text/css" href="ulti-viewer.css">
+      <!--controls overlay-->
+      <!--<ulti-viewer-controls>       </ulti-viewer-controls>-->
+      <div style="position:absolute;left:0px;z-index:10">
+      <template repeat="{{resource in resources}}">
+        <ul>
+          <template if="{{!resource.loaded}}">
+          <li>
+            {{resource.name}} Fetching: {{resource.fetchProgress}}% Parsing: {{resource.parseProgress}}%
+            <input type="button" on-click="{{dismissResource}}" value="Dismiss"></input>
+          </li>
+          </template>
+        </ul>
+      </template>
+      </div>
       <!--viewer itself-->
       <three-js id="threeJs" 
       selectedObject="{{selectedObject}}" selectedObjects="{{selectedObjects}}" highlightedObject="{{highlightedObject}}">
-          <three-stats id="stats" show={{showStats}}></three-stats>
+          <three-stats id="stats" show></three-stats>
           <tween-js></tween-js>
-          <three-js-combinedCamera id="cam1" pos="[100,50,200]" orientation="diagonal" up=[0,0,1]></three-js-combinedCamera>
           
           <three-js-webglRenderer id="webglRenderer"></three-js-webglRenderer>
           <three-js-scene name="main" active pickable>
-            <three-pointLight color="0xfcfc7e" intensity="0.5" pos=[100, 150, 200]> </three-pointLight>
-            <three-pointLight color="0xfcfc7e" intensity="0.5" pos=[100, -150, 200]> </three-pointLight>
-            <three-hemisphereLight color="0xffEEEE" gndColor="0xffEEEE" pos=[0, 1200, 5000]></three-hemisphereLight>
-            <three-directionalLight castShadow onlyShadow>  </three-directionalLight>
-            <three-ambientLight color="0x161515"> </three-ambientLight>
+            <!--<three-pointLight color="0xfFfc7e" intensity=0.8 pos=[100, 150, 200] > </three-pointLight>
+            <three-pointLight color="0xfcfc7e" intensity=0.5 pos=[100, -150, -200]> </three-pointLight>
+            <three-directionalLight castShadow onlyShadow intensity=0.2 pos=[0,50,300]>  </three-directionalLight>-->
+            <three-hemisphereLight color="0xffEEEE" gndColor="0xffEEEE" pos="[0, 1200, 1500]" intensity=0.6></three-hemisphereLight>
+            <three-ambientLight color="0x262525" intensity=3> </three-ambientLight>
           </three-js-scene>
           
+          <!--
+      ambientLight = new THREE.AmbientLight(0x161515);
+      hemiLight = new THREE.HemisphereLight( 0xffEEEE, 0xffEEEE, 0.2 );
+		  hemiLight.position.set( 0, 1200, 5000 );
+		  -->
+          
           <three-js-scene name="helpers" active>
-            <axis-helper> </axis-helper>
-            <grid-helper> </grid-helper>
-            
             <template if="{{showAxis}}">
-              <axis-helper> </axis-helper>
+              <axis-helper up=[0,0,1]> </axis-helper>
             </template>
             <template if="{{showGrid}}">
-              <grid-helper> </grid-helper>
+              <grid-helper up=[0,0,1]> </grid-helper>
             </template>
           </three-js-scene>
-        
-          <three-js-viewport name="perspective" id="perspectiveView" cameraId="#cam1" left=0 bottom=0 width=0.5 height=1.0>
-            <three-js-orbitControls cameraUp=[0,0,1] autoRotate="{{autoRotate}}" autoRotateSpeed="10"> </three-js-orbitControls>
-            <!--<three-js-combinedCamera id="cam1" pos="[100,50,200]" orientation="diagonal" up=[0,0,1]></three-js-combinedCamera>-->
+          <three-js-viewport name="perspective" id="perspectiveView">
+            <three-js-combinedCamera pos=[100,50,200] orientation="diagonal" up=[0,0,1]></three-js-combinedCamera>
+            <three-js-orbitControls cameraUp=[0,0,1] autoRotate="{{autoRotate}}" autoRotateSpeed=10> </three-js-orbitControls>
           </three-js-viewport>
         </three-js>
      
       <!--core elements: loaders, etc-->
       <usco-client-deps> </usco-client-deps>
-      <usco-asset-manager id="assetManager">
+      <usco-asset-manager id="assetManager" logLevel="debug">
         <xhr-store> </xhr-store>
         <desktop-store> </desktop-store>
 
