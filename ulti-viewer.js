@@ -2,11 +2,13 @@
 Polymer('ulti-viewer', {
   selectedObject : null,
   selectedObjects:null,
+  
   showGrid: true,
   showAxes: true,
   showControls: true,
   showDimensions: true,
   autoRotate: false,
+  
   resources : [], 
   created: function()
   {
@@ -28,52 +30,11 @@ Polymer('ulti-viewer', {
   {
     this.clearResources({clearCache:true});
   },
-  //event handlers
-  //prevents scrolling whole page if using scroll & mouse is within viewer
-  onMouseWheel:function (event)
-  {
-    event.preventDefault();
-    return false;
-  },
-  //helpers
-  _centerMesh:function( object )
-  {
-    //TODO: should this be added to our object/mesh classes
-    //centering hack
-    if(!object.boundingSphere) computeObject3DBoundingSphere( object );
-    var offset = object.boundingSphere.center;
-    object.applyMatrix( new THREE.Matrix4().makeTranslation( -offset.x, -offset.y, -offset.z ) );
-  },
-  _resizeMesh:function( object )
-  {  
-    if(!object.boundingSphere) computeObject3DBoundingSphere( object );
-    var size = object.boundingSphere.radius;
-    if( size < this.minObjectSize)
-    {
-      var ratio = object.boundingSphere.radius/this.minObjectSize;
-      var scaling = 1/ratio;
-      object.applyMatrix( new THREE.Matrix4().makeScale( scaling, scaling, scaling ) );
-    }
-    else if(size > this.maxObjectSize)
-    {
-      var ratio = object.boundingSphere.radius/this.maxObjectSize;
-      var scaling = 1/ratio;
-      object.applyMatrix( new THREE.Matrix4().makeScale( scaling, scaling, scaling ) );
-    }
-  },  
   //public api
   addToScene:function( object, sceneName, options )
   {
     var autoCenter = autoCenter === undefined ? true: autoCenter;
     var autoResize = autoResize === undefined ? true: autoResize;
-    //if(autoCenter) this._centerMesh( object );
-    //if(autoResize) this._resizeMesh( object );
-    
-    //var geometry = object.geometry;
-    //geometry.computeBoundingBox();
-        /*geometry.computeBoundingSphere();
-        geometry.computeVertexNormals();//needed at least for .ply files
-        geometry.computeFaceNormals();*/
     
     var options = {autoCenter:true,autoResize:true};
     this.threeJs.addToScene( object, sceneName, options );
@@ -84,8 +45,41 @@ Polymer('ulti-viewer', {
   },
   loadMesh:function( uriOrData, options )
   {
-    function onError(error){console.log("FAIL",error);};
-    this.loadResource( uriOrData ).then( this.addToScene.bind(this) ).fail(onError);
+    var options = options || {};
+    var display = options.display === undefined ? true: options.display;
+    var keepRawData = options.keepRawData === undefined ? true: options.keepRawData;
+    
+    var resourcePromise = this.loadResource( uriOrData );
+    
+    function loadFailed(res)
+    {
+      //console.log("load failed",res.error);
+      //TODO: do this cleanly via type checking or somethg
+      var error = res.error;
+      if( error.indexOf("No parser found") != -1)
+      {
+        error = "sorry, the "+resource.ext+" format is not supported";
+      }
+    }
+    function onDisplayError(error){console.log("FAILED to display",error);};
+    if( display ) resourcePromise.then( this.addToScene.bind(this) ).fail(onDisplayError);
+    
+    //      resourcePromise.then(resource.onLoaded.bind(resource), loadFailed, resource.onDownloadProgress.bind(resource) );
+    //possible alternative to resizing : zooming in on objects
+          /*var viewOffset = this.camera.position.clone().sub( this.camera.target ) ;
+          var stuff =viewOffset.clone().normalize();
+          stuff.multiplyScalar( geometry.boundingSphere.radius*4 );
+          //this.camera.position.copy(stuff);          
+          var camPos = this.camera.position.clone();
+          var tgt = stuff;
+          var cam = this.camera;
+          var tween = new TWEEN.Tween( camPos )
+            .to( tgt , 700 )
+            .easing( TWEEN.Easing.Quadratic.In )
+            .onUpdate( function () {
+              cam.position.copy(camPos);   
+            } )
+            .start();*/
   },
   loadResource:function(uriOrData)
   {
@@ -124,88 +118,6 @@ Polymer('ulti-viewer', {
   {
     console.log("failed to load resource", error);
   },
-  loadResource_OLD: function(uri, autoCenter, autoResize, display, keepRawData)
-  {
-      var self = this;
-      var autoCenter = autoCenter === undefined ? true: autoCenter;
-      var autoResize = autoResize === undefined ? true: autoResize;
-      var display = display === undefined ? true: display;
-      var keepRawData = keepRawData === undefined ? true: keepRawData;
-
-      var resource = new Resource( uri );
-
-      function addResource(res)
-      {
-        this.showControls = true;
-
-        var resourceData = res.data;
-
-        if( !(resourceData instanceof THREE.Object3D) )
-        {
-          var geometry = resourceData;
-          geometry.computeBoundingBox();
-				  geometry.computeBoundingSphere();
-
-          //needed at least for .ply files
-          geometry.computeVertexNormals();
-          geometry.computeFaceNormals();
-
-          //var material = new THREE.MeshNormalMaterial();//new THREE.MeshLambertMaterial({ color: 0x00a9ff});//THREE.MeshPhongMaterial( { color: 0x00a9ff, specular: 0xffffff, shininess: 10, shading: THREE.FlatShading} );
-          //nice color: 0x00a9ff
-          var material = new THREE.MeshPhongMaterial( { color: 0x17a9f5, specular: 0xffffff, shininess: 10, shading: THREE.FlatShading} );
-          var shape = new THREE.Mesh(geometry, material);
-
-          //possible alternative to resizing : zooming in on objects
-          /*var viewOffset = this.camera.position.clone().sub( this.camera.target ) ;
-          var stuff =viewOffset.clone().normalize();
-          stuff.multiplyScalar( geometry.boundingSphere.radius*4 );
-          //this.camera.position.copy(stuff);          
-          var camPos = this.camera.position.clone();
-          var tgt = stuff;
-          var cam = this.camera;
-          var tween = new TWEEN.Tween( camPos )
-            .to( tgt , 700 )
-            .easing( TWEEN.Easing.Quadratic.In )
-            .onUpdate( function () {
-              cam.position.copy(camPos);   
-            } )
-            .start();*/
-
-          shape.meta = {};
-          shape.meta.resource = res;
-          self.addToScene(shape);
-        }
-        else
-        {
-            resourceData.meta = {};
-            resourceData.meta.resource = res;
-            self.addToScene(resourceData);
-        }
-      }
-      
-      function loadFailed(res)
-      {
-        //console.log("load failed",res.error);
-        //TODO: do this cleanly via type checking or somethg
-        var error = res.error;
-        if( error.indexOf("No parser found") != -1)
-        {
-          error = "sorry, the "+resource.ext+" format is not supported";
-        }
-        resource.error = error;
-      }
-
-      this.resources.push(resource);
-      
-      var resourceDeferred = this._assetManager.load( uri, null, {keepRawData:keepRawData} );//this.$.assetsMgr.read( uri );
-      var resourcePromise = resourceDeferred.promise;
-      //console.log("resourcePromise",resourcePromise)
-      if (display) resourcePromise.then(addResource.bind(this));
-      resourcePromise.then(resource.onLoaded.bind(resource), loadFailed, resource.onDownloadProgress.bind(resource) );
-
-      this.resouceDeferreds.push( resourceDeferred );
-  },
-
   clearResources:function(options)
   {
     var options = options || {};
@@ -218,7 +130,47 @@ Polymer('ulti-viewer', {
 
     if( clearCache ) this._assetManager.assetCache = {};
   },
+  //remove a resource
+  dismissResource:function(event, detail, sender) {
+    var resource = sender.templateInstance.model.resource;
+    console.log("resource",resource);
+    var index = this.resources.indexOf(resource);
+    resource.deferred.reject("canceling");
+    this.assetManager.unloadResource( resource.uri );
+    if (index > -1) this.resources.splice(index, 1);
+  },
   //event handlers
+  //prevents scrolling whole page if using scroll & mouse is within viewer
+  onMouseWheel:function (event)
+  {
+    event.preventDefault();
+    return false;
+  },
+  handleDragOver:function(e) {
+    if (e.preventDefault) {
+      e.preventDefault();
+    }
+  },
+  handleDrop:function(e)
+  {
+    if (e.preventDefault) {
+      e.preventDefault(); // Necessary. Allows us to drop.
+    }
+    var data=e.dataTransfer.getData("Text");
+    if( data!= "" ){
+        this.asyncFire('text-dropped', {data:data} );
+        this.loadMesh( e.detail.data );
+    }
+
+    var files = e.dataTransfer.files;
+    if(files)
+    {
+      this.asyncFire('files-dropped', {data:files});
+      for (var i = 0, f; f = files[i]; i++) {
+        this.loadMesh( f );
+      }
+    }
+  },
   onDownloadTap:function(event)
   {
      var link = document.createElement("a");
@@ -252,40 +204,6 @@ Polymer('ulti-viewer', {
      event.preventDefault();
      event.stopPropagation();
   },
-  dismissResource:function(event, detail, sender) {
-    var resource = sender.templateInstance.model.resource;
-    console.log("resource",resource);
-    var index = this.resources.indexOf(resource);
-    resource.deferred.reject("canceling");
-    this.assetManager.unloadResource( resource.uri );
-    if (index > -1) this.resources.splice(index, 1);
-  },
-  //event handlers  
-  handleDragOver:function(e) {
-    if (e.preventDefault) {
-      e.preventDefault();
-    }
-  },
-  handleDrop:function(e)
-  {
-    if (e.preventDefault) {
-      e.preventDefault(); // Necessary. Allows us to drop.
-    }
-    var data=e.dataTransfer.getData("Text");
-    if( data!= "" ){
-        this.asyncFire('text-dropped', {data:data} );
-        this.loadMesh( e.detail.data );
-    }
-
-    var files = e.dataTransfer.files;
-    if(files)
-    {
-      this.asyncFire('files-dropped', {data:files});
-      for (var i = 0, f; f = files[i]; i++) {
-        this.loadMesh( f );
-      }
-    }
-  } ,
   //attribute change handlers
   //FIXME
   /*autoRotateChanged:function()
@@ -473,5 +391,4 @@ Polymer('ulti-viewer', {
         newSelection.add(outline);
     }
   },
-  
 });
