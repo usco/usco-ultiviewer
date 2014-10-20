@@ -3,16 +3,21 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "platform": "Polymer/platform#master",
+    "webcomponents.js": "Polymer/webcomponentsjs#~0.4.2",
     "polymer": "Polymer/polymer#master",
-    "polymer-localstorage": "Polymer/polymer-localstorage#master",
-    "polymer-ui-accordion": "Polymer/polymer-ui-accordion#master",
-    "polymer-ui-collapsible": "kaosat-dev/polymer-ui-collapsible#master",
-    "file-saver": "eligrey/FileSaver.js",
-    "usco-viewer-base": "usco/usco-viewer-base#master",
-    "asset-manager": "usco/usco-asset-manager#master",
-    "usco-xhr-store": "usco/usco-xhr-store#master",
-    "usco-stl-parser": "usco/usco-stl-parser#master",
-    "polymer-gestures": "https://github.com/Polymer/polymer-gestures"
+    "polymer-gestures": "https://github.com/Polymer/polymer-gestures",
+    
+    "three-js"          : "usco/three-js",
+    "three-js-helpers"  : "usco/three-js-helpers",
+    "tween-js"          : "usco/tween-js",
+    "usco-asset-manager": "usco/usco-asset-manager#master",
+    "usco-client-deps"  : "usco/usco-client-deps#master",
+    "usco-xhr-store"    : "usco/usco-xhr-store#master",
+    "usco-desktop-store": "usco/usco-desktop-store#master",
+    "usco-ctm-parser"   : "usco/usco-ctm-parser#master",
+    "usco-stl-parser"   : "usco/usco-stl-parser#master",
+    "usco-amf-parser"   : "usco/usco-amf-parser#master",
+    "usco-ply-parser"   : "usco/usco-ply-parser#master",
+    "usco-obj-parser"   : "usco/usco-obj-parser#master",
   }
 }
