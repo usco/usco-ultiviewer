@@ -1,19 +1,6 @@
 usco-viewer
 ============================
 
-development
------------
-since the viewer has a few "core" dependencies: those need to be re-built regularly 
-(ie when the dependencies get updated)
-these include:
- - asset manager (soon to be migrated back into kernel)
- - various parsers
-
-To build :
-
-    $ grunt core
-
-
 
 building a release
 ------------------
@@ -48,11 +35,11 @@ was loaded (for example using the 'polymer-ready' callback)
 
 first, get the instance of the viewer :
 
-    var ultiViewer = document.querySelector('usco-ultiviewer');
+    var ultiViewer = document.querySelector('ulti-viewer');
 
 load a resource/model:
 
-    ultiViewer.loadResource("http://foo/demo-data/pr2_head_tilt.stl");
+    ultiViewer.loadMesh("http://foo/demo-data/pr2_head_tilt.stl");
 
 removing all displayed models from the scene
 
