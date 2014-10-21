@@ -31,18 +31,6 @@ Polymer('ulti-viewer', {
     this.clearResources({clearCache:true});
   },
   //public api
-  addToScene:function( object, sceneName, options )
-  {
-    var autoCenter = autoCenter === undefined ? true: autoCenter;
-    var autoResize = autoResize === undefined ? true: autoResize;
-    
-    var options = {autoCenter:true,autoResize:true};
-    this.threeJs.addToScene( object, sceneName, options );
-  },
-  removeFromScene:function( object, sceneName )
-  {
-    this.threeJs.removeFromScene( object,sceneName );
-  },
   loadMesh:function( uriOrData, options )
   {
     var options = options || {};
@@ -53,7 +41,6 @@ Polymer('ulti-viewer', {
     
     function loadFailed(res)
     {
-      //console.log("load failed",res.error);
       //TODO: do this cleanly via type checking or somethg
       var error = res.error;
       if( error.indexOf("No parser found") != -1)
@@ -81,12 +68,31 @@ Polymer('ulti-viewer', {
             } )
             .start();*/
   },
+  clearScene:function(sceneName){
+    var sceneName = sceneName || "main";
+    this.threeJs.clearScene(sceneName);
+  },
+  addToScene:function( object, sceneName, options )
+  {
+    var autoCenter = autoCenter === undefined ? true: autoCenter;
+    var autoResize = autoResize === undefined ? true: autoResize;
+    
+    var options = {autoCenter:true,autoResize:true};
+    this.threeJs.addToScene( object, sceneName, options );
+  },
+  removeFromScene:function( object, sceneName )
+  {
+    this.threeJs.removeFromScene( object,sceneName );
+  },
   loadResource:function(uriOrData)
   {
     var self = this;
     var resource = this.assetManager.loadResource( uriOrData, {parsing:{useWorker:true,useBuffers:true} } );
     this.resources.push( resource );
+    
     var resourceDeferred = resource.deferred;
+    
+    //TODO: UNIFY api for parsers, this is redundant
     function formatResource(resource)
     {
       //geometry
@@ -114,21 +120,14 @@ Polymer('ulti-viewer', {
     var self = this;
     return resourceDeferred.promise.then( formatResource, self.resourceLoadFailed ).fail( self.resourceLoadFailed );
   },
-  resourceLoadFailed:function(reason)
+  resourceLoadFailed:function(resource)
   {
-    console.log("failed to load resource", error);
+    console.log("failed to load resource", resource.error);
   },
-  clearResources:function(options)
+  clearResources:function()
   {
-    var options = options || {};
-    var clearCache = options.clearCache || false;
-    //TODO:impact this on asset manager, for cleaner "cleanup"
-    while((deferred=this.resouceDeferreds.pop()) != null){
-      deferred.reject();
-    }
+    this.assetManager.clearResources();
     this.resources = [];
-
-    if( clearCache ) this._assetManager.assetCache = {};
   },
   //remove a resource
   dismissResource:function(event, detail, sender) {
