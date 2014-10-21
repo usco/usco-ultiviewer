@@ -1,4 +1,5 @@
 <link rel="import" href="components/polymer/polymer.html">
+<link rel="import" href="components/core-localstorage/core-localstorage.html">
 
 <link rel="import" href="components/three-js/three-js.html">
 <link rel="import" href="components/tween-js/tween-js.html">
@@ -87,9 +88,9 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
       </usco-asset-manager>
       
       <!--AutoSaving settings to localstorage-->
-      <polymer-localstorage name="ultiviewer-settings-showGrid"   value="{{showGrid}}"></polymer-localstorage>
-      <polymer-localstorage name="ultiviewer-settings-showAxes"   value="{{showAxes}}"></polymer-localstorage>
-      <polymer-localstorage name="ultiviewer-settings-autoRotate" value="{{autoRotate}}"></polymer-localstorage>    
+      <core-localstorage name="ultiviewer-settings-showGrid"   value="{{showGrid}}"></core-localstorage>
+      <core-localstorage name="ultiviewer-settings-showAxes"   value="{{showAxes}}"></core-localstorage>
+      <core-localstorage name="ultiviewer-settings-autoRotate" value="{{autoRotate}}"></core-localstorage>    
   </template>
   <script src="ulti-viewer.js"></script>
 </polymer-element>
