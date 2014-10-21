@@ -9,10 +9,12 @@ Polymer('ulti-viewer', {
   showDimensions: true,
   autoRotate: false,
   
-  resources : [], 
+  resources : null, 
+  meshes    : null,
   created: function()
   {
-    this.super();
+    this.resources = [];
+    this.meshes    = [];
     this.minObjectSize = 20;//minimum size (in arbitrarty/opengl units) before requiring re-scaling (upwards)
     this.maxObjectSize = 200;//maximum size (in arbitrarty/opengl units) before requiring re-scaling (downwards)
   },
@@ -20,7 +22,6 @@ Polymer('ulti-viewer', {
   {
     this.threeJs      = this.$.threeJs;
     this.assetManager = this.$.assetManager;
-    
     /*//workaround/hack for some css issues:FIXME: is this still necessary??
     try{
     $('<style></style>').appendTo($(document.body)).remove();
@@ -28,7 +29,7 @@ Polymer('ulti-viewer', {
   },
   detached:function()
   {
-    this.clearResources({clearCache:true});
+    this.clearResources();
   },
   //public api
   loadMesh:function( uriOrData, options )
@@ -37,7 +38,7 @@ Polymer('ulti-viewer', {
     var display = options.display === undefined ? true: options.display;
     var keepRawData = options.keepRawData === undefined ? true: options.keepRawData;
     
-    var resourcePromise = this.loadResource( uriOrData );
+    var resourcePromise = this._loadResource( uriOrData );
     
     function loadFailed(res)
     {
@@ -49,7 +50,7 @@ Polymer('ulti-viewer', {
       }
     }
     function onDisplayError(error){console.log("FAILED to display",error);};
-    if( display ) resourcePromise.then( this.addToScene.bind(this) ).fail(onDisplayError);
+    if( display ) resourcePromise.then( this.addToScene.bind(this), onDisplayError )
     
     //      resourcePromise.then(resource.onLoaded.bind(resource), loadFailed, resource.onDownloadProgress.bind(resource) );
     //possible alternative to resizing : zooming in on objects
@@ -77,14 +78,17 @@ Polymer('ulti-viewer', {
     var autoCenter = autoCenter === undefined ? true: autoCenter;
     var autoResize = autoResize === undefined ? true: autoResize;
     
-    var options = {autoCenter:true,autoResize:true};
+    var options = {autoCenter:true,autoResize:true,minSize:this.minObjectSize,maxSize:this.maxObjectSize};
+    
+    this.meshes.push( object );
     this.threeJs.addToScene( object, sceneName, options );
   },
   removeFromScene:function( object, sceneName )
   {
-    this.threeJs.removeFromScene( object,sceneName );
+    var sceneName = sceneName || "main" ;
+    this.threeJs.removeFromScene( object, sceneName );
   },
-  loadResource:function(uriOrData)
+  _loadResource:function(uriOrData)
   {
     var self = this;
     var resource = this.assetManager.loadResource( uriOrData, {parsing:{useWorker:true,useBuffers:true} } );
@@ -99,6 +103,7 @@ Polymer('ulti-viewer', {
       var shape = resource.data;
       if( !(shape instanceof THREE.Object3D) )
       {
+        console.log("formating resource");
         //nice color: 0x00a9ff
         var material = new THREE.MeshPhongMaterial( { color: 0x17a9f5, specular: 0xffffff, shininess: 10, shading: THREE.FlatShading} );
         //new THREE.MeshLambertMaterial( {opacity:1,transparent:false,color: 0x0088ff} );
@@ -116,9 +121,10 @@ Polymer('ulti-viewer', {
       return shape;
     }
     
-    //TODO add correctly handling of errors
     var self = this;
-    return resourceDeferred.promise.then( formatResource, self.resourceLoadFailed ).fail( self.resourceLoadFailed );
+    return resourceDeferred.promise
+      .then( formatResource)
+      .fail( self.resourceLoadFailed );
   },
   resourceLoadFailed:function(resource)
   {
@@ -224,60 +230,60 @@ Polymer('ulti-viewer', {
   },*/
   highlightedObjectChanged:function(oldHovered,newHovered)
   {
-    console.log("highlightedObjectChanged",oldHovered,newHovered);
-      this.selectionColor = 0xf7c634;//0xff5400;//0xfffccc;
-		  this.outlineColor = 0xffc200;
-      function validForOutline(selection)
+    //console.log("highlightedObjectChanged",oldHovered,newHovered);
+    this.selectionColor = 0xf7c634;//0xff5400;//0xfffccc;
+	  this.outlineColor = 0xffc200;
+    function validForOutline(selection)
+    {
+      return (!(selection.hoverOutline != null) && !(selection.outline != null) && !(selection.name === "hoverOutline") && !(selection.name === "boundingCage") && !(selection.name === "selectOutline"))
+    }
+
+    var curHovered = this.highlightedObject;
+
+    if (curHovered != null )
+    {
+      var hoverEffect = new THREE.Object3D();
+      var outline, outlineMaterial;
+      curHovered.currentHoverHex = curHovered.material.color.getHex();
+      curHovered.material.color.setHex(this.selectionColor);
+      //curHovered.material.vertexColors = THREE.FaceColors;
+      
+      //curHovered.currentHoverHexSpec = curHovered.material.specular.getHex();
+      //curHovered.material.specular.setHex(this.selectionColor);
+      
+      //curHovered.material.shininess=8; //.setHex(this.selectionColor);
+      outlineMaterial = new THREE.MeshBasicMaterial({
+          color: 0xffc200,
+          side: THREE.BackSide
+        });
+
+      outlineMaterialTest = new THREE.LineBasicMaterial({
+          color: 0xffc200,
+          linewidth: 10
+          //side: THREE.BackSide
+        });
+      outlineMaterialTest = new THREE.MeshBasicMaterial({ 
+          color: 0xffc200,
+          wireframe: true, wireframeLinewidth: 4 ,side: THREE.BackSide} );
+
+      outline = new THREE.Object3D();//new THREE.Mesh(curHovered.geometry, outlineMaterial);
+      outline.scale.multiplyScalar(1.03);
+      outline.name = "hoverOutline";
+      curHovered.hoverOutline = outline;
+      curHovered.add(outline);
+    }
+    if(oldHovered != null)
+    {
+      if (oldHovered.hoverOutline != null)
       {
-        return (!(selection.hoverOutline != null) && !(selection.outline != null) && !(selection.name === "hoverOutline") && !(selection.name === "boundingCage") && !(selection.name === "selectOutline"))
+        oldHovered.material.color.setHex(oldHovered.currentHoverHex);
+        //oldHovered.material.specular.setHex(oldHovered.currentHoverHexSpec);
+        //oldHovered.material.shininess = 10;
+
+        oldHovered.remove(oldHovered.hoverOutline);
+        oldHovered.hoverOutline = null;
       }
-
-      var curHovered = this.highlightedObject;
-
-      if (curHovered != null )
-      {
-        var hoverEffect = new THREE.Object3D();
-        var outline, outlineMaterial;
-        curHovered.currentHoverHex = curHovered.material.color.getHex();
-        curHovered.material.color.setHex(this.selectionColor);
-        //curHovered.material.vertexColors = THREE.FaceColors;
-        
-        //curHovered.currentHoverHexSpec = curHovered.material.specular.getHex();
-        //curHovered.material.specular.setHex(this.selectionColor);
-        
-        //curHovered.material.shininess=8; //.setHex(this.selectionColor);
-        outlineMaterial = new THREE.MeshBasicMaterial({
-            color: 0xffc200,
-            side: THREE.BackSide
-          });
-
-        outlineMaterialTest = new THREE.LineBasicMaterial({
-            color: 0xffc200,
-            linewidth: 10
-            //side: THREE.BackSide
-          });
-        outlineMaterialTest = new THREE.MeshBasicMaterial({ 
-            color: 0xffc200,
-            wireframe: true, wireframeLinewidth: 4 ,side: THREE.BackSide} );
-
-        outline = new THREE.Object3D();//new THREE.Mesh(curHovered.geometry, outlineMaterial);
-        outline.scale.multiplyScalar(1.03);
-        outline.name = "hoverOutline";
-        curHovered.hoverOutline = outline;
-        curHovered.add(outline);
-      }
-      if(oldHovered != null)
-      {
-        if (oldHovered.hoverOutline != null)
-        {
-          oldHovered.material.color.setHex(oldHovered.currentHoverHex);
-          //oldHovered.material.specular.setHex(oldHovered.currentHoverHexSpec);
-          //oldHovered.material.shininess = 10;
-
-          oldHovered.remove(oldHovered.hoverOutline);
-          oldHovered.hoverOutline = null;
-        }
-      }
+    }
   },
   selectedObjectsChanged:function()
   {
