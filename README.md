@@ -1,8 +1,17 @@
 usco-viewer
 ============================
 
+One possible way to generate a "minified" build for embeding could be:
 
-building a release
+- install vulcanize
+
+        npm install vulcanize
+        
+- generate the release
+
+        vulcanize embed.html --csp --inline --strip --output app/embed.html
+
+building a release: DEPRECATED
 ------------------
 Various builds targets (browser, desktop, standalone or integration) are available ,
 but it is advised to only build the specific version you require as some of these can
