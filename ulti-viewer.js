@@ -80,7 +80,7 @@ Polymer('ulti-viewer', {
     
     var options = {autoCenter:true,autoResize:true,minSize:this.minObjectSize,maxSize:this.maxObjectSize};
     
-    this.meshes.push( object );
+    //this.meshes.push( object );
     this.threeJs.addToScene( object, sceneName, options );
   },
   removeFromScene:function( object, sceneName )
