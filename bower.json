@@ -5,7 +5,7 @@
   "dependencies": {
     "webcomponentsjs": "Polymer/webcomponentsjs#~0.4.2",
     "polymer": "Polymer/polymer#master",
-    "polymer-gestures": "https://github.com/Polymer/polymer-gestures",
+    "polymer-gestures": "Polymer/polymer-gestures",
     "core-localstorage": "Polymer/core-localstorage",
     "three-js": "usco/three-js",
     "three-js-helpers": "usco/three-js-helpers",
@@ -22,8 +22,6 @@
   },
   "resolutions": {
     "webcomponentsjs": "master",
-    "polymer": "master",
-    "platform": "master",
-    "core-component-page": "master"
+    "polymer": "master"
   }
 }
