@@ -21,8 +21,7 @@
 <link rel="import" href="components/usco-ctm-parser/ctm-parser.html">
 
 <link rel="import" href="ulti-viewer-controls.html">
-
-<!--<script src="lib/computeBounding.js"></script>-->
+<link rel="import" href="cubic-loader.html">
 
 <polymer-element name="ulti-viewer" attributes="showAxis showIndicators"
 on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragover="{{handleDragOver}}" on-drop="{{handleDrop}}"
@@ -43,10 +42,12 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
           </ul>
         </template>
       </div>
+      
+      
       <!--viewer itself-->
       <three-js id="threeJs" 
       selectedObject="{{selectedObject}}" selectedObjects="{{selectedObjects}}" highlightedObject="{{highlightedObject}}">
-          <three-stats id="stats" show=false></three-stats>
+          <three-stats id="stats" show=true></three-stats>
           <tween-js></tween-js>
           
           <three-js-webglRenderer id="webglRenderer"></three-js-webglRenderer>
@@ -66,6 +67,12 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
             <template if="{{showGrid}}">
               <grid-helper up=[0,0,1]> </grid-helper>
             </template>
+            
+              <template repeat="{{resource in resources}}">
+                <template if="{{!resource.loaded}}">
+                  <cubic-loader resource="{{resource}}"> </cubic-loader>
+                </template>
+              </template>
           </three-js-scene>
           
           <three-js-viewport name="perspective" id="perspectiveView" class="perspectiveView">
