@@ -1,15 +1,38 @@
 usco-viewer
 ============================
 
-One possible way to generate a "minified" build for embeding could be:
+One possible way to generate a "minified" build for embeding is:
 
 - install vulcanize
 
         npm install vulcanize
         
-- generate the release
+- generate the release 
 
-        vulcanize embed.html --csp --inline --strip --output app/embed.html
+        vulcanize ulti-viewer.html --csp --inline --strip --output embed/ulti-viewer-embed.html
+        
+  this generates the concatenated ulti-viewer + dependencies *without* webcomponentsjs/platform.js 
+  
+  you should now have two new files : 
+  
+    ulti-viewer-embed.html
+    ulti-viewer-embed.js
+
+- you can then copy/ use either **webcomponents.min.js** or **webcomponents.js** that you can find in 
+your local **components/webcomponentsjs** (you must have run "bower install" first)
+
+**reminder :** webcomponents/platform is a set of polyfills for web components, and as of chrome 38 for
+  example, not even needed in the browsers that implement things natively
+
+- you can then use ulti-viewer files + webcomponents like demonstrated in **embed/embed-demo.html**
+the only difference to the standard demo is the path/name of the files
+
+- a pre-built version (following the steps above) is already present by default in the embed folder
+
+
+This will be AUTOMATED soon
+
+
 
 building a release: DEPRECATED
 ------------------
