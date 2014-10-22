@@ -287,16 +287,21 @@ Polymer('ulti-viewer', {
   },
   selectedObjectsChanged:function()
   {
+    console.log("selectedObjectsChanged", this.selectedObjects);
     if(this.selectedObjects)
     {
       if(this.selectedObjects.length>0)
       {
         this.selectedObject = this.selectedObjects[0];
       }
+      else{
+        this.selectedObject = null;
+      }
     }
   },
   selectedObjectChanged:function(oldSelection)
   {
+    console.log("selectedObjectChanged", this.selectedObject);
     return;
     //FIXME: removed for now
     var newSelection = this.selectedObject;
