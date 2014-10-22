@@ -16,10 +16,14 @@ One possible way to generate a "minified" build for embeding is:
   you should now have two new files : 
   
     ulti-viewer-embed.html
+    
     ulti-viewer-embed.js
 
-- you can then copy/ use either **webcomponents.min.js** or **webcomponents.js** that you can find in 
-your local **components/webcomponentsjs** (you must have run "bower install" first)
+- you can then copy/ use either :
+  **webcomponents.min.js** or 
+  **webcomponents.js** 
+  these are files that you can find in your local **components/webcomponentsjs** folder
+   (you must have run "bower install" first)
 
 **reminder :** webcomponents/platform is a set of polyfills for web components, and as of chrome 38 for
   example, not even needed in the browsers that implement things natively
