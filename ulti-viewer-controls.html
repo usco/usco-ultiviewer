@@ -2,8 +2,7 @@
 
 <polymer-element name="ulti-viewer-controls" attributes="camera, controls, autoRotate, fullScreen, showGrid, showAxes">
   <template>
-    <core-theme-aware>
-      <div style="width:inherit;">
+      <div >
       <div id="cameraControls" class="cameraControls">
         <table>
           <tr>
@@ -14,14 +13,14 @@
           </tr>
           <tr>
             <td>
-             <button id="rotateLeft" on-holdpulse="{{rotateViewLeft}}" on-click="{{rotateViewLeft}}" ></button>
+             <button id="rotateLeft" on-holdpulse="{{rotateViewLeft}}" on-tap="{{rotateViewLeft}}" ></button>
                 <label for="rotateLeft"><span>RotateLeft</span></label>
             </td>
             <td>
-              <button id="centerView" on-click="{{centerView}}"></button><label for="centerView"><span>CenterView</span></label>
+              <button id="centerView" on-tap="{{centerView}}"></button><label for="centerView"><span>CenterView</span></label>
             </td>
             <td>
-               <button id="rotateRight" on-holdpulse="{{rotateViewRight}}" on-click="{{rotateViewRight}}"></button><label for="rotateRight"><span>RotateRight</span></label>
+               <button id="rotateRight" on-holdpulse="{{rotateViewRight}}" on-tap="{{rotateViewRight}}"></button><label for="rotateRight"><span>RotateRight</span></label>
             </td>
           </tr>
           <tr>
@@ -32,12 +31,10 @@
           </tr>
         </table>
 
-        <button id="zoomIn" on-holdpulse="{{zoomViewIn}}" on-click="{{zoomViewIn}}" /><label for="zoomIn">+</label>
-        <button id="zoomOut" on-holdpulse="{{zoomViewOut}}" on-click="{{zoomViewOut}}"/><label for="zoomOut">-</label>
+        <button id="zoomIn" on-holdpulse="{{zoomViewIn}}" on-tap="{{zoomViewIn}}" /><label for="zoomIn">+</label>
+        <button id="zoomOut" on-holdpulse="{{zoomViewOut}}" on-tap="{{zoomViewOut}}"/><label for="zoomOut">-</label>
       </div>
 
-      <polymer-ui-accordion  selectedClass="polymer-ui-collapsible-selected" class="viewHelpers">
-        <polymer-ui-collapsible >
           <div class="polymer-ui-collapsible-header">
             <span class="collapsible-header-arrow"></span>View Settings
           </div>
@@ -49,9 +46,6 @@
               <input type="checkbox" checked="{{showAxes}}" id="axesToggle" class="axesToggle"><label for="axesToggle"><span>Axes</span></label>
             </div>
           </div>
-        </polymer-ui-collapsible>
-  
-      </polymer-ui-accordion>
 
       <div id="viewControls" class="viewControls">
         <input type="checkbox" checked="{{autoRotate}}" id="autoRotate" class="autoRotate"><label for="autoRotate"><span>AutoRotate</span></label>
@@ -59,7 +53,6 @@
       </div>
 
     </div>
-    </core-theme-aware> 
   </template>
 <script>
 Polymer("ulti-viewer-controls",{

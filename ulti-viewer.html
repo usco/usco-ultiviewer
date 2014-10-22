@@ -29,7 +29,9 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
     <template>
       <link rel="stylesheet" type="text/css" href="ulti-viewer.css">
       <!--controls overlay-->
-      <!--<ulti-viewer-controls>       </ulti-viewer-controls>-->
+      <ulti-viewer-controls autoRotate="{{autoRotate}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}" fullScreen="{{fullScreen}}" controls="{{$.camCtrl}}" camera="{{$.cam}}">
+      </ulti-viewer-controls>
+      
       <div class="resourceLoader">
         <template repeat="{{resource in resources}}">
           <ul>
@@ -46,8 +48,9 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
       
       <!--viewer itself-->
       <three-js id="threeJs" 
-      selectedObject="{{selectedObject}}" selectedObjects="{{selectedObjects}}" highlightedObject="{{highlightedObject}}">
-          <three-stats id="stats" show=true></three-stats>
+      selectedObject="{{selectedObject}}" selectedObjects="{{selectedObjects}}" highlightedObject="{{highlightedObject}}"
+      fullScreen="{{fullScreen}}">
+          <three-stats id="stats" show=false></three-stats>
           <tween-js></tween-js>
           
           <three-js-webglRenderer id="webglRenderer"></three-js-webglRenderer>
@@ -76,8 +79,8 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
           </three-js-scene>
           
           <three-js-viewport name="perspective" id="perspectiveView" class="perspectiveView">
-            <three-js-combinedCamera pos=[100,50,200] orientation="diagonal" up=[0,0,1]></three-js-combinedCamera>
-            <three-js-orbitControls cameraUp=[0,0,1] autoRotate="{{autoRotate && !(selectedObject)}}" autoRotateSpeed=10> </three-js-orbitControls>
+            <three-js-combinedCamera id="cam" pos=[100,50,200] orientation="diagonal" up=[0,0,1]></three-js-combinedCamera>
+            <three-js-orbitControls id="camCtrl" cameraUp=[0,0,1] autoRotate="{{autoRotate && !(selectedObject)}}" autoRotateSpeed=10> </three-js-orbitControls>
           </three-js-viewport>
         </three-js>
      

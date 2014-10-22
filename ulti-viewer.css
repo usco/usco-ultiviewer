@@ -73,3 +73,12 @@
 .resourceLoader{
   position:absolute;left:0px;z-index:11;
 }
+
+
+ulti-viewer-controls{
+  width:100px;
+  height:100px;
+  z-index:12;
+  position:absolute;
+
+}
