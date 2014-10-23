@@ -82,7 +82,8 @@ ulti-viewer /deep/ view-settings /deep/ .viewSettings{
 
 
 ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]{display:none;}
-ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]:checked+label:before{content:"\f066";}
+/*ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]:checked+label:before{content:"\f066";}*/
+ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]:checked+label:before{content:"";}
 
 ulti-viewer /deep/ view-settings /deep/ input[type=checkbox]+label>span{display:none;}
 ulti-viewer /deep/ view-settings /deep/ input[type=checkbox]+label>span{
@@ -90,17 +91,27 @@ ulti-viewer /deep/ view-settings /deep/ input[type=checkbox]+label>span{
 }
 ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]+label{
 background:#494949;color:white;height:16px;width:16px;display:inline-block;padding:0px;text-align:center;line-height:16px;
+margin:1px;
+margin-left: 5px;
 }
 
+ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]:checked+label{
+background:#17a9f5;color:white;height:16px;width:16px;display:inline-block;padding:0px;text-align:center;line-height:16px;
+}
+
+/*
 ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]+label:before{
 font-family:'FontAwesome';font-size:12px;content:"\f10c";}
 
-ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]:checked+label:before{font-family:'FontAwesome';font-size:12px;content:"\f111";color:#17a9f5;}
+ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]:checked+label:before{font-family:'FontAwesome';font-size:12px;content:"\f111";color:#17a9f5;}*/
 
+
+/*fullscreen button*/
 
 ulti-viewer /deep/ view-settings /deep/ input.fullScreen[type=checkbox]+label{
   position:absolute;
   bottom:20px;
+  margin:0px;
 }
 ulti-viewer /deep/ view-settings /deep/ input.fullScreen[type=checkbox]+label{background:#494949;height:29px;width:29px;display:inline-block;line-height:30px;text-align:center;}
 
