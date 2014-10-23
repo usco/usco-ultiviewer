@@ -76,9 +76,17 @@
 
 
 ulti-viewer-controls{
+  left:300px;
   width:100px;
   height:100px;
   z-index:12;
   position:absolute;
+}
 
+view-navigator{
+  
+  width:100px;
+  height:100px;
+  z-index:12;
+  position:absolute;
 }
