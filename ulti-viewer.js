@@ -11,6 +11,8 @@ Polymer('ulti-viewer', {
   
   resources : null, 
   meshes    : null,
+  
+  dismissalTimeOnError:8000, //how much time do we wait for before removing loading bar in case of an error
   created: function()
   {
     this.resources = [];
@@ -129,11 +131,15 @@ Polymer('ulti-viewer', {
     var self = this;
     return resourceDeferred.promise
       .then( formatResource)
-      .fail( self.resourceLoadFailed );
+      .fail( this.resourceLoadFailed.bind(this) );
   },
   resourceLoadFailed:function(resource)
   {
     console.log("failed to load resource", resource.error);
+    //do not keep error message on screen for too long, remove it after a while
+    this.async(function() {
+      this.dismissResource(resource);
+    }, null, this.dismissalTimeOnError);
   },
   clearResources:function()
   {
@@ -141,11 +147,9 @@ Polymer('ulti-viewer', {
     this.resources = [];
   },
   //remove a resource
-  dismissResource:function(event, detail, sender) {
-    var resource = sender.templateInstance.model.resource;
-    console.log("resource",resource);
+  dismissResource:function(resource){
     var index = this.resources.indexOf(resource);
-    resource.deferred.reject("canceling");
+    resource.deferred.reject("cancelling");
     this.assetManager.unloadResource( resource.uri );
     if (index > -1) this.resources.splice(index, 1);
   },
@@ -180,6 +184,11 @@ Polymer('ulti-viewer', {
         this.loadMesh( f );
       }
     }
+  },
+  onReqDismissResource:function(event, detail, sender) {
+    var resource = sender.templateInstance.model.resource;
+    console.log("resource",resource);
+    this.dismissResource( resource );
   },
   onDownloadTap:function(event)
   {

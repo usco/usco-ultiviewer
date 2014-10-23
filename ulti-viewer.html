@@ -42,7 +42,7 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
             <template if="{{!resource.loaded}}">
             <li>
               {{resource.name}} Fetching: {{resource.fetchProgress}}% Parsing: {{resource.parseProgress}}%
-              <input type="button" on-click="{{dismissResource}}" value="Dismiss"></input>
+              <input type="button" on-click="{{onReqDismissResource}}" value="Dismiss"></input>
             </li>
             </template>
           </ul>
