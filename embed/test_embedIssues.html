@@ -1,0 +1,57 @@
+<html>
+  <head>
+    <title>Ulti viewer example</title>
+      <script src="webcomponents.min.js"></script>
+      <link rel="import" href="../ulti-viewer.html">
+
+      <!--for testing only-->
+      <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+      <!-- styling example, as it would appear in a website-->
+      <link rel="stylesheet" type="text/css" href="../embed.css">
+
+      <style>
+         html, body, ulti-viewer{
+      margin: 0;
+      position: absolute;
+      height: 100%;
+      width:100%;
+        
+       -webkit-touch-callout: none;
+		  -webkit-user-select: none;
+		  -khtml-user-select: none;
+		  -moz-user-select: none;
+		  -ms-user-select: none;
+		  user-select: none;
+      }
+      </style>
+  </head>
+<body>
+  <polymer-element name="foo-bar">
+    <template>
+     <template if="{{tog}}"> <ulti-viewer></ulti-viewer> </template>
+  
+    </template>
+    <script>
+      Polymer('foo-bar',{
+        tog:true
+      });
+    </script>
+    
+  </polymer-element>
+  
+    <foo-bar></foo-bar>
+  
+  <script>
+      window.addEventListener('polymer-ready', function() {
+        var ultiViewerWrap = document.querySelector('foo-bar');
+        ultiViewerWrap.tog = false;
+        setTimeout(function(){
+                  ultiViewerWrap.tog = true;
+        
+        },2000);
+        
+    });
+  </script>  
+</body>
+</html>
