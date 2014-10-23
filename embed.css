@@ -1,3 +1,13 @@
+ulti-viewer :unresolved:after{padding:15px;content:'loading...';color:#ccc;}
+
+/*ulti-viewer:-webkit-full-screen 
+  {
+    width:100% !important;
+    height:100% !important;
+    left:0px !important;
+    top:0px !important;
+  } */
+
 /*for camera controls*/
 
 ulti-viewer /deep/ view-navigator{
@@ -55,28 +65,70 @@ ulti-viewer /deep/ view-settings {
   height:100px;
   z-index:12;
   position:absolute;*/
-position:relative;float:right;top:8px;right:13px;height:108px;overflow:hidden;z-index:999;pointer-events:all;}
-
+  position:relative;float:right;top:8px;right:13px;
+  /*height:108px;*/
+  height:100%;
+  overflow:hidden;z-index:15;pointer-events:all;
 }
 
+ulti-viewer /deep/ view-settings /deep/ input[type=checkbox]{
+  display: none;
+}
+
+
+ulti-viewer /deep/ view-settings /deep/ .viewSettings{
+  width:30px;
+}
+
+
+ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]{display:none;}
+ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]:checked+label:before{content:"\f066";}
+
+ulti-viewer /deep/ view-settings /deep/ input[type=checkbox]+label>span{display:none;}
+ulti-viewer /deep/ view-settings /deep/ input[type=checkbox]+label>span{
+  text-align:right;margin-left:20px;
+}
+ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]+label{
+background:#494949;color:white;height:16px;width:16px;display:inline-block;padding:0px;text-align:center;line-height:16px;
+}
+
+ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]+label:before{
+font-family:'FontAwesome';font-size:12px;content:"\f10c";}
+
+ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]:checked+label:before{font-family:'FontAwesome';font-size:12px;content:"\f111";color:#17a9f5;}
+
+
+ulti-viewer /deep/ view-settings /deep/ input.fullScreen[type=checkbox]+label{
+  position:absolute;
+  bottom:20px;
+}
+ulti-viewer /deep/ view-settings /deep/ input.fullScreen[type=checkbox]+label{background:#494949;height:29px;width:29px;display:inline-block;line-height:30px;text-align:center;}
+
+ulti-viewer /deep/ view-settings /deep/ input.fullScreen[type=checkbox]+label{background:#494949;height:29px;width:29px;display:inline-block;line-height:30px;text-align:center;}
+ulti-viewer /deep/ view-settings /deep/ input.fullScreen[type="checkbox"]+label:hover:before{color:#4ebcf6;}
+ulti-viewer /deep/ view-settings /deep/ input.fullScreen[type="checkbox"]+label:before{color:#fff;font-family:'FontAwesome';font-size:18px;content:"\f0b2";}
+
+
+/*ulti-viewer /deep/ view-settings /deep/ input[type=checkbox]+label{background:#494949;height:29px;width:29px;display:inline-block;line-height:30px;text-align:center;}*/
+
+
+/* old styling ?
+ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]{display:none;}
+ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]:checked+label:before{content:"\f066";}
+*/
+
 /*
-usco-ultiviewer #viewHelpers input[type=checkbox]+label>span{text-align:right;margin-left:20px;
+ulti-viewer /deep/ view-settings /deep/ .polymer-ui-collapsible{margin-bottom:2px;border:1px solid black;color:#fff;background:#494949;}
+ulti-viewer /deep/ view-settings /deep/ .polymer-ui-collapsible:hover{color:#4ebcf6;}
+ulti-viewer /deep/ view-settings /deep/ .polymer-ui-collapsible:hover .collapsible-header-arrow{color:#4ebcf6 !important;}
 
 
-usco-ultiviewer #viewHelpers input[type="checkbox"]{display:none;}usco-ultiviewer #viewHelpers input[type="checkbox"]+label{background:#494949;color:white;height:16px;width:16px;display:inline-block;padding:0px;text-align:center;line-height:16px;}usco-ultiviewer #viewHelpers input[type="checkbox"]+label:before{font-family:'FontAwesome';font-size:12px;content:"\f10c";}
-usco-ultiviewer #viewHelpers input[type="checkbox"]:checked+label:before{font-family:'FontAwesome';font-size:12px;content:"\f111";color:#17a9f5;}
-usco-ultiviewer #viewHelpers .polymer-ui-collapsible{margin-bottom:2px;border:1px solid black;color:#fff;background:#494949;}usco-ultiviewer #viewHelpers .polymer-ui-collapsible:hover{color:#4ebcf6;}usco-ultiviewer #viewHelpers .polymer-ui-collapsible:hover .collapsible-header-arrow{color:#4ebcf6 !important;}
-usco-ultiviewer #viewHelpers .polymer-ui-collapsible .accordion-item-inner{padding:2px;padding-left:8px;border:1px solid #2E2E2E;}
-usco-ultiviewer #viewHelpers .polymer-ui-collapsible .polymer-ui-collapsible-header{padding:4px 8px 4px 3px;cursor:pointer;font-size:15px;background:#2E2E2E;}usco-ultiviewer #viewHelpers .polymer-ui-collapsible .polymer-ui-collapsible-header .collapsible-header-arrow{color:#fff;padding-right:5px;margin-right:5px;border-right:1px solid;text-align:center;display:inline-block;width:19px;}usco-ultiviewer #viewHelpers .polymer-ui-collapsible .polymer-ui-collapsible-header .collapsible-header-arrow:before{font-family:'FontAwesome';font-size:15px;content:"\f0da";padding-left:4px;}
-usco-ultiviewer #viewHelpers .polymer-ui-collapsible.polymer-ui-collapsible-active{color:#4ebcf6;}usco-ultiviewer #viewHelpers .polymer-ui-collapsible.polymer-ui-collapsible-active .collapsible-header-arrow:before{font-size:15px;content:"\f0d7";color:#4ebcf6;}
-usco-ultiviewer :unresolved:after{padding:15px;content:'loading...';color:#ccc;}
-usco-ultiviewer #viewControls{position:absolute;bottom:8px;right:13px;z-index:999;pointer-events:all;}usco-ultiviewer #viewControls input[type=checkbox]+label{background:#494949;height:29px;width:29px;display:inline-block;line-height:30px;text-align:center;}usco-ultiviewer #viewControls input[type=checkbox]+label>span{display:none;}
-usco-ultiviewer #viewControls input[type="checkbox"]{display:none;}
-usco-ultiviewer #viewControls input[type="checkbox"]:checked+label:before{content:"\f066";}
-usco-ultiviewer #viewControls input.fullScreen[type="checkbox"]+label:before{color:#fff;font-family:'FontAwesome';font-size:18px;content:"\f0b2";}
-usco-ultiviewer #viewControls input.fullScreen[type="checkbox"]+label:hover:before{color:#4ebcf6;}
-usco-ultiviewer #viewControls input[type=checkbox]:checked+label{background:#17a9f5;}
-usco-ultiviewer #selectionDownload{cursor:pointer;position:absolute;left:13px;bottom:8px;width:80px;background:#494949;padding:4px 8px;color:#fff;z-index:999;}usco-ultiviewer #selectionDownload:hover{color:#4ebcf6;}
-usco-ultiviewer #resourcesList{position:absolute;top:40px;right:20px;}*/
 
+
+ulti-viewer /deep/ view-settings /deep/ input[type=checkbox]:checked+label{background:#17a9f5;}
+ulti-viewer #selectionDownload{cursor:pointer;position:absolute;left:13px;bottom:8px;width:80px;background:#494949;padding:4px 8px;color:#fff;z-index:999;}ulti-viewer #selectionDownload:hover{color:#4ebcf6;}
+ulti-viewer #resourcesList{position:absolute;top:40px;right:20px;}
+
+
+*/
 

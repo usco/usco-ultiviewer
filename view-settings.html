@@ -2,24 +2,13 @@
 
 <polymer-element name="view-settings" attributes="camera, controls, autoRotate, fullScreen, showGrid, showAxes">
   <template>
-      <div >
-          <div class="polymer-ui-collapsible-header">
-            <span class="collapsible-header-arrow"></span>View Settings
-          </div>
-          <div class="content">
-            <div class="accordion-item-inner">
-            <input type="checkbox" checked="{{showGrid}}" id="gridToggle" class="gridToggle"><label for="gridToggle"><span>Grid</span></label> 
-            </div>
-            <div class="accordion-item-inner">
-              <input type="checkbox" checked="{{showAxes}}" id="axesToggle" class="axesToggle"><label for="axesToggle"><span>Axes</span></label>
-            </div>
-          </div>
-
-      <div id="viewControls" class="viewControls">
-        <input type="checkbox" checked="{{autoRotate}}" id="autoRotate" class="autoRotate"><label for="autoRotate"><span>AutoRotate</span></label>
+    <div class="viewSettings">
+      <input type="checkbox" checked="{{showGrid}}" id="gridToggle" class="gridToggle"><label for="gridToggle"><span>Grid</span></label> 
+      <input type="checkbox" checked="{{showAxes}}" id="axesToggle" class="axesToggle"><label for="axesToggle"><span>Axes</span></label>
+      <input type="checkbox" checked="{{autoRotate}}" id="autoRotate" class="autoRotate"><label for="autoRotate"><span>AutoRotate</span></label>
+    </div>
+    <div id="viewControls" class="viewControls">
         <input type="checkbox" checked="{{fullScreen}}" id="fullScreen" class="fullScreen"/> <label for="fullScreen"><span>Fullscreen</span></label> 
-      </div>
-
     </div>
   </template>
 <script>

@@ -26,6 +26,11 @@ Polymer('ulti-viewer', {
     try{
     $('<style></style>').appendTo($(document.body)).remove();
     }catch(error){}*/
+    //needed since we do not inherit from three-js but do composition
+    if (this.requestFullscreen) document.addEventListener("fullscreenchange", this.onFullScreenChange.bind(this), false);
+    if (this.mozRequestFullScreen) document.addEventListener("mozfullscreenchange", this.onFullScreenChange.bind(this), false);
+    if (this.msRequestFullScreen) document.addEventListener("msfullscreenchange", this.onFullScreenChange.bind(this), false);
+    if (this.webkitRequestFullScreen) document.addEventListener("webkitfullscreenchange", this.onFullScreenChange.bind(this), false);
   },
   detached:function()
   {
@@ -210,6 +215,30 @@ Polymer('ulti-viewer', {
      event.stopPropagation();
   },
   //attribute change handlers
+  onFullScreenChange:function()
+  {
+    //workaround to reset this.fullScreen to correct value when pressing exit etc in full screen mode
+    this.fullScreen = !(!document.fullscreenElement &&    // alternative standard method
+    !document.mozFullScreenElement && !document.webkitFullscreenElement);
+  },
+  fullScreenChanged:function()
+  {
+    if(this.fullScreen)
+    {
+      if(this.requestFullScreen)this.requestFullScreen();
+      if(this.webkitRequestFullScreen)this.webkitRequestFullScreen();
+      if(this.mozRequestFullScreen)this.mozRequestFullScreen();
+      if(this.msRequestFullscreen)this.msRequestFullscreen();
+    }
+    else
+    {
+      if(document.cancelFullScreen) document.cancelFullScreen();
+      if(document.webkitCancelFullScreen) document.webkitCancelFullScreen();
+      if(document.mozCancelFullScreen) document.mozCancelFullScreen();
+      if(document.msCancelFullScreen) document.msCancelFullScreen();
+    }
+    
+  },
   //FIXME
   /*autoRotateChanged:function()
   {
@@ -230,6 +259,7 @@ Polymer('ulti-viewer', {
   },*/
   highlightedObjectChanged:function(oldHovered,newHovered)
   {
+    return;
     //console.log("highlightedObjectChanged",oldHovered,newHovered);
     this.selectionColor = 0xf7c634;//0xff5400;//0xfffccc;
 	  this.outlineColor = 0xffc200;
@@ -287,6 +317,7 @@ Polymer('ulti-viewer', {
   },
   selectedObjectsChanged:function()
   {
+    //f96a5e
     console.log("selectedObjectsChanged", this.selectedObjects);
     if(this.selectedObjects)
     {

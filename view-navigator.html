@@ -38,9 +38,10 @@ Polymer("view-navigator",{
   controls:null,
   autoRotate:false,
   resetView:function(){
-    //console.log("camera etc", this.camera.object.position, this.camera.object.target);
+    //console.log("camera etc", this.camera.defaultPos, this.camera.object.position, this.camera.object.target);
     //console.log("controls etc",this.controls.object.object.position);
     this.camera.resetView();
+    this.controls.reset();
   },
   rotateViewLeft:function(){
     this.controls.rotateRight();
