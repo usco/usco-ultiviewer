@@ -7,6 +7,7 @@
 <link rel="import" href="components/three-js-helpers/grid-helper.html">
 <link rel="import" href="components/three-js-helpers/shadow-plane.html">
 <link rel="import" href="components/three-js-helpers/mirror-plane.html">
+<link rel="import" href="components/three-js-helpers/dimensions/dimension-helpers.html">
 
 <link rel="import" href="components/usco-client-deps/usco-client-deps.html">
 <link rel="import" href="components/usco-asset-manager/usco-asset-manager.html">
@@ -24,16 +25,19 @@
 <link rel="import" href="view-navigator.html">
 <link rel="import" href="cubic-loader.html">
 
+
 <polymer-element name="ulti-viewer" attributes="showAxis showIndicators"
 on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragover="{{handleDragOver}}" on-drop="{{handleDrop}}"
 >
     <template>
       <link rel="stylesheet" type="text/css" href="ulti-viewer.css">
       <!--controls overlay-->
+
       <view-settings autoRotate="{{autoRotate}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}" fullScreen="{{fullScreen}}">
       </view-settings>
-      
-      <view-navigator controls="{{$.camCtrl}}" camera="{{$.cam}}" autoRotate="{{autoRotate}}"> </view-navigator>
+      <template if="{{showControls}}">
+        <view-navigator controls="{{$.camCtrl}}" camera="{{$.cam}}" autoRotate="{{autoRotate}}"> </view-navigator>
+      </template>
       
       <!--
       <div class="resourceLoader">
@@ -105,6 +109,8 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
       <core-localstorage name="ultiviewer-settings-showGrid"   value="{{showGrid}}"></core-localstorage>
       <core-localstorage name="ultiviewer-settings-showAxes"   value="{{showAxes}}"></core-localstorage>
       <core-localstorage name="ultiviewer-settings-autoRotate" value="{{autoRotate}}"></core-localstorage>    
+      <core-localstorage name="ultiviewer-settings-showControls"   value="{{showControls}}"></core-localstorage>
+      
   </template>
   <script src="ulti-viewer.js"></script>
 </polymer-element>

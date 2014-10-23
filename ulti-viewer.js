@@ -79,6 +79,7 @@ Polymer('ulti-viewer', {
   clearScene:function(sceneName){
     var sceneName = sceneName || "main";
     this.threeJs.clearScene(sceneName);
+    this.selectedObjects = [];//TODO: move this to thre-js element ?
   },
   addToScene:function( object, sceneName, options )
   {
@@ -342,8 +343,6 @@ Polymer('ulti-viewer', {
   selectedObjectChanged:function(oldSelection)
   {
     console.log("selectedObjectChanged", this.selectedObject);
-    return;
-    //FIXME: removed for now
     var newSelection = this.selectedObject;
     this.selectObject(newSelection, oldSelection);
 
@@ -374,7 +373,7 @@ Polymer('ulti-viewer', {
         newSelection.helpers.dims = objDims;
       }
       //this.visualFocusOnSelection(newSelection);
-      if(this.autoRotate) this.autoRotate = false;//TODO: this should be a selection effect aswell
+      //if(this.autoRotate) this.autoRotate = false;//TODO: this should be a selection effect aswell
     }
   },
   //TODO: move this somewhere else, preferably a helper
