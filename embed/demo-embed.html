@@ -4,8 +4,13 @@
      <script src="webcomponents.min.js"></script>
      <link rel="import" href="ulti-viewer-embed.html">
 
-     <!--<script src="ulti-viewer-embed.js"></script>
-     <link rel="import" href="ulti-viewer-embed.html">-->
+      <!--for testing only-->
+      <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+
+      <!-- styling example, as it would appear in a website-->
+      <link rel="stylesheet" type="text/css" href="../embed.css">
+
       <style>
          html, body, ulti-viewer{
       margin: 0;
@@ -34,7 +39,7 @@
         var modelUrl = "https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/1078/Extruder_Big_Gear_V1.stl";
         modelUrl = currentUrl+"/demo-data/UM2CableChain_BedEnd.STL";
         
-        //setTimeout(function(){ultiViewer.loadMesh(modelUrl,{display:true});},1000 )
+        setTimeout(function(){ultiViewer.loadMesh(modelUrl,{display:true});},1000 )
     });
   </script>  
 </body>
