@@ -32,6 +32,7 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
       <ulti-viewer-controls autoRotate="{{autoRotate}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}" fullScreen="{{fullScreen}}" controls="{{$.camCtrl}}" camera="{{$.cam}}">
       </ulti-viewer-controls>
       
+      <!--
       <div class="resourceLoader">
         <template repeat="{{resource in resources}}">
           <ul>
@@ -43,7 +44,7 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
             </template>
           </ul>
         </template>
-      </div>
+      </div>-->
       
       
       <!--viewer itself-->
@@ -80,7 +81,7 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
           
           <three-js-viewport name="perspective" id="perspectiveView" class="perspectiveView">
             <three-js-combinedCamera id="cam" pos=[100,50,200] orientation="diagonal" up=[0,0,1]></three-js-combinedCamera>
-            <three-js-orbitControls id="camCtrl" cameraUp=[0,0,1] autoRotate="{{autoRotate && !(selectedObject)}}" autoRotateSpeed=10> </three-js-orbitControls>
+            <three-js-orbitControls id="camCtrl" cameraUp=[0,0,1] autoRotate="{{autoRotate && !(selectedObject)}}" autoRotateSpeed=2> </three-js-orbitControls>
           </three-js-viewport>
         </three-js>
      
