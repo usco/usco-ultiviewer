@@ -12,7 +12,7 @@ Polymer('ulti-viewer', {
   resources : null, 
   meshes    : null,
   
-  dismissalTimeOnError:8000, //how much time do we wait for before removing loading bar in case of an error
+  dismissalTimeOnError:3000, //how much time do we wait for before removing loading bar in case of an error
   created: function()
   {
     this.resources = [];
