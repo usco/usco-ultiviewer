@@ -2,39 +2,35 @@
 
 <polymer-element name="view-navigator" attributes="camera, controls, autorotate">
   <template>
-      <div>
-      <div id="cameraControls" class="cameraControls">
-        <table>
-          <tr>
-            <td colspan="3">
-             <button id="rotateUp" on-holdpulse="{{rotateViewUp}}" on-mousedown="{{rotateViewUp}}"></button>
-                <label for="rotateUp"><span>RotateUp<span></label>
-            </td>
-          </tr>
-          <tr>
-            <td>
-             <button id="rotateLeft" on-holdpulse="{{rotateViewLeft}}" on-tap="{{rotateViewLeft}}" ></button>
-                <label for="rotateLeft"><span>RotateLeft</span></label>
-            </td>
-            <td>
-              <button id="resetView" on-tap="{{resetView}}"></button><label for="resetView"><span>CenterView</span></label>
-            </td>
-            <td>
-               <button id="rotateRight" on-holdpulse="{{rotateViewRight}}" on-tap="{{rotateViewRight}}"></button><label for="rotateRight"><span>RotateRight</span></label>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="3">
-              <button id="rotateDown" on-holdpulse="{{rotateViewDown}}" on-mousedown="{{rotateViewDown}}"></button>
-                <label for="rotateDown"><span>RotateDown</span></label>
-            </td>
-          </tr>
-        </table>
+      <table>
+        <tr>
+          <td colspan="3">
+           <button id="rotateUp" on-holdpulse="{{rotateViewUp}}" on-mousedown="{{rotateViewUp}}"></button>
+              <label for="rotateUp"><span>RotateUp<span></label>
+          </td>
+        </tr>
+        <tr>
+          <td>
+           <button id="rotateLeft" on-holdpulse="{{rotateViewLeft}}" on-tap="{{rotateViewLeft}}" ></button>
+              <label for="rotateLeft"><span>RotateLeft</span></label>
+          </td>
+          <td>
+            <button id="resetView" on-tap="{{resetView}}"></button><label for="resetView"><span>ResetView</span></label>
+          </td>
+          <td>
+             <button id="rotateRight" on-holdpulse="{{rotateViewRight}}" on-tap="{{rotateViewRight}}"></button><label for="rotateRight"><span>RotateRight</span></label>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3">
+            <button id="rotateDown" on-holdpulse="{{rotateViewDown}}" on-mousedown="{{rotateViewDown}}"></button>
+              <label for="rotateDown"><span>RotateDown</span></label>
+          </td>
+        </tr>
+      </table>
 
-        <button id="zoomIn" on-holdpulse="{{zoomViewIn}}" on-tap="{{zoomViewIn}}" /><label for="zoomIn">+</label>
-        <button id="zoomOut" on-holdpulse="{{zoomViewOut}}" on-tap="{{zoomViewOut}}"/><label for="zoomOut">-</label>
-      </div>
-    </div>
+      <button id="zoomIn" on-holdpulse="{{zoomViewIn}}" on-tap="{{zoomViewIn}}" /><label for="zoomIn">+</label>
+      <button id="zoomOut" on-holdpulse="{{zoomViewOut}}" on-tap="{{zoomViewOut}}"/><label for="zoomOut">-</label>
   </template>
 <script>
 Polymer("view-navigator",{

@@ -20,7 +20,7 @@
 <link rel="import" href="components/usco-ply-parser/ply-parser.html">
 <link rel="import" href="components/usco-ctm-parser/ctm-parser.html">
 
-<link rel="import" href="ulti-viewer-controls.html">
+<link rel="import" href="view-settings.html">
 <link rel="import" href="view-navigator.html">
 <link rel="import" href="cubic-loader.html">
 
@@ -30,8 +30,8 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
     <template>
       <link rel="stylesheet" type="text/css" href="ulti-viewer.css">
       <!--controls overlay-->
-      <ulti-viewer-controls autoRotate="{{autoRotate}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}" fullScreen="{{fullScreen}}" controls="{{$.camCtrl}}" camera="{{$.cam}}">
-      </ulti-viewer-controls>
+      <view-settings autoRotate="{{autoRotate}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}" fullScreen="{{fullScreen}}">
+      </view-settings>
       
       <view-navigator controls="{{$.camCtrl}}" camera="{{$.cam}}" autoRotate="{{autoRotate}}"> </view-navigator>
       
