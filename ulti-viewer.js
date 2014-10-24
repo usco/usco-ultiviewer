@@ -19,20 +19,29 @@ Polymer('ulti-viewer', {
     this.meshes    = [];
     this.minObjectSize = 20;//minimum size (in arbitrarty/opengl units) before requiring re-scaling (upwards)
     this.maxObjectSize = 200;//maximum size (in arbitrarty/opengl units) before requiring re-scaling (downwards)
+    
+    
   },
   attached:function()
   {
     this.threeJs      = this.$.threeJs;
     this.assetManager = this.$.assetManager;
-    /*//workaround/hack for some css issues:FIXME: is this still necessary??
-    try{
-    $('<style></style>').appendTo($(document.body)).remove();
-    }catch(error){}*/
+    
+    //add the selection helper
+    //dimensions display helper
+    this.objDimensionsHelper = new ObjectDimensionsHelper();
+    this.addToScene( this.objDimensionsHelper, "helpers", {autoResize:false, autoCenter:false, persistent:true} );
+    
     //needed since we do not inherit from three-js but do composition
     if (this.requestFullscreen) document.addEventListener("fullscreenchange", this.onFullScreenChange.bind(this), false);
     if (this.mozRequestFullScreen) document.addEventListener("mozfullscreenchange", this.onFullScreenChange.bind(this), false);
     if (this.msRequestFullScreen) document.addEventListener("msfullscreenchange", this.onFullScreenChange.bind(this), false);
     if (this.webkitRequestFullScreen) document.addEventListener("webkitfullscreenchange", this.onFullScreenChange.bind(this), false);
+    
+    /*//workaround/hack for some css issues:FIXME: is this still necessary??
+    try{
+    $('<style></style>').appendTo($(document.body)).remove();
+    }catch(error){}*/
   },
   detached:function()
   {
@@ -83,12 +92,13 @@ Polymer('ulti-viewer', {
   },
   addToScene:function( object, sceneName, options )
   {
-    var autoCenter = autoCenter === undefined ? true: autoCenter;
-    var autoResize = autoResize === undefined ? true: autoResize;
+    var options = options || {};
+    options.autoCenter = options.autoCenter === undefined ? true: options.autoCenter;
+    options.autoResize = options.autoResize === undefined ? true: options.autoResize;
+    options.minSize    = options.minSize === undefined ? this.minObjectSize: options.minSize; 
+    options.maxSize    = options.maxSize === undefined ? this.maxObjectSize: options.maxSize; 
+    options.persistent = options.persistent === undefined ? false: options.persistent; 
     
-    var options = {autoCenter:true,autoResize:true,minSize:this.minObjectSize,maxSize:this.maxObjectSize};
-    
-    //this.meshes.push( object );
     this.threeJs.addToScene( object, sceneName, options );
   },
   removeFromScene:function( object, sceneName )
@@ -111,7 +121,7 @@ Polymer('ulti-viewer', {
       var shape = resource.data;
       if( !(shape instanceof THREE.Object3D) )
       {
-        console.log("formating resource");
+        //console.log("formating resource");
         //nice color: 0x00a9ff
         var material = new THREE.MeshPhongMaterial( { color: 0x17a9f5, specular: 0xffffff, shininess: 10, shading: THREE.FlatShading} );
         //new THREE.MeshLambertMaterial( {opacity:1,transparent:false,color: 0x0088ff} );
@@ -188,7 +198,7 @@ Polymer('ulti-viewer', {
   },
   onReqDismissResource:function(event, detail, sender) {
     var resource = sender.templateInstance.model.resource;
-    console.log("resource",resource);
+    //console.log("resource",resource);
     this.dismissResource( resource );
   },
   onDownloadTap:function(event)
@@ -328,7 +338,7 @@ Polymer('ulti-viewer', {
   selectedObjectsChanged:function()
   {
     //f96a5e
-    console.log("selectedObjectsChanged", this.selectedObjects);
+    //console.log("selectedObjectsChanged", this.selectedObjects);
     if(this.selectedObjects)
     {
       if(this.selectedObjects.length>0)
@@ -342,38 +352,24 @@ Polymer('ulti-viewer', {
   },
   selectedObjectChanged:function(oldSelection)
   {
-    console.log("selectedObjectChanged", this.selectedObject);
+    //console.log("selectedObjectChanged", this.selectedObject);
     var newSelection = this.selectedObject;
+    //FIXME: keep the red outline ?
     this.selectObject(newSelection, oldSelection);
 
     //this.clearVisualFocusOnSelection();
-
     if(oldSelection && oldSelection.helpers)
-      {
-
-        if(this.showDimensions)
-        {
-          var dims = oldSelection.helpers.dims;
-          if(dims)
-          {
-            oldSelection.remove(dims);
-            oldSelection.helpers.dims = null;
-          }
-        }
-      }
-
+    {
+      this.objDimensionsHelper.detach( oldSelection );
+    }
     if(newSelection)
     {
-      //TODO: refactor
       if(this.showDimensions)
       {
-        var objDims = new ObjectDimensionsHelper({mesh:newSelection});
-        newSelection.add( objDims );
+        this.objDimensionsHelper.attach( newSelection );
         if(!(newSelection.helpers)) newSelection.helpers = {}
-        newSelection.helpers.dims = objDims;
       }
       //this.visualFocusOnSelection(newSelection);
-      //if(this.autoRotate) this.autoRotate = false;//TODO: this should be a selection effect aswell
     }
   },
   //TODO: move this somewhere else, preferably a helper
