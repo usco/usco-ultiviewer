@@ -8,9 +8,9 @@ Polymer('ulti-viewer', {
   showControls: true,
   showDimensions: true,
   autoRotate: false,
+  selectRotate:true,//to allow selection & autorotate
   
   resources : null, 
-  meshes    : null,
   
   dismissalTimeOnError:3000, //how much time do we wait for before removing loading bar in case of an error
   created: function()
@@ -19,8 +19,6 @@ Polymer('ulti-viewer', {
     this.meshes    = [];
     this.minObjectSize = 20;//minimum size (in arbitrarty/opengl units) before requiring re-scaling (upwards)
     this.maxObjectSize = 200;//maximum size (in arbitrarty/opengl units) before requiring re-scaling (downwards)
-    
-    
   },
   attached:function()
   {
@@ -68,27 +66,14 @@ Polymer('ulti-viewer', {
     function onDisplayError(error){console.log("FAILED to display",error);};
     if( display ) resourcePromise.then( this.addToScene.bind(this), onDisplayError )
     
-    //      resourcePromise.then(resource.onLoaded.bind(resource), loadFailed, resource.onDownloadProgress.bind(resource) );
-    //possible alternative to resizing : zooming in on objects
-          /*var viewOffset = this.camera.position.clone().sub( this.camera.target ) ;
-          var stuff =viewOffset.clone().normalize();
-          stuff.multiplyScalar( geometry.boundingSphere.radius*4 );
-          //this.camera.position.copy(stuff);          
-          var camPos = this.camera.position.clone();
-          var tgt = stuff;
-          var cam = this.camera;
-          var tween = new TWEEN.Tween( camPos )
-            .to( tgt , 700 )
-            .easing( TWEEN.Easing.Quadratic.In )
-            .onUpdate( function () {
-              cam.position.copy(camPos);   
-            } )
-            .start();*/
+    //resourcePromise.then(resource.onLoaded.bind(resource), loadFailed, resource.onDownloadProgress.bind(resource) );
   },
   clearScene:function(sceneName){
     var sceneName = sceneName || "main";
     this.threeJs.clearScene(sceneName);
-    this.selectedObjects = [];//TODO: move this to thre-js element ?
+    
+    this.selectedObjects = [];//TODO: move this to three-js element ?
+    this.$.cam.resetView();
   },
   addToScene:function( object, sceneName, options )
   {
@@ -100,6 +85,9 @@ Polymer('ulti-viewer', {
     options.persistent = options.persistent === undefined ? false: options.persistent; 
     
     this.threeJs.addToScene( object, sceneName, options );
+    //TODO: should we select the object we added by default ?
+    //makes sense for single item viewer ...
+    this.selectedObject = object;
   },
   removeFromScene:function( object, sceneName )
   {
@@ -352,18 +340,22 @@ Polymer('ulti-viewer', {
   },
   selectedObjectChanged:function(oldSelection)
   {
-    //console.log("selectedObjectChanged", this.selectedObject);
+    console.log("selectedObjectChanged", this.selectedObject);
     var newSelection = this.selectedObject;
+    
     //FIXME: keep the red outline ?
-    this.selectObject(newSelection, oldSelection);
-
+    //this.outlineObject( newSelection, oldSelection );
+    this.zoomInOnObject( newSelection );
+    
     //this.clearVisualFocusOnSelection();
-    if(oldSelection && oldSelection.helpers)
+    if( oldSelection && oldSelection.helpers )
     {
       this.objDimensionsHelper.detach( oldSelection );
     }
     if(newSelection)
     {
+      //var foo = new THREE.EdgesHelper( newSelection);
+      //this.addToScene( foo );
       if(this.showDimensions)
       {
         this.objDimensionsHelper.attach( newSelection );
@@ -407,7 +399,7 @@ Polymer('ulti-viewer', {
         //child.renderDepth = child.material._oldRenderDepth;
       }
   },
-  selectObject:function(newSelection, oldSelection)
+  outlineObject:function(newSelection, oldSelection)
   {
     this.selectionColor = 0xfffccc;
     if(oldSelection != null && newSelection != null)
@@ -436,4 +428,40 @@ Polymer('ulti-viewer', {
         newSelection.add(outline);
     }
   },
+  //helpers
+  
+  //FIXME: this is a "helper"/transform/whatever 
+  //just like centering , resizing etc... food for thought/
+  //refactoring
+  zoomInOnObject:function( object , options){
+   //possible alternative to resizing : zooming in on objects
+    if(!object) return;
+    
+    var options = options || {};
+    
+    var proximity = options.proximity === undefined ? 2: options.proximity;
+    var zoomTime = options.zoomTime === undefined ? 400: options.zoomTime;
+    
+    var camera = this.$.cam.object;
+    var viewOffset = camera.position.clone().sub( camera.target ) ;
+    viewOffset.normalize();
+    viewOffset.multiplyScalar( object.boundingSphere.radius*2*proximity );
+    //this.camera.position.copy(stuff);    
+    var camPos = camera.position.clone();
+    var tgt = viewOffset;
+    
+    if(camPos.equals(tgt))
+    {
+      //already at target, do nothing
+      return;
+    }   
+    
+    var tween = new TWEEN.Tween( camPos )
+      .to( tgt , zoomTime )
+      .easing( TWEEN.Easing.Quadratic.In )
+      .onUpdate( function () {
+        camera.position.copy(camPos);   
+      } )
+      .start();
+   }
 });
