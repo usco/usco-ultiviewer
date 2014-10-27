@@ -1,18 +1,79 @@
 
 Polymer('ulti-viewer', {
-  selectedObject : null,
-  selectedObjects:null,
-  
+  /**
+   * toggle to show grid or not
+   * 
+   * @attribute showGrid
+   * @type boolean
+  */
   showGrid: true,
+  /**
+   * toggle to show axes or not
+   * 
+   * @attribute showAxes
+   * @type boolean
+  */
   showAxes: true,
+  /**
+   * toggle to show camera controls or not
+   * 
+   * @attribute showControls
+   * @type boolean
+  */
   showControls: true,
+  /**
+   * toggle to show dimensions of selected object(s)
+   * 
+   * @attribute showDimensions
+   * @type boolean
+  */
   showDimensions: true,
+  /**
+   * toggle for view auto rotation
+   * 
+   * @attribute autoRotate
+   * @type boolean
+  */
   autoRotate: false,
-  selectRotate:true,//to allow selection & autorotate
-  
+  /**
+   * toggle to allow selection & autorotate: if false, selecting
+   * object(s) stops the autorotation
+   * 
+   * @attribute selectRotate
+   * @type boolean
+  */
+  camOrientation:"diagonal",
+  selectRotate:true,
+  /**
+   * how much time do we wait for before removing loading bar in case of an error
+   * 
+   * @attribute dismissalTimeOnError
+   * @type integer
+  */
+  dismissalTimeOnError:3000, 
+  /**
+   * currently selected object (or first in list
+   * of currently selected objects)
+   * 
+   * @attribute selectedObject
+   * @type object
+  */
+  selectedObject : null,
+  /**
+   * list of all currently selected objects 
+   * 
+   * @attribute selectedObjects
+   * @type list
+  */
+  selectedObjects:null,
+  /**
+   * list of all currently loaded resources
+   * 
+   * @attribute resources
+   * @type list
+  */
   resources : null, 
   
-  dismissalTimeOnError:3000, //how much time do we wait for before removing loading bar in case of an error
   created: function()
   {
     this.resources = [];
@@ -259,24 +320,21 @@ Polymer('ulti-viewer', {
     }
     
   },
-  //FIXME
-  /*autoRotateChanged:function()
+  autoRotateChanged:function()
   {
-    this.controls.autoRotate = this.autoRotate;
-
-    if(this.autoRotate ==false ) return;
+    var controls = this.$.camCtrl;
+    if(this.autoRotate == false ) return;
     
     var rotSpeed = {rotSpeed:0.0};
     var rotSpeedTarget = {rotSpeed:2.0}
-    var controls = this.controls;
     var tween = new TWEEN.Tween( rotSpeed )
-            .to( rotSpeedTarget , 1000 )
-            .easing( TWEEN.Easing.Linear.None )
-            .onUpdate( function () {
-              controls.autoRotateSpeed = rotSpeed.rotSpeed;
-            } )
-            .start();
-  },*/
+    .to( rotSpeedTarget , 1000 )
+    .easing( TWEEN.Easing.Linear.None )
+    .onUpdate( function () {
+      controls.autoRotateSpeed = rotSpeed.rotSpeed;
+    } )
+    .start();
+  },
   highlightedObjectChanged:function(oldHovered,newHovered)
   {
     return;

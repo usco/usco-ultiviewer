@@ -87,7 +87,7 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
           </three-js-scene>
           
           <three-js-viewport name="perspective" id="perspectiveView" class="perspectiveView">
-            <three-js-combinedCamera id="cam" pos=[100,50,200] defaultPos=[100,50,200] orientation="diagonal" up=[0,0,1]></three-js-combinedCamera>
+            <three-js-combinedCamera id="cam" pos=[100,50,200] defaultPos=[100,50,200] orientation="{{camOrientation}}" up=[0,0,1]></three-js-combinedCamera>
             <three-js-orbitControls id="camCtrl" cameraUp=[0,0,1] autoRotate="{{autoRotate && (!selectedObject || selectRotate)}}" autoRotateSpeed=2> </three-js-orbitControls>
           </three-js-viewport>
         </three-js>
