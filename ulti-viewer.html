@@ -23,7 +23,8 @@
 
 <link rel="import" href="view-settings.html">
 <link rel="import" href="view-navigator.html">
-<link rel="import" href="cubic-loader.html">
+<link rel="import" href="progress-cubic.html">
+<link rel="import" href="progress-text.html">
 
 <polymer-element name="ulti-viewer" attributes="showAxis showIndicators"
 on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragover="{{handleDragOver}}" on-drop="{{handleDrop}}"
@@ -39,6 +40,20 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
         <view-navigator controls="{{$.camCtrl}}" camera="{{$.cam}}" autoRotate="{{autoRotate}}"> </view-navigator>
       </template>
       
+      <!--<div >
+        <template repeat="{{resource in resources}}">
+          <ul>
+            <template if="{{!resource.loaded}}">
+            <li>
+              Loading model ... {{resource.fetchProgress*0.7+resource.parseProgress*0.3}}% 
+            </li>
+            </template>
+          </ul>
+        </template>
+      </div>-->
+      
+      <progress-text resources="{{resources}}">
+      </progress-text>
       <!--
       <div class="resourceLoader">
         <template repeat="{{resource in resources}}">
@@ -81,10 +96,11 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
             
               <template repeat="{{resource in resources}}">
                 <template if="{{!resource.loaded}}">
-                  <cubic-loader resource="{{resource}}"> </cubic-loader>
+                  <progress-cubic resource="{{resource}}"> </progress-cubic>
                 </template>
               </template>
           </three-js-scene>
+          
           
           <three-js-viewport name="perspective" id="perspectiveView" class="perspectiveView">
             <three-js-combinedCamera id="cam" pos=[100,50,200] defaultPos=[100,50,200] orientation="{{camOrientation}}" up=[0,0,1]></three-js-combinedCamera>
@@ -94,7 +110,7 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
      
       <!--core elements: loaders, etc-->
       <usco-client-deps> </usco-client-deps>
-      <usco-asset-manager id="assetManager" logLevel="debug">
+      <usco-asset-manager id="assetManager" logLevel="warn">
         <xhr-store> </xhr-store>
         <desktop-store> </desktop-store>
 

@@ -42,8 +42,14 @@ Polymer('ulti-viewer', {
    * @attribute selectRotate
    * @type boolean
   */
-  camOrientation:"diagonal",
   selectRotate:true,
+  /**
+   * orientation of the camera: top, left, right, bottom, diagonal
+   * 
+   * @attribute camOrientation
+   * @type string
+  */
+  camOrientation:"diagonal",
   /**
    * how much time do we wait for before removing loading bar in case of an error
    * 

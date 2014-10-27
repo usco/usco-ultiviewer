@@ -8,6 +8,33 @@ ulti-viewer :unresolved:after{padding:15px;content:'loading...';color:#ccc;}
     top:0px !important;
   } */
 
+/*for resource loader*/
+
+ulti-viewer /deep/ .resourceLoader{
+}
+
+ulti-viewer /deep/ .resourceLoader ul{
+margin: 0 auto;list-style:none;padding:0;
+background:white;
+}
+
+
+ulti-viewer /deep/ .resourceLoader span{
+margin: 0 auto;padding:0;
+background:white;
+}
+
+ulti-viewer /deep/ progress-text {
+  background:white;
+  width: 100%;
+  position:absolute;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  z-index:14;
+  text-align:center;
+}
+
 /*for camera controls*/
 
 ulti-viewer /deep/ view-navigator{
