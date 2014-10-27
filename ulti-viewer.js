@@ -52,6 +52,7 @@ Polymer('ulti-viewer', {
     var display = options.display === undefined ? true: options.display;
     var keepRawData = options.keepRawData === undefined ? true: options.keepRawData;
     
+    if(!uriOrData){ console.warn("no uri or data to load"); return};
     var resourcePromise = this._loadResource( uriOrData );
     
     function loadFailed(res)
@@ -169,10 +170,20 @@ Polymer('ulti-viewer', {
     if (e.preventDefault) {
       e.preventDefault(); // Necessary. Allows us to drop.
     }
+  
+    var data = e.dataTransfer.getData("url");
+    if( data!= "")
+    {
+      this.asyncFire('url-dropped', {data:data} );
+      this.loadMesh( data );
+      return;
+    }
+    
     var data=e.dataTransfer.getData("Text");
     if( data!= "" ){
         this.asyncFire('text-dropped', {data:data} );
         this.loadMesh( e.detail.data );
+        return;
     }
 
     var files = e.dataTransfer.files;
@@ -182,6 +193,7 @@ Polymer('ulti-viewer', {
       for (var i = 0, f; f = files[i]; i++) {
         this.loadMesh( f );
       }
+      return;
     }
   },
   onReqDismissResource:function(event, detail, sender) {
@@ -340,7 +352,7 @@ Polymer('ulti-viewer', {
   },
   selectedObjectChanged:function(oldSelection)
   {
-    console.log("selectedObjectChanged", this.selectedObject);
+    //console.log("selectedObjectChanged", this.selectedObject);
     var newSelection = this.selectedObject;
     
     //FIXME: keep the red outline ?
@@ -354,8 +366,6 @@ Polymer('ulti-viewer', {
     }
     if(newSelection)
     {
-      //var foo = new THREE.EdgesHelper( newSelection);
-      //this.addToScene( foo );
       if(this.showDimensions)
       {
         this.objDimensionsHelper.attach( newSelection );
@@ -364,11 +374,15 @@ Polymer('ulti-viewer', {
       //this.visualFocusOnSelection(newSelection);
     }
   },
-  //TODO: move this somewhere else, preferably a helper
-  visualFocusOnSelection : function(selection)
+  //helpers
+  //FIXME: this is a "helper"/transform/whatever 
+  //just like centering , resizing etc... food for thought/
+  //refactoring
+  //TODO: move these somewhere else, preferably a helper
+  focusOnObject  :function(newSelection, oldSelection)
   {
-    //visual helper: make object other than main selection slightly transparent
-      //console.log("this.rootAssembly.children",this.renderer)
+    //visual helper: make objects other than main selection slightly transparent
+    if( newSelection ) {
       for(var i = 0; i < this.rootAssembly.children.length;i++)
       {
         var child = this.rootAssembly.children[i];
@@ -387,10 +401,10 @@ Polymer('ulti-viewer', {
         child.material.opacity = 0.3;
         child.material.transparent = true;
       }
-  },
-  //TODO: move this somewhere else, preferably a helper
-  clearVisualFocusOnSelection : function()
-  {
+    }
+    
+    if(!newSelection && !oldSelection)
+    {
       for(var i = 0; i < this.rootAssembly.children.length;i++)
       {
         var child = this.rootAssembly.children[i];
@@ -398,14 +412,40 @@ Polymer('ulti-viewer', {
         child.material.transparent = child.material._oldTransparent;
         //child.renderDepth = child.material._oldRenderDepth;
       }
+    }
   },
-  outlineObject:function(newSelection, oldSelection)
+  zoomInOnObject:function( object , options){
+   //possible alternative to resizing : zooming in on objects
+    if(!object) return;
+    
+    var options = options || {};
+    
+    var proximity = options.proximity === undefined ? 2: options.proximity;
+    var zoomTime = options.zoomTime === undefined ? 400: options.zoomTime;
+    
+    var camera = this.$.cam.object;
+    var viewOffset = camera.position.clone().sub( camera.target ) ;
+    viewOffset.normalize();
+    viewOffset.multiplyScalar( object.boundingSphere.radius*2*proximity );
+    var camPos = camera.position.clone();
+    var tgt = viewOffset;
+    
+    if(camPos.equals(tgt))
+    {
+      //already at target, do nothing
+      return;
+    }   
+    var tween = new TWEEN.Tween( camPos )
+      .to( tgt , zoomTime )
+      .easing( TWEEN.Easing.Quadratic.In )
+      .onUpdate( function () {
+        camera.position.copy(camPos);   
+      } )
+      .start();
+   },
+   outlineObject:function(newSelection, oldSelection)
   {
     this.selectionColor = 0xfffccc;
-    if(oldSelection != null && newSelection != null)
-    {    
-      //console.log("SELECTED object changed",newSelection.name,"OLD",oldSelection.name);
-    }
     //remove from old selection
     if(oldSelection != null)
     {
@@ -428,40 +468,4 @@ Polymer('ulti-viewer', {
         newSelection.add(outline);
     }
   },
-  //helpers
-  
-  //FIXME: this is a "helper"/transform/whatever 
-  //just like centering , resizing etc... food for thought/
-  //refactoring
-  zoomInOnObject:function( object , options){
-   //possible alternative to resizing : zooming in on objects
-    if(!object) return;
-    
-    var options = options || {};
-    
-    var proximity = options.proximity === undefined ? 2: options.proximity;
-    var zoomTime = options.zoomTime === undefined ? 400: options.zoomTime;
-    
-    var camera = this.$.cam.object;
-    var viewOffset = camera.position.clone().sub( camera.target ) ;
-    viewOffset.normalize();
-    viewOffset.multiplyScalar( object.boundingSphere.radius*2*proximity );
-    //this.camera.position.copy(stuff);    
-    var camPos = camera.position.clone();
-    var tgt = viewOffset;
-    
-    if(camPos.equals(tgt))
-    {
-      //already at target, do nothing
-      return;
-    }   
-    
-    var tween = new TWEEN.Tween( camPos )
-      .to( tgt , zoomTime )
-      .easing( TWEEN.Easing.Quadratic.In )
-      .onUpdate( function () {
-        camera.position.copy(camPos);   
-      } )
-      .start();
-   }
 });
