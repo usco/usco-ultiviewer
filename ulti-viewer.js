@@ -112,7 +112,7 @@ Polymer('ulti-viewer', {
       {
         //console.log("formating resource");
         //nice color: 0x00a9ff
-        var material = new THREE.MeshPhongMaterial( { color: 0x17a9f5, specular: 0xffffff, shininess: 10, shading: THREE.FlatShading} );
+        var material = new THREE.MeshPhongMaterial( { color: 0x17a9f5, specular: 0xffffff, shininess: 5, shading: THREE.FlatShading} );
         //new THREE.MeshLambertMaterial( {opacity:1,transparent:false,color: 0x0088ff} );
         var shape = new THREE.Mesh(shape, material);
       }
