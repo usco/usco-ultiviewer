@@ -1,3 +1,11 @@
+<!--for future multiple progress bar
+<polymer-element name="cubic-multi-loader" attributes="width, depth, height, percentComplete, resources">
+  <script>
+    Polymer("cubic-multi-loader",{
+    
+    });
+    </script>
+</polymer>-->
 
 <polymer-element name="cubic-loader" attributes="width, depth, height, percentComplete, resource">
   <template>
@@ -114,7 +122,7 @@
         this.objectParent.remove3(this);
       },
       resourceProgressChanged:function(){
-        this.percentComplete = (this.resource.fetchProgress/2 +  this.resource.parseProgress/2);
+        this.percentComplete = (this.resource.fetchProgress*0.70 +  this.resource.parseProgress*0.3);
       },
       percentCompleteChanged:function()
       {
