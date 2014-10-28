@@ -1,0 +1,40 @@
+
+
+<polymer-element name="overlay-note"  attributes="number note toggled" on-tap="{{toggle}}" >
+  <template>
+      <span >{{number}}</span>
+      <!--<template if="{{toggled}}">-->
+        <div class="annotationContent" id="noteContent">
+          <h1> {{note.title}} </h1>
+          {{note.text}}
+        </div>
+      <!--</template>-->
+  </template>
+  <script>
+    Polymer("overlay-note",{
+      number:-1,
+      note:null,
+      toggled:false,
+      attached:function(){
+        this.toggledChanged(false,true);
+      },
+      //attribute change callbacks
+      toggledChanged:function(oldTOggled, newToggle){
+        //note this is a workaround, as we cannot use template if + css transitions(yet)
+        // see:
+        //https://groups.google.com/forum/#!msg/polymer-dev/Sp0rJmitpNQ/RIX1xpOKOGAJ
+        if(this.toggled){
+          this.$.noteContent.style.opacity = 1;
+          this.$.noteContent.style.visibility="visible";
+        }else{
+          this.$.noteContent.style.opacity = 0;
+          this.$.noteContent.style.visibility="hidden";
+        }
+      },
+      //api
+      toggle:function(){
+        this.toggled = !this.toggled;
+      },
+    });
+    </script>
+</polymer>

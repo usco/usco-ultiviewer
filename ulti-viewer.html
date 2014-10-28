@@ -25,6 +25,7 @@
 <link rel="import" href="view-navigator.html">
 <link rel="import" href="progress-cubic.html">
 <link rel="import" href="progress-text.html">
+<link rel="import" href="overlay-note.html">
 
 <polymer-element name="ulti-viewer" attributes="showAxis showIndicators"
 on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragover="{{handleDragOver}}" on-drop="{{handleDrop}}"
@@ -34,23 +35,11 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
       <!--controls overlay-->
 
       <view-settings autoRotate="{{autoRotate}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}" fullScreen="{{fullScreen}}"
-      showControls="{{showControls}}">
+      showControls="{{showControls}}" showAnnotations="{{showAnnotations}}">
       </view-settings>
       <template if="{{showControls}}">
         <view-navigator controls="{{$.camCtrl}}" camera="{{$.cam}}" autoRotate="{{autoRotate}}"> </view-navigator>
       </template>
-      
-      <!--<div >
-        <template repeat="{{resource in resources}}">
-          <ul>
-            <template if="{{!resource.loaded}}">
-            <li>
-              Loading model ... {{resource.fetchProgress*0.7+resource.parseProgress*0.3}}% 
-            </li>
-            </template>
-          </ul>
-        </template>
-      </div>-->
       
       <progress-text resources="{{resources}}">
       </progress-text>
@@ -68,6 +57,18 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
         </template>
       </div>-->
       
+      <!-- anotation overlay test -->
+      <template if="{{selectedObject && showAnnotations}}">
+        <template repeat="{{annotation,i in annotations}}">
+          <overlay-note number="{{i}}" note="{{annotation}}"> </overlay-note>
+          <!--<div class="overlay"> <span> {{i}} </span>
+            <div class="annotationContent">
+              <h1> {{annotation.title}} </h1>
+              {{annotation.text}}
+            </div>
+          </div>-->
+        </template>
+      </template>
       
       <!--viewer itself-->
       <three-js id="threeJs" 
@@ -77,6 +78,7 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
           <tween-js></tween-js>
           
           <three-js-webglRenderer id="webglRenderer"></three-js-webglRenderer>
+          <three-js-css3dRenderer id="css3dRenderer"></three-js-css3dRenderer>
           <three-js-scene name="main" active pickable>
             <!--<three-pointLight color="0xfFfc7e" intensity=0.8 pos=[100, 150, 200] > </three-pointLight>
             <three-pointLight color="0xfcfc7e" intensity=0.5 pos=[100, -150, -200]> </three-pointLight>

@@ -29,6 +29,13 @@ Polymer('ulti-viewer', {
   */
   showDimensions: true,
   /**
+   * toggle to show annotations of selected object(s)
+   * 
+   * @attribute showAnnotations
+   * @type boolean
+  */
+  showAnnotations: true,
+  /**
    * toggle for view auto rotation
    * 
    * @attribute autoRotate
@@ -86,6 +93,14 @@ Polymer('ulti-viewer', {
     this.meshes    = [];
     this.minObjectSize = 20;//minimum size (in arbitrarty/opengl units) before requiring re-scaling (upwards)
     this.maxObjectSize = 200;//maximum size (in arbitrarty/opengl units) before requiring re-scaling (downwards)
+    
+    //experimental
+    this.annotations=[
+      {type:"pin", title:"Nope",text:"Dead center !", position:[0,0,0], author:"xxx", link:""},
+      {type:"pin", title:"Goomba",text:"Interesting", position:[20,35,0], author:"xxx", link:""},
+      {type:"pin", title:"Crux",text:"This is some trully remarquable engineering!", position:[-40,-50,30], author:"exa", link:""},
+    ];
+    
   },
   attached:function()
   {
@@ -103,6 +118,7 @@ Polymer('ulti-viewer', {
     if (this.msRequestFullScreen) document.addEventListener("msfullscreenchange", this.onFullScreenChange.bind(this), false);
     if (this.webkitRequestFullScreen) document.addEventListener("webkitfullscreenchange", this.onFullScreenChange.bind(this), false);
     
+    this.threeJs.updatables.push( this.updateOverlays.bind(this) ); 
     /*//workaround/hack for some css issues:FIXME: is this still necessary??
     try{
     $('<style></style>').appendTo($(document.body)).remove();
@@ -532,4 +548,59 @@ Polymer('ulti-viewer', {
         newSelection.add(outline);
     }
   },
+  updateOverlays: function(){
+    var p, v, percX, percY, left, top;
+    var camera = this.$.cam.object;
+    var target = this.selectedObject;
+    var projector = new THREE.Projector();
+    p = new THREE.Vector3().setFromMatrixPosition( target.matrixWorld );// target.matrixWorld.getPosition().clone();
+
+
+    var overlays = this.shadowRoot.querySelectorAll("overlay-note");
+    
+    for(var i=0;i<overlays.length;i++)
+    {
+      var overlay = overlays[i];
+      var annotation = this.annotations[i];
+      
+      var overlayEl = overlay;
+      var offset = new THREE.Vector3(annotation.position[0],annotation.position[1],annotation.position[2]);
+      
+      if(!annotation.poi){
+      var poi = new THREE.Object3D();
+      poi.position.copy( offset );
+      annotation.poi = poi;
+      }
+      var self = this;
+      drawOverlay( overlayEl, offset);
+    }
+    
+    
+    function drawOverlay( overlay , offset)
+    {
+      p.x += offset.x; 
+      p.y += offset.y;
+      v = p.clone().project(camera);
+      percX = (v.x + 1) / 2;
+      percY = (-v.y + 1) / 2;
+      
+      // scale these values to our viewport size
+      left = percX * self.clientWidth;
+      top = percY * self.clientHeight;
+      
+      width = overlay.clientWidth;
+      height = overlay.clientHeight;
+      width = 30;
+      height = 30;
+      
+      // position the overlay so that it's center is on top of
+      // the sphere we're tracking
+      overlay.style.left = (left - width / 2) + 'px'
+      overlay.style.top = (top - height / 2) + 'px'
+      //console.log("gna",overlay, left, top);
+    }
+    
+
+    
+  }
 });
