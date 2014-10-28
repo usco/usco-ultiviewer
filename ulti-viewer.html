@@ -61,12 +61,6 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
       <template if="{{selectedObject && showAnnotations}}">
         <template repeat="{{annotation,i in annotations}}">
           <overlay-note number="{{i}}" note="{{annotation}}"> </overlay-note>
-          <!--<div class="overlay"> <span> {{i}} </span>
-            <div class="annotationContent">
-              <h1> {{annotation.title}} </h1>
-              {{annotation.text}}
-            </div>
-          </div>-->
         </template>
       </template>
       

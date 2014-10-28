@@ -96,9 +96,8 @@ Polymer('ulti-viewer', {
     
     //experimental
     this.annotations=[
-      {type:"pin", title:"Nope",text:"Dead center !", position:[0,0,0], author:"xxx", link:""},
-      {type:"pin", title:"Goomba",text:"Interesting", position:[20,35,0], author:"xxx", link:""},
-      {type:"pin", title:"Crux",text:"This is some trully remarquable engineering!", position:[-40,-50,30], author:"exa", link:""},
+      {type:"pin", title:"Goomba",text:"Interesting", position:[20,35,0], orientation:[0,0,1], author:"xxx", link:""},
+      {type:"pin", title:"Crux",text:"This is some trully remarquable engineering!", position:[-40,-50,30],orientation:[0,0,1], author:"exa", link:""},
     ];
     
   },
@@ -504,24 +503,34 @@ Polymer('ulti-viewer', {
     var zoomTime = options.zoomTime === undefined ? 400: options.zoomTime;
     
     var camera = this.$.cam.object;
-    var viewOffset = camera.position.clone().sub( camera.target ) ;
-    viewOffset.normalize();
-    viewOffset.multiplyScalar( object.boundingSphere.radius*2*proximity );
     var camPos = camera.position.clone();
-    var tgt = viewOffset;
+    var tgtPos = camera.target.clone();
     
-    if(camPos.equals(tgt))
+    var camPosTarget = camera.position.clone().sub( object.position ) ;
+    camPosTarget.normalize();
+    camPosTarget.multiplyScalar( object.boundingSphere.radius*2*proximity );
+    //camera.target.copy(object.position ); 
+    
+    if(camPos.equals(camPosTarget))
     {
       //already at target, do nothing
       return;
     }   
     var tween = new TWEEN.Tween( camPos )
-      .to( tgt , zoomTime )
+      .to( camPosTarget , zoomTime )
       .easing( TWEEN.Easing.Quadratic.In )
       .onUpdate( function () {
         camera.position.copy(camPos);   
       } )
       .start();
+     /*
+      var tween2 = new TWEEN.Tween( tgtPos )
+      .to( object.position , zoomTime )
+      .easing( TWEEN.Easing.Quadratic.In )
+      .onUpdate( function () {
+        camera.target.copy(tgtPos);   
+      } )
+      .start();*/
    },
    outlineObject:function(newSelection, oldSelection)
   {
@@ -569,8 +578,17 @@ Polymer('ulti-viewer', {
       if(!annotation.poi){
       var poi = new THREE.Object3D();
       poi.position.copy( offset );
+      poi.boundingSphere = new THREE.Sphere(offset.clone(), 15);
+      target.add(poi);
       annotation.poi = poi;
       }
+      
+      if(!overlay.poi)
+      {
+        overlay.poi = poi;
+        overlay.zoomInOnObject = this.zoomInOnObject.bind(this)
+      }
+      
       var self = this;
       drawOverlay( overlayEl, offset);
     }

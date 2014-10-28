@@ -23,6 +23,8 @@
         //note this is a workaround, as we cannot use template if + css transitions(yet)
         // see:
         //https://groups.google.com/forum/#!msg/polymer-dev/Sp0rJmitpNQ/RIX1xpOKOGAJ
+        console.log("blla");
+        this.zoomInOnObject( this.poi, {zoomTime:1000} );
         if(this.toggled){
           this.$.noteContent.style.opacity = 1;
           this.$.noteContent.style.visibility="visible";
