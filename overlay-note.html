@@ -1,10 +1,10 @@
 
 
-<polymer-element name="overlay-note"  attributes="number note toggled" on-tap="{{toggle}}" >
+<polymer-element name="overlay-note"  attributes="number note toggled"  >
   <template>
-      <span >{{number}}</span>
+      <span on-tap="{{focusOn}}">{{number}}</span>
       <!--<template if="{{toggled}}">-->
-        <div class="annotationContent" id="noteContent">
+        <div class="annotationContent" id="noteContent" on-tap="{{toggle}}">
           <h1> {{note.title}} </h1>
           {{note.text}}
         </div>
@@ -16,13 +16,14 @@
       note:null,
       toggled:false,
       attached:function(){
-        this.toggledChanged(false,true);
+        this.toggledChanged(true,false);
       },
       //attribute change callbacks
       toggledChanged:function(oldTOggled, newToggle){
         //note this is a workaround, as we cannot use template if + css transitions(yet)
         // see:
         //https://groups.google.com/forum/#!msg/polymer-dev/Sp0rJmitpNQ/RIX1xpOKOGAJ
+        //console.log("toggledChanged", this.toggled);
         if(this.toggled){
           this.$.noteContent.style.opacity = 1;
           this.$.noteContent.style.visibility="visible";
@@ -32,10 +33,13 @@
         }
       },
       //api
-      toggle:function(){
-        this.toggled = !this.toggled;
+      focusOn:function(){
+        if(!this.toggled) this.toggled = true;
         this.asyncFire('overlay-tapped', {data:this} );
         this.zoomInOnObject( this.poi, {zoomTime:1000} );
+      },
+      toggle:function(){
+        this.toggled = !this.toggled;
       },
     });
     </script>
