@@ -513,23 +513,22 @@ Polymer('ulti-viewer', {
     
     var camPosTarget = camera.position.clone().sub( object.position ) ;
     
-    var camLookAtVector = camera.position.clone().sub( camera.target ) ;
+    //camera.target.copy( object.position );
+    var camLookatVector = new THREE.Vector3( 0, 0, 1 );
+    camLookatVector.applyQuaternion( camera.quaternion );
+    camLookatVector.normalize();
+    camLookatVector.multiplyScalar( object.boundingSphere.radius*proximity );
+    camLookatVector = object.position.clone().add( camLookatVector );
     
-    camera.target.copy( object.position );
-    var vector = new THREE.Vector3( 0, 0, 1 );
-    vector.applyQuaternion( camera.quaternion );
-    vector.normalize();
-    vector.multiplyScalar( object.boundingSphere.radius*proximity );
-    vector = object.position.clone().add( vector );
+    camPosTarget = camLookatVector;
     
-    //console.log("camPos",camPos,"camPosTarget",camPosTarget);
-    //camPosTarget.normalize();
-    //camPosTarget.multiplyScalar( object.boundingSphere.radius*proximity );
-    camPosTarget = vector;
-    //console.log("camTgt",camTgt,"camTgtTarget",camTgtTarget);
+    var precision = 0.001;
     
-    
-    if(camPos.equals(camPosTarget))
+    //console.log(camPosTarget, camPos);
+    //Simple using vector.equals( otherVector) is not good enough 
+    if(Math.abs(camPos.x - camPosTarget.x)<= precision &&
+     (Math.abs(camPos.y - camPosTarget.y)<= precision) &&
+     (Math.abs(camPos.z - camPosTarget.z)<= precision) )
     {
       //already at target, do nothing
       return;
