@@ -98,7 +98,7 @@ Polymer('ulti-viewer', {
     //positions are relative to the parent
     this.annotations=[
       {type:"point", title:"Goomba",text:"Interesting", position:[20,35,0], orientation:[0,0,1], author:"xxx", link:""},
-      {type:"point", title:"Crux",text:"This is some trully remarquable engineering!", position:[-40,-50,30],orientation:[0,0,1], author:"exa", link:""},
+      {type:"point", title:"Crux",text:"This is some trully remarquable engineering!", position:[-20,-16,6],orientation:[0,0,1], author:"exa", link:""},
     ];
     
   },
@@ -167,11 +167,12 @@ Polymer('ulti-viewer', {
     options.minSize    = options.minSize === undefined ? this.minObjectSize: options.minSize; 
     options.maxSize    = options.maxSize === undefined ? this.maxObjectSize: options.maxSize; 
     options.persistent = options.persistent === undefined ? false: options.persistent; 
+    options.select = options.select === undefined ? true: options.select; 
     
     this.threeJs.addToScene( object, sceneName, options );
     //TODO: should we select the object we added by default ?
     //makes sense for single item viewer ...
-    this.selectedObject = object;
+    if(options.select) this.selectedObject = object;
   },
   removeFromScene:function( object, sceneName )
   {
@@ -502,16 +503,31 @@ Polymer('ulti-viewer', {
     var options = options || {};
     
     var orientation = options.orientation === undefined ? null: options.orientation;//to force a given "look at " vector
-    var proximity = options.proximity === undefined ? 2: options.proximity;
+    var proximity = options.proximity === undefined ? 3: options.proximity;
     var zoomTime = options.zoomTime === undefined ? 400: options.zoomTime;
     
     var camera = this.$.cam.object;
     var camPos = camera.position.clone();
-    var tgtPos = camera.target.clone();
+    var camTgt = camera.target.clone();
+    var camTgtTarget =object.position.clone();
     
     var camPosTarget = camera.position.clone().sub( object.position ) ;
-    camPosTarget.normalize();
-    camPosTarget.multiplyScalar( object.boundingSphere.radius*2*proximity );
+    
+    var camLookAtVector = camera.position.clone().sub( camera.target ) ;
+    
+    camera.target.copy( object.position );
+    var vector = new THREE.Vector3( 0, 0, 1 );
+    vector.applyQuaternion( camera.quaternion );
+    vector.normalize();
+    vector.multiplyScalar( object.boundingSphere.radius*proximity );
+    vector = object.position.clone().add( vector );
+    
+    //console.log("camPos",camPos,"camPosTarget",camPosTarget);
+    //camPosTarget.normalize();
+    //camPosTarget.multiplyScalar( object.boundingSphere.radius*proximity );
+    camPosTarget = vector;
+    //console.log("camTgt",camTgt,"camTgtTarget",camTgtTarget);
+    
     
     if(camPos.equals(camPosTarget))
     {
@@ -525,13 +541,15 @@ Polymer('ulti-viewer', {
         camera.position.copy(camPos);   
       } )
       .start();
-      var tween2 = new TWEEN.Tween( tgtPos )
-      .to( object.position , zoomTime )
+      var tween2 = new TWEEN.Tween( camTgt )
+      .to( camTgtTarget , zoomTime )
       .easing( TWEEN.Easing.Quadratic.In )
       .onUpdate( function () {
-        camera.target.copy(tgtPos);   
+        camera.target.copy(camTgt);   
       } )
       .start();
+      //tween2.chain( tween );
+      //tween2.start();
    },
    outlineObject:function(newSelection, oldSelection)
   {
@@ -563,8 +581,6 @@ Polymer('ulti-viewer', {
     var camera = this.$.cam.object;
     var target = this.selectedObject;
     var projector = new THREE.Projector();
-    p = new THREE.Vector3().setFromMatrixPosition( target.matrixWorld );// target.matrixWorld.getPosition().clone();
-
 
     var overlays = this.shadowRoot.querySelectorAll("overlay-note");
     
@@ -577,11 +593,20 @@ Polymer('ulti-viewer', {
       var offset = new THREE.Vector3(annotation.position[0],annotation.position[1],annotation.position[2]);
       
       if(!annotation.poi){
-      var poi = new THREE.Object3D();
-      poi.position.copy( offset );
-      poi.boundingSphere = new THREE.Sphere(offset.clone(), 15);
-      target.add(poi);
-      annotation.poi = poi;
+        var poi = new THREE.Object3D();
+        poi.boundingSphere = new THREE.Sphere(offset.clone(), 15);
+        
+        //for debugging only
+        var foo = new THREE.Mesh( new THREE.BoxGeometry(10,10,10), new THREE.MeshBasicMaterial({color:0xFF0000,wireframe:true}) );
+        var foo = new THREE.Mesh( new THREE.SphereGeometry(10,32,32), new THREE.MeshBasicMaterial({color:0xFF0000,wireframe:true}) );
+        var bla = offset.clone();
+        bla = target.localToWorld( bla );
+        foo.position.copy( bla );
+        //this.addToScene(foo, "main", {autoCenter:false,autoResize:false,select:false} );
+        
+        target.add(poi);
+        poi.position.copy( bla );
+        annotation.poi = poi;
       }
       
       if(!overlay.poi)
@@ -597,8 +622,10 @@ Polymer('ulti-viewer', {
     
     function drawOverlay( overlay , offset)
     {
+      p = new THREE.Vector3().setFromMatrixPosition( target.matrixWorld );// target.matrixWorld.getPosition().clone();
       p.x += offset.x; 
       p.y += offset.y;
+      p.z += offset.z;
       v = p.clone().project(camera);
       percX = (v.x + 1) / 2;
       percY = (-v.y + 1) / 2;
