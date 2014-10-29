@@ -95,9 +95,10 @@ Polymer('ulti-viewer', {
     this.maxObjectSize = 200;//maximum size (in arbitrarty/opengl units) before requiring re-scaling (downwards)
     
     //experimental
+    //positions are relative to the parent
     this.annotations=[
-      {type:"pin", title:"Goomba",text:"Interesting", position:[20,35,0], orientation:[0,0,1], author:"xxx", link:""},
-      {type:"pin", title:"Crux",text:"This is some trully remarquable engineering!", position:[-40,-50,30],orientation:[0,0,1], author:"exa", link:""},
+      {type:"point", title:"Goomba",text:"Interesting", position:[20,35,0], orientation:[0,0,1], author:"xxx", link:""},
+      {type:"point", title:"Crux",text:"This is some trully remarquable engineering!", position:[-40,-50,30],orientation:[0,0,1], author:"exa", link:""},
     ];
     
   },
@@ -494,11 +495,13 @@ Polymer('ulti-viewer', {
     }
   },
   zoomInOnObject:function( object , options){
+    var scope = this;//TODO: this is temporary, until this "effect" is an object
    //possible alternative to resizing : zooming in on objects
     if(!object) return;
     
     var options = options || {};
     
+    var orientation = options.orientation === undefined ? null: options.orientation;//to force a given "look at " vector
     var proximity = options.proximity === undefined ? 2: options.proximity;
     var zoomTime = options.zoomTime === undefined ? 400: options.zoomTime;
     
@@ -509,7 +512,6 @@ Polymer('ulti-viewer', {
     var camPosTarget = camera.position.clone().sub( object.position ) ;
     camPosTarget.normalize();
     camPosTarget.multiplyScalar( object.boundingSphere.radius*2*proximity );
-    //camera.target.copy(object.position ); 
     
     if(camPos.equals(camPosTarget))
     {
@@ -523,14 +525,13 @@ Polymer('ulti-viewer', {
         camera.position.copy(camPos);   
       } )
       .start();
-     /*
       var tween2 = new TWEEN.Tween( tgtPos )
       .to( object.position , zoomTime )
       .easing( TWEEN.Easing.Quadratic.In )
       .onUpdate( function () {
         camera.target.copy(tgtPos);   
       } )
-      .start();*/
+      .start();
    },
    outlineObject:function(newSelection, oldSelection)
   {
