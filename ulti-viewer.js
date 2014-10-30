@@ -97,7 +97,7 @@ Polymer('ulti-viewer', {
     //experimental
     //positions are relative to the parent
     this.annotations=[
-      {type:"point", title:"Goomba",text:"Interesting", position:[20,35,0], orientation:[0,0,1], author:"xxx", link:""},
+      {type:"point", title:"Goomba",text:"Interesting", position:[20,32,3], orientation:[0,0,1], author:"xxx", link:""},
       {type:"point", title:"Crux",text:"This is some trully remarquable engineering!", position:[-20,-16,6],orientation:[0,0,1], author:"exa", link:""},
     ];
     
@@ -592,6 +592,7 @@ Polymer('ulti-viewer', {
       var offset = new THREE.Vector3(annotation.position[0],annotation.position[1],annotation.position[2]);
       
       if(!annotation.poi){
+
         var poi = new THREE.Object3D();
         poi.boundingSphere = new THREE.Sphere(offset.clone(), 15);
         
@@ -610,7 +611,7 @@ Polymer('ulti-viewer', {
       
       if(!overlay.poi)
       {
-        overlay.poi = poi;
+        overlay.poi = annotation.poi;
         overlay.zoomInOnObject = this.zoomInOnObject.bind(this)
       }
       
