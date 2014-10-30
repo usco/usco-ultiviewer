@@ -60,7 +60,9 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
       <!-- anotation overlay test -->
       <template if="{{selectedObject && showAnnotations}}">
         <template repeat="{{annotation,i in annotations}}">
-          <overlay-note number="{{i}}" note="{{annotation}}"> </overlay-note>
+          <template if="{{selectedObject.userData.part.id == annotation.partId}}">
+            <overlay-note number="{{i}}" note="{{annotation}}"> </overlay-note>
+           </template>
         </template>
       </template>
       

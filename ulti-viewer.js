@@ -97,8 +97,8 @@ Polymer('ulti-viewer', {
     //experimental
     //positions are relative to the parent
     this.annotations=[
-      {type:"point", title:"Goomba",text:"Interesting", position:[20,32,3], orientation:[0,0,1], author:"xxx", link:""},
-      {type:"point", title:"Crux",text:"This is some trully remarquable engineering!", position:[-20,-16,6],orientation:[0,0,1], author:"exa", link:""},
+      {partId:0 , type:"point", title:"Goomba",text:"Interesting", position:[20,32,3], orientation:[0,0,1], author:"xxx", link:""},
+      {partId:0 ,type:"point", title:"Crux",text:"This is some trully remarquable engineering!", position:[-20,-16,6],orientation:[0,0,1], author:"exa", link:""},
     ];
     
   },
@@ -148,7 +148,14 @@ Polymer('ulti-viewer', {
       }
     }
     function onDisplayError(error){console.log("FAILED to display",error);};
-    if( display ) resourcePromise.then( this.addToScene.bind(this), onDisplayError )
+    
+    //temporary hack
+    function afterAdded( mesh ){ 
+      mesh.userData.part = {};
+      mesh.userData.part.id = 0;
+      
+    } 
+    if( display ) resourcePromise.then( this.addToScene.bind(this), onDisplayError ).then(afterAdded);
     
     //resourcePromise.then(resource.onLoaded.bind(resource), loadFailed, resource.onDownloadProgress.bind(resource) );
   },
@@ -173,6 +180,9 @@ Polymer('ulti-viewer', {
     //TODO: should we select the object we added by default ?
     //makes sense for single item viewer ...
     if(options.select) this.selectedObject = object;
+    
+    console.log("this.resources", this.resources);
+    return object;
   },
   removeFromScene:function( object, sceneName )
   {
@@ -587,6 +597,8 @@ Polymer('ulti-viewer', {
     {
       var overlay = overlays[i];
       var annotation = this.annotations[i];
+      
+      if( target.userData.part.id !== annotation.partId ) continue;
       
       var overlayEl = overlay;
       var offset = new THREE.Vector3(annotation.position[0],annotation.position[1],annotation.position[2]);
