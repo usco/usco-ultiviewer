@@ -128,6 +128,17 @@ Polymer('ulti-viewer', {
   {
     this.clearResources();
   },
+  //internal api
+  injectPlugin:function(pluginNode){
+    //console.log("injecting plug in", pluginNode, pluginNode.methodsToInject);
+    //inject plugin's methods
+    for(var i=0;i<pluginNode.methodsToInject.length;i++)
+    {
+      var methodName    = pluginNode.methodsToInject[i];
+      if(this[methodName]) throw new Error("Method '"+ methodName+"' already exists, cannot add it to "+this.localName);
+      this[methodName]  = pluginNode[methodName];
+    }
+  },
   //public api
   loadMesh:function( uriOrData, options )
   {
