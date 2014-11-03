@@ -5,8 +5,8 @@
       <link rel="import" href="ulti-viewer.html">
 
 
-      <!--for testing only
-      <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">-->
+      <!--for testing only-->
+      <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 
 
       <!-- styling example, as it would appear in a website-->
@@ -40,8 +40,28 @@
         var currentUrl = window.location.origin;
         var modelUrl = "https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/1078/Extruder_Big_Gear_V1.stl";
         modelUrl = currentUrl+"/demo-data/UM2CableChain_BedEnd.STL";
+        //modelUrl = currentUrl+"/demo-data/cube.stl";
+        //modelUrl = "https://foobarbqsd/vr_V1.stl";
+        //modelUrl = currentUrl+"/demo-data/Constellation.amf";
         
-        setTimeout(function(){ultiViewer.loadMesh(modelUrl,{display:true});},1000 )
+        var annotations = [
+          {partId:0 , type:"point", title:"Goomba",text:"Interesting", position:[20,32,3], orientation:[0,0,1], author:"xxx", link:""},
+          {partId:0 ,type:"point", title:"Crux",text:"This is some trully remarquable engineering!", position:[-20,-16,6],orientation:[0,0,1], author:"exa", link:""},
+        ];
+        
+        ultiViewer.annotations = annotations;
+        
+        setTimeout(function(){
+          ultiViewer.loadMesh(modelUrl,{display:true}).then(function(){
+         
+          //FIXME: hack, this is needed right now because meshes don't have adequate
+          //metadata 
+          ultiViewer.selectedObject.userData.part = {};
+          ultiViewer.selectedObject.userData.part.id = 0;
+          
+          });
+        },1000 );
+        
     });
   </script>  
 </body>

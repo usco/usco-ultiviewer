@@ -8,6 +8,82 @@ ulti-viewer :unresolved:after{padding:15px;content:'loading...';color:#ccc;}
     top:0px !important;
   } */
 
+ulti-viewer /deep/ overlay-note {
+z-index:16;
+width:20px;
+height:20px;
+border-radius: 50%;
+position:absolute;
+background: #494949;
+color:white;
+cursor:pointer;
+font-size:14px;
+font-weight:bold;
+border: 1px solid #FFEAEA;
+}
+
+ulti-viewer /deep/ overlay-note /deep/ h1{
+font-size:1.05em;
+margin:0px;
+margin-bottom:3px;
+}
+
+ulti-viewer /deep/ overlay-note /deep/ span{
+text-align: center;
+display: block;
+line-height: 20px;
+}
+
+ulti-viewer /deep/ overlay-note:hover /deep/ span{
+  color:#4ebcf6;
+}
+
+
+ulti-viewer /deep/ overlay-note /deep/ .annotationContent{
+  width: 200px;
+  background: #494949;
+  padding: 6px;
+  position: absolute;
+  left: 28px;
+  top: 0px;
+  font-weight: 100;
+  
+  
+  -webkit-transition: opacity .15s ease-in-out;
+  -moz-transition: opacity .15s ease-in-out;
+  -ms-transition: opacity .15s ease-in-out;
+  -o-transition: opacity .15s ease-in-out;
+  transition: opacity .15s ease-in-out;
+}
+
+ulti-viewer /deep/ overlay-note /deep/ .annotationContent([resolved]){
+  opacity:1;
+visibility: visible;
+}
+
+ulti-viewer /deep/ overlay-note /deep/ .annotationContent([unresolved]){
+  opacity:0;
+  visibility:hidden;
+}
+
+
+ulti-viewer /deep/ overlay-note /deep/ .annotationContent:after, ulti-viewer /deep/ overlay-note /deep/ .annotationContent:before {
+  right: 100%;
+	top: 8px;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+	border-color: rgba(39, 53, 61, 0);
+	border-right-color: #494949;
+	border-width: 8px;
+	margin-top: -8px;
+}
+
+
+
 /*for resource loader*/
 
 ulti-viewer /deep/ .resourceLoader{
