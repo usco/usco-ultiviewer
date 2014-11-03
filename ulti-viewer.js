@@ -87,6 +87,11 @@ Polymer('ulti-viewer', {
   */
   resources : null, 
   
+  //After this point, highly experimental attributes
+  annotations : null,
+  hierarchy   : null,
+  bom         : null,
+  //
   created: function()
   {
     this.resources = [];
@@ -94,13 +99,8 @@ Polymer('ulti-viewer', {
     this.minObjectSize = 20;//minimum size (in arbitrarty/opengl units) before requiring re-scaling (upwards)
     this.maxObjectSize = 200;//maximum size (in arbitrarty/opengl units) before requiring re-scaling (downwards)
     
-    //experimental
-    //positions are relative to the parent
-    this.annotations=[
-      {partId:0 , type:"point", title:"Goomba",text:"Interesting", position:[20,32,3], orientation:[0,0,1], author:"xxx", link:""},
-      {partId:0 ,type:"point", title:"Crux",text:"This is some trully remarquable engineering!", position:[-20,-16,6],orientation:[0,0,1], author:"exa", link:""},
-    ];
-    
+    //note: annotation positions are relative to the parent
+    this.annotations=[];
   },
   attached:function()
   {
@@ -149,14 +149,15 @@ Polymer('ulti-viewer', {
     }
     function onDisplayError(error){console.log("FAILED to display",error);};
     
-    //temporary hack
+    //temporary hack for annotations
+    
     function afterAdded( mesh ){ 
       mesh.userData.part = {};
       mesh.userData.part.id = 0;
-      
-    } 
-    if( display ) resourcePromise.then( this.addToScene.bind(this), onDisplayError ).then(afterAdded);
+    }
+    if( display ) return resourcePromise.then( this.addToScene.bind(this), onDisplayError )//.then(afterAdded);
     
+    return resourcePromise;
     //resourcePromise.then(resource.onLoaded.bind(resource), loadFailed, resource.onDownloadProgress.bind(resource) );
   },
   clearScene:function(sceneName){
@@ -174,14 +175,13 @@ Polymer('ulti-viewer', {
     options.minSize    = options.minSize === undefined ? this.minObjectSize: options.minSize; 
     options.maxSize    = options.maxSize === undefined ? this.maxObjectSize: options.maxSize; 
     options.persistent = options.persistent === undefined ? false: options.persistent; 
-    options.select = options.select === undefined ? true: options.select; 
+    options.select     = options.select === undefined ? true: options.select; 
     
     this.threeJs.addToScene( object, sceneName, options );
     //TODO: should we select the object we added by default ?
     //makes sense for single item viewer ...
     if(options.select) this.selectedObject = object;
     
-    console.log("this.resources", this.resources);
     return object;
   },
   removeFromScene:function( object, sceneName )
@@ -657,8 +657,6 @@ Polymer('ulti-viewer', {
       overlay.style.top = (top - height / 2) + 'px'
       //console.log("gna",overlay, left, top);
     }
-    
-
-    
-  }
+  },
+  
 });
