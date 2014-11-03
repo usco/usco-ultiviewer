@@ -1,6 +1,6 @@
 {
   "name": "usco-ultiviewer",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "dependencies": {
     "webcomponentsjs": "Polymer/webcomponentsjs#~0.4.2",
