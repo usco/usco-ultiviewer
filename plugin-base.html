@@ -1,0 +1,25 @@
+
+
+<polymer-element name="plugin-base">
+  <script>
+    Polymer("plugin-base",{
+      methodsToInject: [],
+      attached:function(){
+        this.injectInParent();
+      },
+      injectInParent: function() {
+        var parentNode = undefined;
+        //this tricks allows plugins to be added both at the <template> level 
+        //of an element, and at its instanciation
+        if(this.parentNode)      parentNode = this.parentNode;
+        if(this.parentNode.host) parentNode = this.parentNode.host;
+        
+        if (parentNode.injectPlugin && !this.objectParent) {
+          this.objectParent = parentNode;
+          parentNode.injectPlugin(this);
+          //console.log('[%s]: request adding to [%s]', this.localName + (this.id ? '#' + this.id : ''), parentName);
+        }
+      },
+    });
+    </script>
+</polymer>
