@@ -91,4 +91,4 @@ removing all resouces, and flush cache
 
 Licence
 =======
-MIT
+AGPL
