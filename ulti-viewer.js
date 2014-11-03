@@ -524,7 +524,7 @@ Polymer('ulti-viewer', {
     var options = options || {};
     
     var orientation = options.orientation === undefined ? null: options.orientation;//to force a given "look at " vector
-    var proximity = options.proximity === undefined ? 3: options.proximity;
+    var distance = options.distance === undefined ? 3: options.distance;
     var zoomTime = options.zoomTime === undefined ? 400: options.zoomTime;
     
     var camera = this.$.cam.object;
@@ -538,7 +538,7 @@ Polymer('ulti-viewer', {
     var camLookatVector = new THREE.Vector3( 0, 0, 1 );
     camLookatVector.applyQuaternion( camera.quaternion );
     camLookatVector.normalize();
-    camLookatVector.multiplyScalar( object.boundingSphere.radius*proximity );
+    camLookatVector.multiplyScalar( object.boundingSphere.radius*distance );
     camLookatVector = object.position.clone().add( camLookatVector );
     
     camPosTarget = camLookatVector;
