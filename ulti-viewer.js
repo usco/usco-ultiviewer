@@ -339,6 +339,33 @@ Polymer('ulti-viewer', {
      event.preventDefault();
      event.stopPropagation();
   },
+  objectSelected:function(e){
+    console.log("object selected", e.detail.pickingInfos);
+    var point = e.detail.pickingInfos.point;
+    //var orientation = this.$.cam.object.position.clone().sub(point).normalize();
+    //console.log("orientation", orientation);
+    
+    var length = 5;
+    var geometry = new THREE.Geometry();
+    geometry.vertices.push(new THREE.Vector3(-length/2, 0, 0));
+    geometry.vertices.push(new THREE.Vector3(length/2, 0, 0));
+    
+    geometry.vertices.push(new THREE.Vector3(0, -length/2, 0));
+    geometry.vertices.push(new THREE.Vector3(0, length/2, 0));
+    
+    geometry.vertices.push(new THREE.Vector3(0, 0, -length/2));
+    geometry.vertices.push(new THREE.Vector3(0, 0, length/2));
+    
+    var dashMaterial = new THREE.LineBasicMaterial( { color: 0x000000, linewidth:2 } )
+    var cross = new THREE.Line( geometry, dashMaterial, THREE.LinePieces );
+
+    cross.position.copy( point );
+    this.addToScene(cross, "helpers", {autoCenter:false,autoResize:false,select:false} );
+    
+    var localPosition = this.selectedObject.worldToLocal( point.clone() );
+    this.annotations.push( {"partId":0 , "type":"point", "title":"Some stuff","text":"Interesting, really", "position":localPosition.toArray(), "author":"", "url":""} );
+    
+  },
   //attribute change handlers
   onFullScreenChange:function()
   {
@@ -612,7 +639,7 @@ Polymer('ulti-viewer', {
       if( target.userData.part.id !== annotation.partId ) continue;
       
       var overlayEl = overlay;
-      var offset = new THREE.Vector3(annotation.position[0],annotation.position[1],annotation.position[2]);
+      var offset = new THREE.Vector3().fromArray( annotation.position );
       
       if(!annotation.poi){
 
