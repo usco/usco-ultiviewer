@@ -92,6 +92,8 @@ Polymer('ulti-viewer', {
   hierarchy   : null,
   bom         : null,
   //
+  mode: "measureDistance",//FIXME: horrible hack, a state machine or anything else would
+  //be better
   created: function()
   {
     this.resources = [];
@@ -111,6 +113,11 @@ Polymer('ulti-viewer', {
     //dimensions display helper
     this.objDimensionsHelper = new ObjectDimensionsHelper();
     this.addToScene( this.objDimensionsHelper, "helpers", {autoResize:false, autoCenter:false, persistent:true} );
+    
+    //distanceHelper
+    this.distanceHelper = new DistanceHelper();
+    this.addToScene( this.distanceHelper, "helpers", {autoCenter:false,autoResize:false,select:false, persistent:true} );
+    
     
     //needed since we do not inherit from three-js but do composition
     if (this.requestFullscreen) document.addEventListener("fullscreenchange", this.onFullScreenChange.bind(this), false);
@@ -340,11 +347,9 @@ Polymer('ulti-viewer', {
      event.stopPropagation();
   },
   objectSelected:function(e){
-    console.log("object selected", e.detail.pickingInfos);
+    //console.log("object selected", e.detail.pickingInfos);
     var point = e.detail.pickingInfos.point;
-    //var orientation = this.$.cam.object.position.clone().sub(point).normalize();
-    //console.log("orientation", orientation);
-    
+    /* for debuging
     var length = 5;
     var geometry = new THREE.Geometry();
     geometry.vertices.push(new THREE.Vector3(-length/2, 0, 0));
@@ -358,12 +363,32 @@ Polymer('ulti-viewer', {
     
     var dashMaterial = new THREE.LineBasicMaterial( { color: 0x000000, linewidth:2 } )
     var cross = new THREE.Line( geometry, dashMaterial, THREE.LinePieces );
-
     cross.position.copy( point );
-    this.addToScene(cross, "helpers", {autoCenter:false,autoResize:false,select:false} );
+    this.addToScene(cross, "helpers", {autoCenter:false,autoResize:false,select:false} );*/
     
-    var localPosition = this.selectedObject.worldToLocal( point.clone() );
-    this.annotations.push( {"partId":0 , "type":"point", "title":"Some stuff","text":"Interesting, really", "position":localPosition.toArray(), "author":"", "url":""} );
+    
+    
+    //FIXME: horrible implementation
+    if(this.mode == "measureDistance")
+    {
+      if(! this.measureDistanceStart){
+        this.distanceHelper.unset();
+        this.distanceHelper.setStart({start:point});
+        this.measureDistanceStart = point;
+        return;
+      }else
+      {
+        this.measuredDistance = point.clone().sub(this.measureDistanceStart).length();
+        this.distanceHelper.set({start:this.measureDistanceStart, end:point.clone() });
+        
+        this.measureDistanceStart = undefined;
+      }
+      
+    }
+    else if(this.mode == "addNote"){
+      var localPosition = this.selectedObject.worldToLocal( point.clone() );
+      this.annotations.push( {"partId":0 , "type":"point", "title":"Some stuff","text":"Interesting, really", "position":localPosition.toArray(), "author":"", "url":""} );
+    }
     
   },
   //attribute change handlers
@@ -623,6 +648,12 @@ Polymer('ulti-viewer', {
         newSelection.add(outline);
     }
   },
+  //other helpers
+  measureDistance:function(){
+    
+  
+  },
+  //various
   updateOverlays: function(){
     var p, v, percX, percY, left, top;
     var camera = this.$.cam.object;
