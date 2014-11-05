@@ -115,7 +115,8 @@ Polymer('ulti-viewer', {
     this.addToScene( this.objDimensionsHelper, "helpers", {autoResize:false, autoCenter:false, persistent:true} );
     
     //distanceHelper
-    this.distanceHelper = new DistanceHelper();
+    this.distanceHelper = new DistanceHelper({arrowColor:0xf8c716});
+    
     this.addToScene( this.distanceHelper, "helpers", {autoCenter:false,autoResize:false,select:false, persistent:true} );
     
     
@@ -727,5 +728,10 @@ Polymer('ulti-viewer', {
       //console.log("gna",overlay, left, top);
     }
   },
+  //filters
+  toFixed:function(o, precision){
+    if(!o) return "";
+    return o.toFixed(precision);
+  }
   
 });
