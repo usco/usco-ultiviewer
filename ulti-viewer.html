@@ -7,6 +7,7 @@
 <link rel="import" href="components/three-js-helpers/grid-helper.html">
 <link rel="import" href="components/three-js-helpers/shadow-plane.html">
 <link rel="import" href="components/three-js-helpers/mirror-plane.html">
+<link rel="import" href="components/three-js-helpers/image-plane.html">
 <link rel="import" href="components/three-js-helpers/dimensions/dimension-helpers.html">
 
 <link rel="import" href="components/usco-client-deps/usco-client-deps.html">
@@ -57,9 +58,31 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
         </template>
       </div>-->
       
-      <div style="position:absolute;bottom:20px;left:50%;z-index:15">
+      <template if="{{ mode=='measureDistance' }}">
+        <div style="position:absolute;bottom:20px;left:50%;z-index:15;background:white">
+          Distance between points {{ measuredDistance | toFixed(2) }}
+        </div>
+      </template>
       
-        Distance between points {{ measuredDistance}}
+      
+      <template if="{{ mode=='addNote' }}">
+        <div style="position:absolute;bottom:20px;left:50%;z-index:15;background:white">
+          <h1>Add Note:</h1>
+          <div>
+            <input type="text" placeholder="Title"></input>
+          </div>
+          <div>
+            <input type="text" placeholder="Note"></input>
+          </div>
+           
+        </div>
+      </template>
+      
+      <div style="position:absolute;top:10px;right:60px;z-index:15;background:white">
+        <select value="{{mode}}">
+          <option value="addNote"> Add Notes </option>
+          <option value="measureDistance" > Measure distance </option>
+        </select>
       </div>
       
       <!-- anotation overlay test -->
@@ -88,6 +111,7 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
             <three-ambientLight color="0x262525" intensity=3> </three-ambientLight>
             <shadow-plane up=[0,0,1]> </shadow-plane>
             <!--<mirror-plane up=[0,0,1]> </mirror-plane>-->
+            <!--<image-plane imgUrl="http://localhost:8080/demo-data/test.png" up=[0,1,0] rot=[0,20,40]> </image-plane>-->
           </three-js-scene>
           <three-js-scene name="helpers" active>
             <template if="{{showAxes}}">

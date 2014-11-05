@@ -1,12 +1,12 @@
 
 
-<polymer-element name="overlay-note"  attributes="number note toggled"  >
+<polymer-element name="overlay-note"  attributes="number note toggled">
   <template>
       <span on-tap="{{focusOn}}">{{number}}</span>
       <!--<template if="{{toggled}}">-->
-        <div class="annotationContent" id="noteContent" on-tap="{{toggle}}">
-          <h1> {{note.title}} </h1>
-          {{note.text}}
+        <div class="annotationContent" id="noteContent" >
+          <h1 contenteditable="true" on-keyup="{{titleChanged}}" id="noteTitle">{{note.title}} </h1>
+          <div contenteditable="true" on-keyup="{{textChanged}}" id="noteText" style="white-space: pre-wrap">{{note.text}}</div>
         </div>
       <!--</template>-->
   </template>
@@ -30,6 +30,32 @@
         }else{
           this.$.noteContent.style.opacity = 0;
           this.$.noteContent.style.visibility="hidden";
+        }
+      },
+      //event callbacks
+      textChanged:function(e){
+        //TODO: how in the hell can we handle contentEditable's buggy line feed system ?
+        //dataBindingWith contentEditable does not work it seems...
+        if (e.keyCode === 13) {
+          console.log("eviiil enter key");     
+          this.$.noteText.textContent += "\n";
+          e.preventDefault();
+          //  return false;
+        }
+        
+        if( this.note.text  !== this.$.noteText.textContent ){
+          this.note.text  = this.$.noteText.textContent;
+        }
+      },
+      titleChanged:function(e){
+        if (e.keyCode === 13) {
+          console.log("eviiil enter key");     
+          this.$.noteText.textContent += "\n";
+          e.preventDefault();
+          //  return false;
+        }
+        if( this.note.title !== this.$.noteTitle.textContent ){
+            this.note.title = this.$.noteTitle.textContent;
         }
       },
       //api
