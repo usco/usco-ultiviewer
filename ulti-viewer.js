@@ -88,9 +88,11 @@ Polymer('ulti-viewer', {
   resources : null, 
   
   //After this point, highly experimental attributes
-  annotations : null,
+  annotations : [],
+  measurements: null,//FIXME: NOT SURE, at ALL !
   hierarchy   : null,
   bom         : null,
+  
   //
   mode: "measureDistance",//FIXME: horrible hack, a state machine or anything else would
   //be better
@@ -101,8 +103,10 @@ Polymer('ulti-viewer', {
     this.minObjectSize = 20;//minimum size (in arbitrarty/opengl units) before requiring re-scaling (upwards)
     this.maxObjectSize = 200;//maximum size (in arbitrarty/opengl units) before requiring re-scaling (downwards)
     
-    //note: annotation positions are relative to the parent
-    this.annotations=[];
+    //note: annotation positions are relative to their parent
+    this.annotations  = [];
+    //
+    this.measurements = [];
   },
   attached:function()
   {
@@ -111,12 +115,11 @@ Polymer('ulti-viewer', {
     
     //add the selection helper
     //dimensions display helper
-    this.objDimensionsHelper = new ObjectDimensionsHelper();
+    this.objDimensionsHelper = new ObjectDimensionsHelper({textBgColor:"#ffd200"});
     this.addToScene( this.objDimensionsHelper, "helpers", {autoResize:false, autoCenter:false, persistent:true} );
     
     //distanceHelper
-    this.distanceHelper = new DistanceHelper({arrowColor:0xf8c716});
-    
+    this.distanceHelper = new DistanceHelper({arrowColor:0x000000,textBgColor:"#ffd200"});
     this.addToScene( this.distanceHelper, "helpers", {autoCenter:false,autoResize:false,select:false, persistent:true} );
     
     
@@ -381,6 +384,8 @@ Polymer('ulti-viewer', {
       {
         this.measuredDistance = point.clone().sub(this.measureDistanceStart).length();
         this.distanceHelper.set({start:this.measureDistanceStart, end:point.clone() });
+        this.measurements.push( {type:"distance",start:this.measureDistanceStart.toArray(), 
+        end:point.toArray() } );
         
         this.measureDistanceStart = undefined;
       }
@@ -529,6 +534,12 @@ Polymer('ulti-viewer', {
       //this.visualFocusOnSelection(newSelection);
     }
   },
+  //important data structure change watchers, not sure this should be here either
+  annotationsChanged:function(){
+    console.log("annotationschanged", this.annotations);
+  },
+  
+  
   //helpers
   //FIXME: this is a "helper"/transform/whatever 
   //just like centering , resizing etc... food for thought/
