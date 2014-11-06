@@ -113,7 +113,14 @@ Polymer('ulti-viewer', {
     this.threeJs      = this.$.threeJs;
     this.assetManager = this.$.assetManager;
     
-    //add the selection helper
+    //needed since we do not inherit from three-js but do composition
+    if (this.requestFullscreen) document.addEventListener("fullscreenchange", this.onFullScreenChange.bind(this), false);
+    if (this.mozRequestFullScreen) document.addEventListener("mozfullscreenchange", this.onFullScreenChange.bind(this), false);
+    if (this.msRequestFullScreen) document.addEventListener("msfullscreenchange", this.onFullScreenChange.bind(this), false);
+    if (this.webkitRequestFullScreen) document.addEventListener("webkitfullscreenchange", this.onFullScreenChange.bind(this), false);
+    
+    
+     //add the selection helper
     //dimensions display helper
     this.objDimensionsHelper = new ObjectDimensionsHelper({textBgColor:"#ffd200"});
     this.addToScene( this.objDimensionsHelper, "helpers", {autoResize:false, autoCenter:false, persistent:true} );
@@ -121,13 +128,6 @@ Polymer('ulti-viewer', {
     //distanceHelper
     this.distanceHelper = new DistanceHelper({arrowColor:0x000000,textBgColor:"#ffd200"});
     this.addToScene( this.distanceHelper, "helpers", {autoCenter:false,autoResize:false,select:false, persistent:true} );
-    
-    
-    //needed since we do not inherit from three-js but do composition
-    if (this.requestFullscreen) document.addEventListener("fullscreenchange", this.onFullScreenChange.bind(this), false);
-    if (this.mozRequestFullScreen) document.addEventListener("mozfullscreenchange", this.onFullScreenChange.bind(this), false);
-    if (this.msRequestFullScreen) document.addEventListener("msfullscreenchange", this.onFullScreenChange.bind(this), false);
-    if (this.webkitRequestFullScreen) document.addEventListener("webkitfullscreenchange", this.onFullScreenChange.bind(this), false);
     
     this.threeJs.updatables.push( this.updateOverlays.bind(this) ); 
     /*//workaround/hack for some css issues:FIXME: is this still necessary??
@@ -390,6 +390,38 @@ Polymer('ulti-viewer', {
         this.measureDistanceStart = undefined;
       }
       
+    }
+    else if(this.mode =="measureThickness"){
+      //this.distanceHelper = new DistanceHelper({arrowColor:0x000000,textBgColor:"#ffd200"});
+      //this.addToScene( this.distanceHelper, "helpers", {autoCenter:false,autoResize:false,select:false, persistent:true} );
+    }
+    else if(this.mode =="measureAngle"){
+      var angleHelper = new AngularDimHelper({angle:Math.random()*100,textBgColor:"#ffd200"});
+      this.addToScene( angleHelper, "helpers", {autoCenter:false,autoResize:false,select:false, persistent:true} );
+    
+      return;
+      if(! this.measureAngleStart){
+        this.angleHelper.unset();
+        this.angleHelper.setStart({start:point});
+        this.measureAngleStart = point;
+        return;
+      }else
+      {
+        if(! this.measureAngleMid )
+        {
+          this.angleHelper.setMid(point);
+          this.measureAngleMid = point;
+          return;
+        }else
+        {
+          this.distanceHelper.set({start:this.measureDistanceStart, end:point.clone() });
+          this.measurements.push( {type:"distance",start:this.measureDistanceStart.toArray(), 
+          end:point.toArray() } );
+          
+          this.measureAngleStart = undefined;
+          this.measureAngleMid = undefined;
+        }
+      }
     }
     else if(this.mode == "addNote"){
       var localPosition = this.selectedObject.worldToLocal( point.clone() );

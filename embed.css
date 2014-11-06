@@ -47,7 +47,7 @@ ulti-viewer /deep/ overlay-note /deep/ .annotationContent{
   position: absolute;
   left: 28px;
   top: 0px;
-  font-weight: 100;
+  font-weight: 300;
   
   
   -webkit-transition: opacity .15s ease-in-out;
