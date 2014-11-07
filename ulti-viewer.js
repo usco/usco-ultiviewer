@@ -108,7 +108,7 @@ Polymer('ulti-viewer', {
     //
     this.measurements = [];
   },
-  attached:function()
+  domReady:function()
   {
     this.threeJs      = this.$.threeJs;
     this.assetManager = this.$.assetManager;
@@ -128,6 +128,10 @@ Polymer('ulti-viewer', {
     //distanceHelper
     this.distanceHelper = new DistanceHelper({arrowColor:0x000000,textBgColor:"#ffd200"});
     this.addToScene( this.distanceHelper, "helpers", {autoCenter:false,autoResize:false,select:false, persistent:true} );
+    
+    //angularHelper
+    this.angleHelper = new AngularDimHelper({angle:Math.random()*100,textBgColor:"#ffd200"});
+    this.addToScene( this.angleHelper, "helpers", {autoCenter:false,autoResize:false,select:false, persistent:true} );
     
     this.threeJs.updatables.push( this.updateOverlays.bind(this) ); 
     /*//workaround/hack for some css issues:FIXME: is this still necessary??
@@ -396,27 +400,29 @@ Polymer('ulti-viewer', {
       //this.addToScene( this.distanceHelper, "helpers", {autoCenter:false,autoResize:false,select:false, persistent:true} );
     }
     else if(this.mode =="measureAngle"){
-      var angleHelper = new AngularDimHelper({angle:Math.random()*100,textBgColor:"#ffd200"});
-      this.addToScene( angleHelper, "helpers", {autoCenter:false,autoResize:false,select:false, persistent:true} );
-    
-      return;
+      
       if(! this.measureAngleStart){
         this.angleHelper.unset();
-        this.angleHelper.setStart({start:point});
+        console.log("setting angle start point");
         this.measureAngleStart = point;
+        this.angleHelper.setStart(point);
         return;
-      }else
+      }
+      else
       {
         if(! this.measureAngleMid )
         {
-          this.angleHelper.setMid(point);
+          console.log("setting angle mid point");
           this.measureAngleMid = point;
+          this.angleHelper.setMid(point);
           return;
         }else
         {
-          this.distanceHelper.set({start:this.measureDistanceStart, end:point.clone() });
+                  console.log("setting angle end point");
+          /*this.distanceHelper.set({start:this.measureDistanceStart, end:point.clone() });
           this.measurements.push( {type:"distance",start:this.measureDistanceStart.toArray(), 
-          end:point.toArray() } );
+          end:point.toArray() } );*/
+          this.angleHelper.setEnd(point);
           
           this.measureAngleStart = undefined;
           this.measureAngleMid = undefined;
