@@ -355,6 +355,18 @@ Polymer('ulti-viewer', {
      event.stopPropagation();
   },
   objectSelected:function(e){
+    /*TODO: externalize all of this into custom elements for
+    easier insertion like 
+      <measurement-helpers> 
+        <distance-helper></distance-helper>
+        <thickness-helper></thickness-helper>
+        <angle-helper></angle-helper>
+        <radius-helper></radius-helper>
+      </measurement-helpers>
+      
+      how to handle event binding ?
+      perhaps better to use pub/sub ?
+    */
     //console.log("object selected", e.detail.pickingInfos);
     pickingDatas = e.detail.pickingInfos;
     if(pickingDatas.length == 0) return;
@@ -370,7 +382,7 @@ Polymer('ulti-viewer', {
     for(var i=0;i<  pickingDatas.length;i++)
     {
       var pt = pickingDatas[i].point
-      this.pickingHelpers.add( new CrossHelper({position:pt}) );
+      //this.pickingHelpers.add( new CrossHelper({position:pt}) );
     }  
     this.addToScene( this.pickingHelpers, "helpers", {autoCenter:false,autoResize:false,select:false} );
     /* for debuging
@@ -415,46 +427,10 @@ Polymer('ulti-viewer', {
       var entryInteresect = pickingDatas[0];
       
       if(this.thicknessHelper) this.removeFromScene(this.thicknessHelper, "helpers");
-      this.thicknessHelper = new THREE.Object3D();
-      //TODO: multiple variants needed : axis aligned (x,y,z) and normal based
-      var point = entryInteresect.point.clone();
-      var norm  = entryInteresect.face.normal.clone();
-      var normInvert = entryInteresect.face.normal.clone().negate();
-      
-      var faceNormalHelper = new THREE.ArrowHelper(norm, point, 15, 0XFF0000);
-      var faceNormalHelper2 = new THREE.ArrowHelper(normInvert,point, 15, 0X00FF00);
-      this.thicknessHelper.add( faceNormalHelper );
-      this.thicknessHelper.add( faceNormalHelper2 );
-
-      var offsetPoint = point.clone().add( normInvert.clone().multiplyScalar(1000));
-      this.thicknessHelper.add( new CrossHelper({position:offsetPoint,color:0xFF0000}) );
-      
-      //get escape point
-      if( !this.selectedObject ) return; //FIXME, should work without selection?
-      var raycaster = new THREE.Raycaster(offsetPoint, norm.clone().normalize());
-		  var intersects = raycaster.intersectObjects([this.selectedObject], true);
-		  
-		  //console.log("THICKNESS intersects",intersects);
-		  var index = 0;
-		  var minDist = Infinity;
-		  for(var i=0;i<intersects.length;i++)
-		  {
-		    var curPt = intersects[i].point;
-		    var curLn = curPt.clone().sub( point ).length();
-		    
-		    if( curLn < minDist )
-		    {
-		      index = i;
-		      minDist = curLn;
-		    }
-		  }
-		  //index =0;
-		  var otherSidePoint = intersects[index].point;
-		  
-		  this.thicknessHelper.add( new CrossHelper({position:otherSidePoint,color:0xFF0000}) );
-		  
+      this.thicknessHelper = new ThicknessHelper();
+      this.thicknessHelper.set( entryInteresect, this.selectedObject );
+     
 		  this.addToScene( this.thicknessHelper, "helpers", {autoCenter:false,autoResize:false,select:false, persistent:true} );
-		  console.log("THICKNESS", otherSidePoint.clone().sub( point).length() );
       
     }
     else if(this.mode =="measureAngle"){
