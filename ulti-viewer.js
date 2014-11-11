@@ -94,7 +94,7 @@ Polymer('ulti-viewer', {
   bom         : null,
   
   //
-  mode: "measureDistance",//FIXME: horrible hack, a state machine or anything else would
+  mode: "measureDia",//FIXME: horrible hack, a state machine or anything else would
   //be better
   created: function()
   {
@@ -462,6 +462,31 @@ Polymer('ulti-viewer', {
           this.measureAngleMid = undefined;
         }
       }
+    }
+    else if(this.mode =="measureDia"){
+    
+      if( !this.measureDiaCenter )
+      {
+        console.log("measureDiaSetCenter");
+        if(this.diameterHelper) this.removeFromScene(this.diameterHelper, "helpers");
+        this.diameterHelper = new DiameterHelper({textBgColor:"#ffd200"});
+        this.addToScene( this.diameterHelper, "helpers", {autoCenter:false,autoResize:false,select:false, persistent:true} );
+                
+        var normal  = pickingDatas[0].face.normal.clone();
+        this.diameterHelper.setCenter(point);
+        this.diameterHelper.setOrientation( normal );
+        
+        //TODO : move this into helper
+        this.measureDiaCenter = point.clone();
+        return;
+      }else
+      {
+        var dia = point.clone().sub( this.measureDiaCenter ).length();
+        this.diameterHelper.setRadius(dia);
+        
+        this.measureDiaCenter = undefined;
+      }
+      
     }
     else if(this.mode == "addNote"){
       var localPosition = this.selectedObject.worldToLocal( point.clone() );
