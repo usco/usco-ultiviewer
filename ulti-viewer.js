@@ -94,7 +94,7 @@ Polymer('ulti-viewer', {
   bom         : null,
   
   //
-  mode: "measureAngle",//FIXME: horrible hack, a state machine or anything else would
+  measureType: "distance",//FIXME: horrible hack, a state machine or anything else would
   //be better
   created: function()
   {
@@ -372,7 +372,10 @@ Polymer('ulti-viewer', {
     //console.log("object selected", e.detail.pickingInfos);
     
     //TODO: rework implementation
-    this.$.distHelper.onPicked( e );
+    this.$.dimensions.onPicked( e );
+    
+    var selection = this.$.dimensions.getSelection();
+    console.log("selection", selection);
     
     return;
     
@@ -398,7 +401,7 @@ Polymer('ulti-viewer', {
     this.addToScene( this.pickingHelpers, "helpers", {autoCenter:false,autoResize:false,select:false} );
     
     /*
-    else if(this.mode == "addNote"){
+    else if(this.measureType == "addNote"){
       var localPosition = this.selectedObject.worldToLocal( point.clone() );
       this.annotations.push( {"partId":0 , "type":"point", "title":"Some stuff","text":"Interesting, really", "position":localPosition.toArray(), "author":"", "url":""} );
     }*/

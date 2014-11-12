@@ -1,5 +1,6 @@
 <link rel="import" href="components/polymer/polymer.html">
 <link rel="import" href="components/core-localstorage/core-localstorage.html">
+<link rel="import" href="components/core-selection/core-selection.html">
 
 <link rel="import" href="components/three-js/three-js.html">
 <link rel="import" href="components/tween-js/tween-js.html">
@@ -14,6 +15,7 @@
 <link rel="import" href="components/three-js-helpers/dimensions/thickness-helper.html">
 <link rel="import" href="components/three-js-helpers/dimensions/diameter-helper.html">
 <link rel="import" href="components/three-js-helpers/dimensions/angle-helper.html">
+<link rel="import" href="components/three-js-helpers/dimensions/dimensions-helper-group.html">
 
 <link rel="import" href="components/usco-client-deps/usco-client-deps.html">
 <link rel="import" href="components/usco-asset-manager/usco-asset-manager.html">
@@ -86,14 +88,23 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
       </template>-->
       
       <div style="position:absolute;top:10px;right:60px;z-index:15;background:white">
-        <select value="{{mode}}">
+        <select value="{{measureType}}">
           <option value="addNote"> Add Notes </option>
-          <option value="measureDistance" > Measure distance </option>
-          <option value="measureThickness"> Measure thickness </option>
-          <option value="measureAngle"> Measure angle </option>
-          <option value="measureDia"> Measure diameter/radius </option>
+          <option value="distance" > Measure distance </option>
+          <option value="thickness"> Measure thickness </option>
+          <option value="angle"> Measure angle </option>
+          <option value="diameter"> Measure diameter/radius </option>
         </select>
       </div>
+      
+      <!-- measurements system test -->
+      <dimensions-helper-group id="dimensions" selectedObject="{{selectedObject}}" 
+      selectedMeasurement="{{measureType}}"> 
+        <distance-helper  id="distHelper" selectedObject="{{selectedObject}}"> </distance-helper>
+        <thickness-helper id="thickHelper" selectedObject="{{selectedObject}}"> </thickness-helper>
+        <diameter-helper  id="diamHelper" selectedObject="{{selectedObject}}"> </diameter-helper>
+        <angle-helper     id="angleHelper" selectedObject="{{selectedObject}}"> </angle-helper>
+      </dimensions-helper-group>
       
       <!-- anotation overlay test -->
       <template if="{{selectedObject && showAnnotations}}">
@@ -104,11 +115,6 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
         </template>
       </template>
       
-      <!-- measurements system test -->
-      <distance-helper id="distHelper" selectedObject="{{selectedObject}}"> </distance-helper>
-      <thickness-helper id="distHelper" selectedObject="{{selectedObject}}"> </thickness-helper>
-      <diameter-helper id="distHelper" selectedObject="{{selectedObject}}"> </diameter-helper>
-      <angle-helper id="distHelper" selectedObject="{{selectedObject}}"> </angle-helper>
       
       <!--viewer itself-->
       <three-js id="threeJs" 
