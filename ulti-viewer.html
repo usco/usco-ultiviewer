@@ -9,6 +9,11 @@
 <link rel="import" href="components/three-js-helpers/mirror-plane.html">
 <link rel="import" href="components/three-js-helpers/image-plane.html">
 <link rel="import" href="components/three-js-helpers/dimensions/dimension-helpers.html">
+<!--experimental-->
+<link rel="import" href="components/three-js-helpers/dimensions/distance-helper.html">
+<link rel="import" href="components/three-js-helpers/dimensions/thickness-helper.html">
+<link rel="import" href="components/three-js-helpers/dimensions/diameter-helper.html">
+<link rel="import" href="components/three-js-helpers/dimensions/angle-helper.html">
 
 <link rel="import" href="components/usco-client-deps/usco-client-deps.html">
 <link rel="import" href="components/usco-asset-manager/usco-asset-manager.html">
@@ -29,7 +34,6 @@
 <link rel="import" href="overlay-note.html">
 
 <!--<link rel="import" href="components/observe-array-items/observe-array-items.html">-->
-
 
 
 <polymer-element name="ulti-viewer" attributes="showAxis showIndicators"
@@ -99,6 +103,12 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
            </template>
         </template>
       </template>
+      
+      <!-- measurements system test -->
+      <distance-helper id="distHelper" selectedObject="{{selectedObject}}"> </distance-helper>
+      <thickness-helper id="distHelper" selectedObject="{{selectedObject}}"> </thickness-helper>
+      <diameter-helper id="distHelper" selectedObject="{{selectedObject}}"> </diameter-helper>
+      <angle-helper id="distHelper" selectedObject="{{selectedObject}}"> </angle-helper>
       
       <!--viewer itself-->
       <three-js id="threeJs" 

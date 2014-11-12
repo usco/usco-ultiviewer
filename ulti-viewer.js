@@ -94,7 +94,7 @@ Polymer('ulti-viewer', {
   bom         : null,
   
   //
-  mode: "measureDia",//FIXME: horrible hack, a state machine or anything else would
+  mode: "measureAngle",//FIXME: horrible hack, a state machine or anything else would
   //be better
   created: function()
   {
@@ -108,10 +108,12 @@ Polymer('ulti-viewer', {
     //
     this.measurements = [];
   },
-  domReady:function()
-  {
+  ready:function(){
     this.threeJs      = this.$.threeJs;
     this.assetManager = this.$.assetManager;
+  },
+  domReady:function()
+  {
     
     //needed since we do not inherit from three-js but do composition
     if (this.requestFullscreen) document.addEventListener("fullscreenchange", this.onFullScreenChange.bind(this), false);
@@ -181,7 +183,7 @@ Polymer('ulti-viewer', {
       mesh.userData.part = {};
       mesh.userData.part.id = 0;
     }
-    if( display ) return resourcePromise.then( this.addToScene.bind(this), onDisplayError )//.then(afterAdded);
+    if( display ) return resourcePromise.then( this.addToScene.bind(this), onDisplayError ).then(afterAdded);
     
     return resourcePromise;
     //resourcePromise.then(resource.onLoaded.bind(resource), loadFailed, resource.onDownloadProgress.bind(resource) );
@@ -368,6 +370,15 @@ Polymer('ulti-viewer', {
       perhaps better to use pub/sub ?
     */
     //console.log("object selected", e.detail.pickingInfos);
+    
+    //TODO: rework implementation
+    this.$.distHelper.onPicked( e );
+    
+    return;
+    
+    this.originalCursor = this.threeJs.style.cursor;
+    this.threeJs.style.cursor = "crosshair";
+    
     pickingDatas = e.detail.pickingInfos;
     if(pickingDatas.length == 0) return;
     
@@ -385,113 +396,12 @@ Polymer('ulti-viewer', {
       //this.pickingHelpers.add( new CrossHelper({position:pt}) );
     }  
     this.addToScene( this.pickingHelpers, "helpers", {autoCenter:false,autoResize:false,select:false} );
-    /* for debuging
-    var length = 5;
-    var geometry = new THREE.Geometry();
-    geometry.vertices.push(new THREE.Vector3(-length/2, 0, 0));
-    geometry.vertices.push(new THREE.Vector3(length/2, 0, 0));
     
-    geometry.vertices.push(new THREE.Vector3(0, -length/2, 0));
-    geometry.vertices.push(new THREE.Vector3(0, length/2, 0));
-    
-    geometry.vertices.push(new THREE.Vector3(0, 0, -length/2));
-    geometry.vertices.push(new THREE.Vector3(0, 0, length/2));
-    
-    var dashMaterial = new THREE.LineBasicMaterial( { color: 0x000000, linewidth:2 } )
-    var cross = new THREE.Line( geometry, dashMaterial, THREE.LinePieces );
-    cross.position.copy( point );
-    this.addToScene(cross, "helpers", {autoCenter:false,autoResize:false,select:false} );*/
-    
-    
-    
-    //FIXME: horrible implementation
-    if(this.mode == "measureDistance")
-    {
-      if(! this.measureDistanceStart){
-        this.distanceHelper.unset();
-        this.distanceHelper.setStart({start:point});
-        this.measureDistanceStart = point;
-        return;
-      }else
-      {
-        this.measuredDistance = point.clone().sub(this.measureDistanceStart).length();
-        this.distanceHelper.set({start:this.measureDistanceStart, end:point.clone() });
-        this.measurements.push( {type:"distance",start:this.measureDistanceStart.toArray(), 
-        end:point.toArray() } );
-        
-        this.measureDistanceStart = undefined;
-      }
-      
-    }
-    else if(this.mode =="measureThickness"){
-      var entryInteresect = pickingDatas[0];
-      
-      if(this.thicknessHelper) this.removeFromScene(this.thicknessHelper, "helpers");
-      this.thicknessHelper = new ThicknessHelper();
-      this.thicknessHelper.set( entryInteresect, this.selectedObject );
-     
-		  this.addToScene( this.thicknessHelper, "helpers", {autoCenter:false,autoResize:false,select:false, persistent:true} );
-      
-    }
-    else if(this.mode =="measureAngle"){
-      
-      if(! this.measureAngleStart){
-        this.angleHelper.unset();
-        console.log("setting angle start point");
-        this.measureAngleStart = point;
-        this.angleHelper.setStart(point);
-        return;
-      }
-      else
-      {
-        if(! this.measureAngleMid )
-        {
-          console.log("setting angle mid point");
-          this.measureAngleMid = point;
-          this.angleHelper.setMid(point);
-          return;
-        }else
-        {
-                  console.log("setting angle end point");
-          /*this.distanceHelper.set({start:this.measureDistanceStart, end:point.clone() });
-          this.measurements.push( {type:"distance",start:this.measureDistanceStart.toArray(), 
-          end:point.toArray() } );*/
-          this.angleHelper.setEnd(point);
-          
-          this.measureAngleStart = undefined;
-          this.measureAngleMid = undefined;
-        }
-      }
-    }
-    else if(this.mode =="measureDia"){
-    
-      if( !this.measureDiaCenter )
-      {
-        console.log("measureDiaSetCenter");
-        if(this.diameterHelper) this.removeFromScene(this.diameterHelper, "helpers");
-        this.diameterHelper = new DiameterHelper({textBgColor:"#ffd200"});
-        this.addToScene( this.diameterHelper, "helpers", {autoCenter:false,autoResize:false,select:false, persistent:true} );
-                
-        var normal  = pickingDatas[0].face.normal.clone();
-        this.diameterHelper.setCenter(point);
-        this.diameterHelper.setOrientation( normal );
-        
-        //TODO : move this into helper
-        this.measureDiaCenter = point.clone();
-        return;
-      }else
-      {
-        var dia = point.clone().sub( this.measureDiaCenter ).length();
-        this.diameterHelper.setRadius(dia);
-        
-        this.measureDiaCenter = undefined;
-      }
-      
-    }
+    /*
     else if(this.mode == "addNote"){
       var localPosition = this.selectedObject.worldToLocal( point.clone() );
       this.annotations.push( {"partId":0 , "type":"point", "title":"Some stuff","text":"Interesting, really", "position":localPosition.toArray(), "author":"", "url":""} );
-    }
+    }*/
     
   },
   //attribute change handlers
