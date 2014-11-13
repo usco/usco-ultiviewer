@@ -8,6 +8,17 @@ ulti-viewer :unresolved:after{padding:15px;content:'loading...';color:#ccc;}
     top:0px !important;
   } */
 
+ulti-viewer /deep/ dimensions-helper-group /deep/ distance-helper{
+  color:red;
+  background-color:#ffd200;
+}
+
+ulti-viewer /deep/ dimensions-helper-group /deep/ diameter-helper{
+  color:#000;
+  background-color:blue;
+}
+
+
 ulti-viewer /deep/ overlay-note {
 z-index:16;
 width:20px;

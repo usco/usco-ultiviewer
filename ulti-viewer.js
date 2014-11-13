@@ -114,26 +114,16 @@ Polymer('ulti-viewer', {
   },
   domReady:function()
   {
-    
     //needed since we do not inherit from three-js but do composition
     if (this.requestFullscreen) document.addEventListener("fullscreenchange", this.onFullScreenChange.bind(this), false);
     if (this.mozRequestFullScreen) document.addEventListener("mozfullscreenchange", this.onFullScreenChange.bind(this), false);
     if (this.msRequestFullScreen) document.addEventListener("msfullscreenchange", this.onFullScreenChange.bind(this), false);
     if (this.webkitRequestFullScreen) document.addEventListener("webkitfullscreenchange", this.onFullScreenChange.bind(this), false);
     
-    
      //add the selection helper
     //dimensions display helper
     this.objDimensionsHelper = new ObjectDimensionsHelper({textBgColor:"#ffd200"});
-    this.addToScene( this.objDimensionsHelper, "helpers", {autoResize:false, autoCenter:false, persistent:true} );
-    
-    //distanceHelper
-    this.distanceHelper = new DistanceHelper({arrowColor:0x000000,textBgColor:"#ffd200"});
-    this.addToScene( this.distanceHelper, "helpers", {autoCenter:false,autoResize:false,select:false, persistent:true} );
-    
-    //angularHelper
-    this.angleHelper = new AngularDimHelper({angle:Math.random()*100,textBgColor:"#ffd200"});
-    this.addToScene( this.angleHelper, "helpers", {autoCenter:false,autoResize:false,select:false, persistent:true} );
+    this.addToScene( this.objDimensionsHelper, "helpers", {autoResize:false, autoCenter:false, persistent:true, select:false } );
     
     this.threeJs.updatables.push( this.updateOverlays.bind(this) ); 
     /*//workaround/hack for some css issues:FIXME: is this still necessary??
@@ -373,19 +363,27 @@ Polymer('ulti-viewer', {
     
     //TODO: rework implementation
     this.$.dimensions.onPicked( e );
-    
     var selection = this.$.dimensions.getSelection();
-    console.log("selection", selection);
+    
+    if(this.measureType == "note")
+    {
+      pickingDatas = e.detail.pickingInfos;
+      if(pickingDatas.length == 0) return;
+      var point = pickingDatas[0].point;//closest point
+      
+      console.log("pickingDatas",pickingDatas, point);
+      
+      var localPosition = this.selectedObject.worldToLocal( point.clone() );
+      //FIXME: weird issue with rescaled models and worldToLocal
+      console.log("localPosition",localPosition);
+      this.annotations.push( {"partId":0 , "type":"point", "title":"Some stuff","text":"Interesting, really", "position":localPosition.toArray(), "author":"", "url":""} );
+    }
     
     return;
     
-    this.originalCursor = this.threeJs.style.cursor;
+    /*this.originalCursor = this.threeJs.style.cursor;
     this.threeJs.style.cursor = "crosshair";
     
-    pickingDatas = e.detail.pickingInfos;
-    if(pickingDatas.length == 0) return;
-    
-    var point = pickingDatas[0].point;//closest point
     
     if(this.pickingHelpers)
     {
@@ -398,12 +396,10 @@ Polymer('ulti-viewer', {
       var pt = pickingDatas[i].point
       //this.pickingHelpers.add( new CrossHelper({position:pt}) );
     }  
-    this.addToScene( this.pickingHelpers, "helpers", {autoCenter:false,autoResize:false,select:false} );
+    this.addToScene( this.pickingHelpers, "helpers", {autoCenter:false,autoResize:false,select:false} );*/
     
     /*
     else if(this.measureType == "addNote"){
-      var localPosition = this.selectedObject.worldToLocal( point.clone() );
-      this.annotations.push( {"partId":0 , "type":"point", "title":"Some stuff","text":"Interesting, really", "position":localPosition.toArray(), "author":"", "url":""} );
     }*/
     
   },

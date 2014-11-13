@@ -89,15 +89,17 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
       
       <div style="position:absolute;top:10px;right:60px;z-index:15;background:white">
         <select value="{{measureType}}">
-          <option value="addNote"> Add Notes </option>
+          <option value="">  </option>
+          <option value="note"> Add Notes </option>
           <option value="distance" > Measure distance </option>
           <option value="thickness"> Measure thickness </option>
           <option value="angle"> Measure angle </option>
-          <option value="diameter"> Measure diameter/radius </option>
+          <option value="diameter"> Measure diameter </option>
         </select>
       </div>
       
       <!-- measurements system test -->
+      
       <dimensions-helper-group id="dimensions" selectedObject="{{selectedObject}}" 
       selectedMeasurement="{{measureType}}"> 
         <distance-helper  id="distHelper" selectedObject="{{selectedObject}}"> </distance-helper>
@@ -121,7 +123,7 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
       selectedObject="{{selectedObject}}" selectedObjects="{{selectedObjects}}" highlightedObject="{{highlightedObject}}"
       on-objectpicked="{{objectSelected}}"
       >
-          <three-stats id="stats" show=true channel='render'></three-stats>
+          <three-stats id="stats" show=false channel='render'></three-stats>
           <tween-js></tween-js>
           
           <three-js-webglRenderer id="webglRenderer"></three-js-webglRenderer>
