@@ -348,20 +348,11 @@ Polymer('ulti-viewer', {
   },
   objectSelected:function(e){
     /*TODO: externalize all of this into custom elements for
-    easier insertion like 
-      <measurement-helpers> 
-        <distance-helper></distance-helper>
-        <thickness-helper></thickness-helper>
-        <angle-helper></angle-helper>
-        <radius-helper></radius-helper>
-      </measurement-helpers>
-      
       how to handle event binding ?
       perhaps better to use pub/sub ?
     */
     //console.log("object selected", e.detail.pickingInfos);
     
-    //TODO: rework implementation
     this.$.dimensions.onPicked( e );
     var selection = this.$.dimensions.getSelection();
     
@@ -377,6 +368,26 @@ Polymer('ulti-viewer', {
       //FIXME: weird issue with rescaled models and worldToLocal
       console.log("localPosition",localPosition);
       this.annotations.push( {"partId":0 , "type":"point", "title":"Some stuff","text":"Interesting, really", "position":localPosition.toArray(), "author":"", "url":""} );
+    }
+    if(this.measureType =="leaderLine")
+    {
+      console.log("leaderLineTest");
+      pickingDatas = e.detail.pickingInfos;
+      if(pickingDatas.length == 0) return;
+      var point = pickingDatas[0].point;//closest point
+      this.pickedPoint = point;
+      
+      if(!this.leaderLineTest)  
+      {
+        this.leaderLineTest = new LeaderLineHelper3D();
+        this.addToScene( this.leaderLineTest, "helpers", {autoCenter:false,autoResize:false,select:false} );
+      }
+      
+      this.leaderLineTest.setCamera( this.$.cam.object );
+      this.leaderLineTest.setLabel( this.$.leaderLineLabel.nextElementSibling );    
+      this.leaderLineTest.setPoint( point );
+      this.leaderLineTest.update();
+      return;
     }
     
     return;
@@ -744,6 +755,7 @@ Polymer('ulti-viewer', {
       overlay.style.top = (top - height / 2) + 'px'
       //console.log("gna",overlay, left, top);
     }
+    if(this.leaderLineTest) this.leaderLineTest.update();
   },
   //filters
   toFixed:function(o, precision){
