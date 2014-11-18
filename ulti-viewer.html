@@ -39,6 +39,32 @@
 <script src="components/three-js-helpers/dimensions/LeaderLineHelper3D.js"></script>
 <!--<link rel="import" href="components/observe-array-items/observe-array-items.html">-->
 
+<!--Polymer ui elements ...in doubt-->
+<link rel="import" href="components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="components/paper-dropdown/paper-dropdown.html">
+<link rel="import" href="components/paper-item/paper-item.html">
+<link rel="import" href="components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="components/core-icons/core-icons.html">
+<link rel="import" href="components/core-collapse/core-collapse.html">
+
+
+<polymer-element name="x-trigger" extends="paper-icon-button" relative on-tap="{{toggle}}" noink>
+  <template>
+    <shadow></shadow>
+    <content></content>
+  </template>
+  <script>
+    Polymer({
+      toggle: function() {
+        if (!this.dropdown) {
+          this.dropdown = this.querySelector('paper-dropdown');
+        }
+        this.dropdown && this.dropdown.toggle();
+      }
+    });
+  </script>
+  </polymer-element>
+
 
 <polymer-element name="ulti-viewer" attributes="showAxis showIndicators"
 on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragover="{{handleDragOver}}" on-drop="{{handleDrop}}"
@@ -46,9 +72,9 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
     <template>
       <link rel="stylesheet" type="text/css" href="ulti-viewer.css">
       <!--controls overlay-->
-      <view-settings autoRotate="{{autoRotate}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}" fullScreen="{{fullScreen}}"
+      <!--<view-settings autoRotate="{{autoRotate}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}" fullScreen="{{fullScreen}}"
       showControls="{{showControls}}" showAnnotations="{{showAnnotations}}">
-      </view-settings>
+      </view-settings>-->
       <template if="{{showControls}}">
         <view-navigator controls="{{$.camCtrl}}" camera="{{$.cam}}" autoRotate="{{autoRotate}}"> </view-navigator>
       </template>
@@ -68,6 +94,32 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
           </ul>
         </template>
       </div>-->
+        <x-trigger icon="settings" style="position:absolute;top:10px;right:20px;z-index:15">
+        <paper-dropdown class="open-below" halign="right">
+          <div class="menu"> 
+              <paper-item>
+                <paper-checkbox style="padding-right:8px" for checked="{{showGrid}}"></paper-checkbox>
+                Grid
+              </paper-item>
+              <paper-item>
+                <paper-checkbox style="padding-right:8px" for checked="{{showAxes}}"></paper-checkbox>
+                Axes
+              </paper-item>
+              <paper-item>
+                <paper-checkbox style="padding-right:8px" for checked="{{showAnnotations}}"></paper-checkbox>
+                Notes
+              </paper-item>
+              <paper-item>
+                <paper-checkbox style="padding-right:8px" for checked="{{showControls}}"></paper-checkbox>
+                Controls
+              </paper-item>
+              <paper-item>
+                <paper-checkbox style="padding-right:8px" for checked="{{autoRotate}}"></paper-checkbox>
+                Autorotate
+              </paper-item>
+          </div>
+        </paper-dropdown>
+      </x-trigger>
       
       <template if="{{ measureType=='measureDistance' }}">
         <div style="position:absolute;bottom:20px;left:50%;z-index:15;background:white">
@@ -106,7 +158,7 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
       </div>
       
       <template if="{{selectedObject}}">
-        <div style="position:absolute;top:200px;right:60px;z-index:15;" id="background-color" >
+        <div style="position:absolute;top:300px;right:60px;z-index:15;" id="background-color" >
         <input type="color" value="{{selectedObject.material.color | colorConvert}}"/>
         </div>
       </template>

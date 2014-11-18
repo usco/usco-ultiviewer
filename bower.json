@@ -19,6 +19,8 @@
     "usco-stl-parser": "usco/usco-stl-parser#master",
     "usco-amf-parser": "usco/usco-amf-parser#master",
     "usco-ply-parser": "usco/usco-ply-parser#master",
-    "usco-obj-parser": "usco/usco-obj-parser#master"
+    "usco-obj-parser": "usco/usco-obj-parser#master",
+    "paper-dropdown": "Polymer/paper-dropdown#~0.5.1",
+    "paper-checkbox": "Polymer/paper-checkbox#~0.5.1"
   }
 }

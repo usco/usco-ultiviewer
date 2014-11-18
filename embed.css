@@ -7,7 +7,38 @@ ulti-viewer :unresolved:after{padding:15px;content:'loading...';color:#ccc;}
     left:0px !important;
     top:0px !important;
   } */
+  
+  
+ulti-viewer /deep/ x-trigger /deep/ paper-dropdown:not(.no-padding)::shadow #scroller {
+      box-sizing: border-box;
+      /*padding: 8px;*/
+      color:blue;
+    }
 
+ulti-viewer /deep/ x-trigger /deep/ paper-dropdown::shadow #scroller {
+      box-sizing: border-box;
+      padding: 8px;
+      /*color:red;*/
+      overflow:hidden;
+    }
+    
+ulti-viewer /deep/ x-trigger /deep/ paper-item {
+      color:black;
+      font-size: 0.8em;
+}  
+
+ulti-viewer /deep/ x-trigger /deep/ paper-item::shadow .button-content{
+      /*color:green;*/
+      height: 20px;
+} 
+
+
+    
+ulti-viewer /deep/ x-trigger /deep/ .open-below {
+      top: 38px;
+    }
+
+/*styling of 3d elements using css*/
 ulti-viewer /deep/ dimensions-helper-group /deep/ distance-helper{
   color:red;
   background-color:#ffd200;
@@ -18,6 +49,7 @@ ulti-viewer /deep/ dimensions-helper-group /deep/ diameter-helper{
   background-color:blue;
 }
 
+/*overlay notes styling*/
 
 ulti-viewer /deep/ overlay-note {
 z-index:16;
