@@ -94,8 +94,7 @@ Polymer('ulti-viewer', {
   bom         : null,
   
   //
-  measureType: "distance",//FIXME: horrible hack, a state machine or anything else would
-  //be better
+  measureType: "distance",//FIXME: should this be here ?
   created: function()
   {
     this.resources = [];
@@ -105,7 +104,7 @@ Polymer('ulti-viewer', {
     
     //note: annotation positions are relative to their parent
     this.annotations  = [];
-    //
+    //should measurements be a different category/structure than annotations ?
     this.measurements = [];
   },
   ready:function(){
@@ -762,6 +761,15 @@ Polymer('ulti-viewer', {
   toFixed:function(o, precision){
     if(!o) return "";
     return o.toFixed(precision);
+  },
+  colorConvert: {
+    toDOM: function(value) {
+      var hexValue = "#"+value.getHexString()
+      return hexValue;
+    },
+    toModel: function(value) {
+      return new THREE.Color(value);
+    }
   }
   
 });

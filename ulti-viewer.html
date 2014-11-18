@@ -105,8 +105,13 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
         </select>
       </div>
       
-      <!-- measurements system test -->
+      <template if="{{selectedObject}}">
+        <div style="position:absolute;top:200px;right:60px;z-index:15;" id="background-color" >
+        <input type="color" value="{{selectedObject.material.color | colorConvert}}"/>
+        </div>
+      </template>
       
+      <!-- measurements system test -->
       <dimensions-helper-group id="dimensions" selectedObject="{{selectedObject}}" 
       selectedMeasurement="{{measureType}}"> 
         <distance-helper  id="distHelper" selectedObject="{{selectedObject}}"> </distance-helper>
@@ -124,7 +129,6 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
         </template>
       </template>
       
-      
       <!--viewer itself-->
       <three-js id="threeJs" 
       selectedObject="{{selectedObject}}" selectedObjects="{{selectedObjects}}" highlightedObject="{{highlightedObject}}"
@@ -138,8 +142,8 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
             <!--<three-pointLight color="0xfFfc7e" intensity=0.8 pos=[100, 150, 200] > </three-pointLight>
             <three-pointLight color="0xfcfc7e" intensity=0.5 pos=[100, -150, -200]> </three-pointLight>-->
             <three-directionalLight castShadow onlyShadow intensity=0.2 pos=[150,150,1500]>  </three-directionalLight>
-            <three-hemisphereLight color="0xffEEEE" gndColor="0xffEEEE" pos="[0, 1200, 1500]" intensity=0.6></three-hemisphereLight>
-            <three-ambientLight color="0x262525" intensity=3> </three-ambientLight>
+            <three-hemisphereLight color="0xffffEE" gndColor="0xffffEE" pos="[0, 1200, 1500]" intensity=0.6></three-hemisphereLight>
+            <three-ambientLight color="0x252525" intensity=3> </three-ambientLight>
             <shadow-plane up=[0,0,1]> </shadow-plane>
             <!--<mirror-plane up=[0,0,1]> </mirror-plane>-->
             <!--<image-plane imgUrl="http://localhost:8080/demo-data/test.png" up=[0,1,0] rot=[0,20,40]> </image-plane>-->
