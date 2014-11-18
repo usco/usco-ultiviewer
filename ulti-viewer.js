@@ -172,6 +172,7 @@ Polymer('ulti-viewer', {
     function afterAdded( mesh ){ 
       mesh.userData.part = {};
       mesh.userData.part.id = 0;
+      mesh.castShadow = true;
     }
     if( display ) return resourcePromise.then( this.addToScene.bind(this), onDisplayError ).then(afterAdded);
     
