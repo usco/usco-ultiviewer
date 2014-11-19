@@ -44,11 +44,15 @@
 <link rel="import" href="components/paper-dropdown/paper-dropdown.html">
 <link rel="import" href="components/paper-item/paper-item.html">
 <link rel="import" href="components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="components/paper-menu-button/paper-menu-button.html">
+
 <link rel="import" href="components/core-icons/core-icons.html">
 <link rel="import" href="components/core-icons/social-icons.html">
 <link rel="import" href="components/core-collapse/core-collapse.html">
 <link rel="import" href="components/core-selector/core-selector.html">
 <link rel="import" href="components/core-tooltip/core-tooltip.html">
+
+<link rel="import" href="components/polymer-gestures/polymer-gestures.html">
 
 <polymer-element name="x-trigger" extends="paper-icon-button" relative on-tap="{{toggle}}" noink>
   <template>
@@ -164,12 +168,36 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
       </x-trigger>
       </core-tooltip>
       
-      <!--
-      <core-tooltip id="infos" label="Infos" position="bottom">
+      <core-tooltip id="infos" label="infos" position="bottom">  
         <x-trigger icon="info-outline" >
+          <paper-dropdown class="open-below" halign="right">
+            <div class="menu" > 
+              <paper-item noink disabled>
+                <b> Information:</b>
+              </paper-item>
+              <paper-item noink disabled>
+                <div>
+                  Left mouse: rotate<br>
+                  Right mouse: pan<br>
+                  Mouse wheel : zoom in/out<br>
+                </div>
+              </paper-item>
+              <paper-item noink disabled>
+                <div>
+                  Ulti-viewer version : 0.0.2
+                </div>
+              </paper-item>
+             </div>
+           </paper-dropdown>
         </x-trigger>
-      </core-tooltip>-->
-      
+        <!--
+        <paper-menu-button>
+          <paper-icon-button icon="info-outline" noink></paper-icon-button>
+          <paper-dropdown class="dropdown">
+           
+          </paper-dropdown>
+        </paper-menu-button>-->
+       </core-tooltip>
       
       <template if="{{ measureType=='measureDistance' }}">
         <div style="position:absolute;bottom:20px;left:50%;z-index:15;background:white">
