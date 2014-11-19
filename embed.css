@@ -25,18 +25,47 @@ ulti-viewer /deep/ x-trigger /deep/ paper-dropdown::shadow #scroller {
 ulti-viewer /deep/ x-trigger /deep/ paper-item {
       color:black;
       font-size: 0.8em;
+      font-weight: 400;
 }  
+
+ulti-viewer /deep/ x-trigger /deep/ paper-item:hover {
+      color:#4ebcf6;
+}  
+
+ulti-viewer /deep/ x-trigger /deep/ paper-item.core-selected {
+      background:#ffd200;
+      color:black;
+}  
+
 
 ulti-viewer /deep/ x-trigger /deep/ paper-item::shadow .button-content{
       /*color:green;*/
       height: 20px;
 } 
-
-
     
 ulti-viewer /deep/ x-trigger /deep/ .open-below {
       top: 38px;
-    }
+}
+
+
+    
+ulti-viewer /deep/ core-tooltip::shadow #tooltip {
+  z-index: 0;
+}
+
+ulti-viewer::shadow #infos{
+  position:absolute;top:5px;right:20px;z-index:15;
+}    
+
+ulti-viewer::shadow #options{
+  position:absolute;top:5px;right:70px;z-index:15;
+}    
+
+ulti-viewer::shadow #measures{
+  position:absolute;top:5px;right:120px;z-index:15;
+}
+
+
 
 /*styling of 3d elements using css*/
 ulti-viewer /deep/ dimensions-helper-group /deep/ distance-helper{

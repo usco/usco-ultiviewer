@@ -45,8 +45,10 @@
 <link rel="import" href="components/paper-item/paper-item.html">
 <link rel="import" href="components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="components/core-icons/core-icons.html">
+<link rel="import" href="components/core-icons/social-icons.html">
 <link rel="import" href="components/core-collapse/core-collapse.html">
-
+<link rel="import" href="components/core-selector/core-selector.html">
+<link rel="import" href="components/core-tooltip/core-tooltip.html">
 
 <polymer-element name="x-trigger" extends="paper-icon-button" relative on-tap="{{toggle}}" noink>
   <template>
@@ -94,32 +96,80 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
           </ul>
         </template>
       </div>-->
-        <x-trigger icon="settings" style="position:absolute;top:10px;right:20px;z-index:15">
+      <core-tooltip id="options" label="Options" position="bottom">
+      <x-trigger icon="settings" >
         <paper-dropdown class="open-below" halign="right">
           <div class="menu"> 
-              <paper-item>
-                <paper-checkbox style="padding-right:8px" for checked="{{showGrid}}"></paper-checkbox>
-                Grid
-              </paper-item>
-              <paper-item>
-                <paper-checkbox style="padding-right:8px" for checked="{{showAxes}}"></paper-checkbox>
-                Axes
-              </paper-item>
-              <paper-item>
-                <paper-checkbox style="padding-right:8px" for checked="{{showAnnotations}}"></paper-checkbox>
-                Notes
-              </paper-item>
-              <paper-item>
-                <paper-checkbox style="padding-right:8px" for checked="{{showControls}}"></paper-checkbox>
-                Controls
-              </paper-item>
-              <paper-item>
-                <paper-checkbox style="padding-right:8px" for checked="{{autoRotate}}"></paper-checkbox>
-                Autorotate
-              </paper-item>
+            <paper-item>
+              <paper-checkbox style="padding-right:8px" for checked="{{showGrid}}"></paper-checkbox>
+              Grid
+            </paper-item>
+            <paper-item>
+              <paper-checkbox style="padding-right:8px" for checked="{{showAxes}}"></paper-checkbox>
+              Axes
+            </paper-item>
+            <paper-item>
+              <paper-checkbox style="padding-right:8px" for checked="{{showAnnotations}}"></paper-checkbox>
+              Notes
+            </paper-item>
+            <paper-item>
+              <paper-checkbox style="padding-right:8px" for checked="{{showControls}}"></paper-checkbox>
+              Controls
+            </paper-item>
+            <paper-item>
+              <paper-checkbox style="padding-right:8px" for checked="{{autoRotate}}"></paper-checkbox>
+              Autorotate
+            </paper-item>
           </div>
         </paper-dropdown>
       </x-trigger>
+      </core-tooltip>
+      
+      <core-tooltip id="measures" label="Measures" position="bottom">
+      <x-trigger icon="settings-ethernet" >
+        <paper-dropdown class="open-below" halign="right">
+          <div class="menu" > 
+            <core-selector selected="{{measureType}}" valueattr="value">
+              <paper-item value="" noink>
+                <core-icon style="padding-right:8px" icon="clear"></core-icon>
+                Nothing
+              </paper-item>
+              <paper-item value="distance" noink>
+                <core-icon style="padding-right:8px" icon="settings-ethernet"></core-icon>
+                Distance 
+              </paper-item>
+              <paper-item value="thickness" noink>
+                <core-icon style="padding-right:8px" icon="unfold-less"></core-icon>
+                Thickness 
+              </paper-item>
+              <paper-item value="angle" noink>
+                <core-icon style="padding-right:8px" icon="query-builder"></core-icon>
+                Angle
+              </paper-item>
+              <paper-item value="diameter" noink>
+                <core-icon style="padding-right:8px" icon="social:circles-add"></core-icon>
+                Diameter
+              </paper-item>
+              <paper-item value="note" noink>
+                <core-icon style="padding-right:8px" icon="note-add"></core-icon>
+                Note
+              </paper-item>
+              <paper-item value="leaderLine" noink>
+                <core-icon style="padding-right:8px" icon="trending-neutral"></core-icon>
+                LeaderLine3D
+              </paper-item>
+            </core-selector>
+           </div>
+         </paper-dropdown>
+      </x-trigger>
+      </core-tooltip>
+      
+      <!--
+      <core-tooltip id="infos" label="Infos" position="bottom">
+        <x-trigger icon="info-outline" >
+        </x-trigger>
+      </core-tooltip>-->
+      
       
       <template if="{{ measureType=='measureDistance' }}">
         <div style="position:absolute;bottom:20px;left:50%;z-index:15;background:white">
@@ -144,24 +194,11 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
         </div>
       </template>-->
       
-      <div style="position:absolute;top:10px;right:60px;z-index:15;background:white">
-        <select value="{{measureType}}">
-          <option value="">  </option>
-          <option value="leaderLine"> Add leaderLine3D </option>
-                    
-          <option value="note"> Add Notes </option>
-          <option value="distance" > Measure distance </option>
-          <option value="thickness"> Measure thickness </option>
-          <option value="angle"> Measure angle </option>
-          <option value="diameter"> Measure diameter </option>
-        </select>
-      </div>
-      
-      <template if="{{selectedObject}}">
+      <!--<template if="{{selectedObject}}">
         <div style="position:absolute;top:300px;right:60px;z-index:15;" id="background-color" >
         <input type="color" value="{{selectedObject.material.color | colorConvert}}"/>
         </div>
-      </template>
+      </template>-->
       
       <!-- measurements system test -->
       <dimensions-helper-group id="dimensions" selectedObject="{{selectedObject}}" 

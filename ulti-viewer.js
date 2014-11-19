@@ -94,7 +94,7 @@ Polymer('ulti-viewer', {
   bom         : null,
   
   //
-  measureType: "distance",//FIXME: should this be here ?
+  measureType: "",//FIXME: should this be here ?
   created: function()
   {
     this.resources = [];
