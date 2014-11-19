@@ -36,6 +36,10 @@
 <link rel="import" href="overlay-note.html">
 
 
+<link rel="import" href="settings-ui.html">
+<link rel="import" href="measures-ui.html">
+<link rel="import" href="infos-ui.html">
+
 <script src="components/three-js-helpers/dimensions/LeaderLineHelper3D.js"></script>
 <!--<link rel="import" href="components/observe-array-items/observe-array-items.html">-->
 
@@ -78,9 +82,6 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
     <template>
       <link rel="stylesheet" type="text/css" href="ulti-viewer.css">
       <!--controls overlay-->
-      <!--<view-settings autoRotate="{{autoRotate}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}" fullScreen="{{fullScreen}}"
-      showControls="{{showControls}}" showAnnotations="{{showAnnotations}}">
-      </view-settings>-->
       <template if="{{showControls}}">
         <view-navigator controls="{{$.camCtrl}}" camera="{{$.cam}}" autoRotate="{{autoRotate}}"> </view-navigator>
       </template>
@@ -100,104 +101,13 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
           </ul>
         </template>
       </div>-->
-      <core-tooltip id="options" label="Options" position="bottom">
-      <x-trigger icon="settings" >
-        <paper-dropdown class="open-below" halign="right">
-          <div class="menu"> 
-            <paper-item>
-              <paper-checkbox style="padding-right:8px" for checked="{{showGrid}}"></paper-checkbox>
-              Grid
-            </paper-item>
-            <paper-item>
-              <paper-checkbox style="padding-right:8px" for checked="{{showAxes}}"></paper-checkbox>
-              Axes
-            </paper-item>
-            <paper-item>
-              <paper-checkbox style="padding-right:8px" for checked="{{showAnnotations}}"></paper-checkbox>
-              Notes
-            </paper-item>
-            <paper-item>
-              <paper-checkbox style="padding-right:8px" for checked="{{showControls}}"></paper-checkbox>
-              Controls
-            </paper-item>
-            <paper-item>
-              <paper-checkbox style="padding-right:8px" for checked="{{autoRotate}}"></paper-checkbox>
-              Autorotate
-            </paper-item>
-          </div>
-        </paper-dropdown>
-      </x-trigger>
-      </core-tooltip>
+      <settings-ui id="options" autoRotate="{{autoRotate}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}" fullScreen="{{fullScreen}}"
+      showControls="{{showControls}}" showAnnotations="{{showAnnotations}}"> </settings-ui>      
+      <measures-ui id="measures" measureType="{{measureType}}"> </measures-ui>
+      <infos-ui    id="infos" > </infos-ui>
       
-      <core-tooltip id="measures" label="Measures" position="bottom">
-      <x-trigger icon="settings-ethernet" >
-        <paper-dropdown class="open-below" halign="right">
-          <div class="menu" > 
-            <core-selector selected="{{measureType}}" valueattr="value">
-              <paper-item value="" noink>
-                <core-icon style="padding-right:8px" icon="clear"></core-icon>
-                Nothing
-              </paper-item>
-              <paper-item value="distance" noink>
-                <core-icon style="padding-right:8px" icon="settings-ethernet"></core-icon>
-                Distance 
-              </paper-item>
-              <paper-item value="thickness" noink>
-                <core-icon style="padding-right:8px" icon="unfold-less"></core-icon>
-                Thickness 
-              </paper-item>
-              <paper-item value="angle" noink>
-                <core-icon style="padding-right:8px" icon="query-builder"></core-icon>
-                Angle
-              </paper-item>
-              <paper-item value="diameter" noink>
-                <core-icon style="padding-right:8px" icon="social:circles-add"></core-icon>
-                Diameter
-              </paper-item>
-              <paper-item value="note" noink>
-                <core-icon style="padding-right:8px" icon="note-add"></core-icon>
-                Note
-              </paper-item>
-              <paper-item value="leaderLine" noink>
-                <core-icon style="padding-right:8px" icon="trending-neutral"></core-icon>
-                LeaderLine3D
-              </paper-item>
-            </core-selector>
-           </div>
-         </paper-dropdown>
-      </x-trigger>
-      </core-tooltip>
       
-      <core-tooltip id="infos" label="infos" position="bottom">  
-        <x-trigger icon="info-outline" >
-          <paper-dropdown class="open-below" halign="right">
-            <div class="menu" > 
-              <paper-item noink disabled>
-                <b> Information:</b>
-              </paper-item>
-              <paper-item noink disabled>
-                <div>
-                  Left mouse: rotate<br>
-                  Right mouse: pan<br>
-                  Mouse wheel : zoom in/out<br>
-                </div>
-              </paper-item>
-              <paper-item noink disabled>
-                <div>
-                  Ulti-viewer version : 0.0.2
-                </div>
-              </paper-item>
-             </div>
-           </paper-dropdown>
-        </x-trigger>
-        <!--
-        <paper-menu-button>
-          <paper-icon-button icon="info-outline" noink></paper-icon-button>
-          <paper-dropdown class="dropdown">
-           
-          </paper-dropdown>
-        </paper-menu-button>-->
-       </core-tooltip>
+      
       
       <template if="{{ measureType=='measureDistance' }}">
         <div style="position:absolute;bottom:20px;left:50%;z-index:15;background:white">

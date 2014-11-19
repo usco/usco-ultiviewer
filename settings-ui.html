@@ -1,0 +1,45 @@
+<link rel="import" href="components/polymer/polymer.html">
+
+<polymer-element name="settings-ui" attributes="showControls autoRotate fullScreen showGrid showAxes showAnnotations">
+  <template>
+      <div class="viewSettings">
+        <core-tooltip label="Options" position="bottom">
+      <x-trigger icon="settings" >
+        <paper-dropdown class="open-below" halign="right">
+          <div class="menu"> 
+            <paper-item>
+              <paper-checkbox style="padding-right:8px" for checked="{{showGrid}}"></paper-checkbox>
+              Grid
+            </paper-item>
+            <paper-item>
+              <paper-checkbox style="padding-right:8px" for checked="{{showAxes}}"></paper-checkbox>
+              Axes
+            </paper-item>
+            <paper-item>
+              <paper-checkbox style="padding-right:8px" for checked="{{showAnnotations}}"></paper-checkbox>
+              Notes
+            </paper-item>
+            <paper-item>
+              <paper-checkbox style="padding-right:8px" for checked="{{showControls}}"></paper-checkbox>
+              Controls
+            </paper-item>
+            <paper-item>
+              <paper-checkbox style="padding-right:8px" for checked="{{autoRotate}}"></paper-checkbox>
+              Autorotate
+            </paper-item>
+          </div>
+        </paper-dropdown>
+      </x-trigger>
+      </core-tooltip>
+    </div>
+    <!--
+    <div id="viewControls" class="viewControls">
+      <input type="checkbox" checked="{{fullScreen}}" id="fullScreen" class="fullScreen"/> <label for="fullScreen"><span>Fullscreen</span></label> 
+    </div>-->
+  </template>
+<script>
+Polymer("settings-ui",{
+});
+</script>
+</polymer-element>
+
