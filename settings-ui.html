@@ -1,6 +1,6 @@
 <link rel="import" href="components/polymer/polymer.html">
 
-<polymer-element name="settings-ui" attributes="showControls autoRotate fullScreen showGrid showAxes showAnnotations">
+<polymer-element name="settings-ui" attributes="showControls autoRotate showGrid showAxes showAnnotations">
   <template>
       <div class="viewSettings">
         <core-tooltip label="Options" position="bottom">
@@ -32,10 +32,6 @@
       </x-trigger>
       </core-tooltip>
     </div>
-    <!--
-    <div id="viewControls" class="viewControls">
-      <input type="checkbox" checked="{{fullScreen}}" id="fullScreen" class="fullScreen"/> <label for="fullScreen"><span>Fullscreen</span></label> 
-    </div>-->
   </template>
 <script>
 Polymer("settings-ui",{

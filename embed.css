@@ -7,7 +7,9 @@ ulti-viewer :unresolved:after{padding:15px;content:'loading...';color:#ccc;}
     left:0px !important;
     top:0px !important;
   } */
-  
+ulti-viewer /deep/ x-trigger:hover::shadow core-icon{
+  color:#4ebcf6;
+}
   
 ulti-viewer /deep/ x-trigger /deep/ paper-dropdown:not(.no-padding)::shadow #scroller {
       box-sizing: border-box;
@@ -31,6 +33,7 @@ ulti-viewer /deep/ x-trigger /deep/ paper-item {
 ulti-viewer /deep/ x-trigger /deep/ paper-item:hover {
       color:#4ebcf6;
 }  
+
 
 ulti-viewer /deep/ x-trigger /deep/ paper-item.core-selected {
       background:#ffd200;
@@ -247,58 +250,57 @@ ulti-viewer /deep/ view-settings {
   overflow:hidden;z-index:15;pointer-events:all;
 }
 
-ulti-viewer /deep/ view-settings /deep/ input[type=checkbox]{
+ulti-viewer /deep/ fullscreen-toggler /deep/ input[type=checkbox]{
   display: none;
 }
 
-
-ulti-viewer /deep/ view-settings /deep/ .viewSettings{
+ulti-viewer /deep/ fullscreen-toggler /deep/ .viewSettings{
   width:30px;
 }
 
 
-ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]{display:none;}
-/*ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]:checked+label:before{content:"\f066";}*/
-ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]:checked+label:before{content:"";}
+ulti-viewer /deep/ fullscreen-toggler /deep/ input[type="checkbox"]{display:none;}
+/*ulti-viewer /deep/ fullscreen-toggler /deep/ input[type="checkbox"]:checked+label:before{content:"\f066";}*/
+ulti-viewer /deep/ fullscreen-toggler /deep/ input[type="checkbox"]:checked+label:before{content:"";}
 
-ulti-viewer /deep/ view-settings /deep/ input[type=checkbox]+label>span{display:none;}
-ulti-viewer /deep/ view-settings /deep/ input[type=checkbox]+label>span{
+ulti-viewer /deep/ fullscreen-toggler /deep/ input[type=checkbox]+label>span{display:none;}
+ulti-viewer /deep/ fullscreen-toggler /deep/ input[type=checkbox]+label>span{
   text-align:right;margin-left:20px;
 }
-ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]+label{
+ulti-viewer /deep/ fullscreen-toggler /deep/ input[type="checkbox"]+label{
 background:#494949;color:white;height:16px;width:16px;display:inline-block;padding:0px;text-align:center;line-height:16px;
 margin:1px;
 margin-left: 5px;
 }
 
-ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]:checked+label{
+ulti-viewer /deep/ fullscreen-toggler /deep/ input[type="checkbox"]:checked+label{
 background:#17a9f5;color:white;height:16px;width:16px;display:inline-block;padding:0px;text-align:center;line-height:16px;
 }
 
 /*
-ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]+label:before{
+ulti-viewer /deep/ fullscreen-toggler /deep/ input[type="checkbox"]+label:before{
 font-family:'FontAwesome';font-size:12px;content:"\f10c";}
 
-ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]:checked+label:before{font-family:'FontAwesome';font-size:12px;content:"\f111";color:#17a9f5;}*/
+ulti-viewer /deep/ fullscreen-toggler /deep/ input[type="checkbox"]:checked+label:before{font-family:'FontAwesome';font-size:12px;content:"\f111";color:#17a9f5;}*/
 
 
 /*fullscreen button*/
-
-ulti-viewer /deep/ settings-ui{
-  height:100%;
-
+ulti-viewer /deep/ fullscreen-toggler{
+  position: absolute;
+  bottom: 20px;
+  z-index: 15;
+  right: 20px;
+  margin: 0px;
 }
 
-ulti-viewer /deep/ settings-ui /deep/ input.fullScreen[type=checkbox]+label{
-  position:absolute;
-  bottom:20px;
-  margin:0px;
+ulti-viewer /deep/ fullscreen-toggler /deep/ input.fullScreen[type=checkbox]+label{
+ 
 }
-ulti-viewer /deep/ settings-ui /deep/ input.fullScreen[type=checkbox]+label{background:#494949;height:29px;width:29px;display:inline-block;line-height:30px;text-align:center;}
+ulti-viewer /deep/ fullscreen-toggler /deep/ input.fullScreen[type=checkbox]+label{background:#494949;height:29px;width:29px;display:inline-block;line-height:30px;text-align:center;}
 
-ulti-viewer /deep/ settings-ui /deep/ input.fullScreen[type=checkbox]+label{background:#494949;height:29px;width:29px;display:inline-block;line-height:30px;text-align:center;}
-ulti-viewer /deep/ settings-ui /deep/ input.fullScreen[type="checkbox"]+label:hover:before{color:#4ebcf6;}
-ulti-viewer /deep/ settings-ui /deep/ input.fullScreen[type="checkbox"]+label:before{color:#fff;font-family:'FontAwesome';font-size:18px;content:"\f0b2";}
+ulti-viewer /deep/ fullscreen-toggler /deep/ input.fullScreen[type=checkbox]+label{background:#494949;height:29px;width:29px;display:inline-block;line-height:30px;text-align:center;}
+ulti-viewer /deep/ fullscreen-toggler /deep/ input.fullScreen[type="checkbox"]+label:hover:before{color:#4ebcf6;}
+ulti-viewer /deep/ fullscreen-toggler /deep/ input.fullScreen[type="checkbox"]+label:before{color:#fff;font-family:'FontAwesome';font-size:18px;content:"\f0b2";}
 
 
 /*ulti-viewer /deep/ view-settings /deep/ input[type=checkbox]+label{background:#494949;height:29px;width:29px;display:inline-block;line-height:30px;text-align:center;}*/

@@ -39,6 +39,8 @@
 <link rel="import" href="settings-ui.html">
 <link rel="import" href="measures-ui.html">
 <link rel="import" href="infos-ui.html">
+<link rel="import" href="fullscreen-toggler.html">
+
 
 <script src="components/three-js-helpers/dimensions/LeaderLineHelper3D.js"></script>
 <!--<link rel="import" href="components/observe-array-items/observe-array-items.html">-->
@@ -101,12 +103,11 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
           </ul>
         </template>
       </div>-->
-      <settings-ui id="options" autoRotate="{{autoRotate}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}" fullScreen="{{fullScreen}}"
+      <settings-ui id="options" autoRotate="{{autoRotate}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}"
       showControls="{{showControls}}" showAnnotations="{{showAnnotations}}"> </settings-ui>      
-      <measures-ui id="measures" measureType="{{measureType}}"> </measures-ui>
       <infos-ui    id="infos" > </infos-ui>
-      
-      
+      <measures-ui id="measures" measureType="{{measureType}}"> </measures-ui>
+      <fullscreen-toggler fullScreen="{{fullScreen}}"> </fullscreen-toggler>
       
       
       <template if="{{ measureType=='measureDistance' }}">
