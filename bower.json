@@ -25,6 +25,7 @@
     "core-selector": "Polymer/core-selector#~0.5.1",
     "core-tooltip": "Polymer/core-tooltip#~0.5.1",
     "paper-menu-button": "Polymer/paper-menu-button#~0.5.1",
-    "core-a11y-keys": "Polymer/core-a11y-keys#~0.5.1"
+    "core-a11y-keys": "Polymer/core-a11y-keys#~0.5.1",
+    "paper-shadow": "Polymer/paper-shadow#~0.5.1"
   }
 }

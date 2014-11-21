@@ -2,6 +2,7 @@
 
 <polymer-element name="settings-ui" attributes="showControls autoRotate showGrid showAxes showAnnotations">
   <template>
+    <ui-base>
       <div class="viewSettings">
         <core-tooltip label="Options" position="bottom">
       <x-trigger icon="settings" >
@@ -32,6 +33,7 @@
       </x-trigger>
       </core-tooltip>
     </div>
+    </ui-base>
   </template>
 <script>
 Polymer("settings-ui",{

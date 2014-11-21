@@ -33,51 +33,22 @@
 <link rel="import" href="progress-cubic.html">
 <link rel="import" href="progress-text.html">
 
+<link rel="import" href="ui-base.html">
 <link rel="import" href="settings-ui.html">
 <link rel="import" href="measures-ui.html">
 <link rel="import" href="infos-ui.html">
-<link rel="import" href="fullscreen-toggler.html">
+<link rel="import" href="fullscreen-toggler2.html">
 <link rel="import" href="overlay-note.html">
-
 
 <script src="components/three-js-helpers/dimensions/LeaderLineHelper3D.js"></script>
 <!--<link rel="import" href="components/observe-array-items/observe-array-items.html">-->
 
-<!--Polymer ui elements ...in doubt-->
-<link rel="import" href="components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="components/paper-dropdown/paper-dropdown.html">
-<link rel="import" href="components/paper-item/paper-item.html">
-<link rel="import" href="components/paper-checkbox/paper-checkbox.html">
-<link rel="import" href="components/paper-menu-button/paper-menu-button.html">
-
-<link rel="import" href="components/core-icons/core-icons.html">
-<link rel="import" href="components/core-icons/social-icons.html">
-<link rel="import" href="components/core-collapse/core-collapse.html">
-<link rel="import" href="components/core-selector/core-selector.html">
-<link rel="import" href="components/core-tooltip/core-tooltip.html">
 
 <link rel="import" href="components/polymer-gestures/polymer-gestures.html">
 <link rel="import" href="components/core-a11y-keys/core-a11y-keys.html">
 
 <script src="TransformControls.js"></script>
 
-
-<polymer-element name="x-trigger" extends="paper-icon-button" relative on-tap="{{toggle}}" noink>
-  <template>
-    <shadow></shadow>
-    <content></content>
-  </template>
-  <script>
-    Polymer({
-      toggle: function() {
-        if (!this.dropdown) {
-          this.dropdown = this.querySelector('paper-dropdown');
-        }
-        this.dropdown && this.dropdown.toggle();
-      }
-    });
-  </script>
-  </polymer-element>
 
 
 <polymer-element name="ulti-viewer" attributes="showAxis showIndicators"

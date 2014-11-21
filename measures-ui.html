@@ -2,6 +2,7 @@
 
 <polymer-element name="measures-ui" attributes="measureType">
   <template>
+    <ui-base>
     <core-tooltip label="Measures" position="bottom">
       <x-trigger icon="settings-ethernet" >
         <paper-dropdown class="open-below" halign="right">
@@ -40,7 +41,7 @@
          </paper-dropdown>
       </x-trigger>
       </core-tooltip>
-  
+     </ui-base>
   </template>
 <script>
 Polymer("measures-ui",{

@@ -1,5 +1,13 @@
 ulti-viewer :unresolved:after{padding:15px;content:'loading...';color:#ccc;}
 
+/*
+Colors:
+blue:#4ebcf6
+darkblue : #2e7396
+orangeYellow:#ffd200;
+
+*/
+
 /*ulti-viewer:-webkit-full-screen 
   {
     width:100% !important;
@@ -7,8 +15,19 @@ ulti-viewer :unresolved:after{padding:15px;content:'loading...';color:#ccc;}
     left:0px !important;
     top:0px !important;
   } */
+  
+
+/* all hovered paper-icon-buttons regardless of depth are getting this style*/
+ulti-viewer /deep/ paper-icon-button:hover{
+  color:white;
+  background: #ffd200;
+}  
+  
+ulti-viewer /deep/ x-trigger:hover {
+  background: #ffd200;
+}  
 ulti-viewer /deep/ x-trigger:hover::shadow core-icon{
-  color:#4ebcf6;
+  color:white;/*black*/
 }
   
 ulti-viewer /deep/ x-trigger /deep/ paper-dropdown:not(.no-padding)::shadow #scroller {
@@ -21,7 +40,6 @@ ulti-viewer /deep/ x-trigger /deep/ paper-dropdown::shadow #scroller {
       box-sizing: border-box;
       padding: 8px;
       /*color:red;*/
-      overflow:hidden;
     }
     
 ulti-viewer /deep/ x-trigger /deep/ paper-item {
@@ -61,11 +79,11 @@ ulti-viewer::shadow #infos{
 }    
 
 ulti-viewer::shadow #options{
-  position:absolute;top:5px;right:70px;z-index:15;
+  position:absolute;top:5px;right:60px;z-index:15;
 }    
 
 ulti-viewer::shadow #measures{
-  position:absolute;top:5px;right:120px;z-index:15;
+  position:absolute;top:5px;right:100px;z-index:15;
 }
 
 
