@@ -89,6 +89,19 @@ removing all resouces, and flush cache
     
     ultiViewer.clearResources({clearCache:true});
 
+
+interactions:
+=============
+
+Measurements
+- if any measurement is active, deactivate object selection :
+zooming in etc distracts from taking measures across objects
+
+Editing
+- left click on object : select 
+- shift + click : multiple select
+- ctrl + d : duplicate object
+
 Licence
 =======
 AGPL

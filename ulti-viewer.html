@@ -57,6 +57,10 @@
 <link rel="import" href="components/core-tooltip/core-tooltip.html">
 
 <link rel="import" href="components/polymer-gestures/polymer-gestures.html">
+<link rel="import" href="components/core-a11y-keys/core-a11y-keys.html">
+
+<script src="TransformControls.js"></script>
+
 
 <polymer-element name="x-trigger" extends="paper-icon-button" relative on-tap="{{toggle}}" noink>
   <template>
@@ -77,8 +81,8 @@
 
 
 <polymer-element name="ulti-viewer" attributes="showAxis showIndicators"
-on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragover="{{handleDragOver}}" on-drop="{{handleDrop}}"
->
+on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragover="{{handleDragOver}}" on-drop="{{handleDrop}}" 
+tabindex="0">
     <template>
       <link rel="stylesheet" type="text/css" href="ulti-viewer.css">
       <!--controls overlay-->
@@ -88,6 +92,7 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
       
       <progress-text resources="{{resources}}">
       </progress-text>
+      
       <!--
       <div class="resourceLoader">
         <template repeat="{{resource in resources}}">
@@ -221,6 +226,12 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
       <core-localstorage name="ultiviewer-settings-showAxes"    value="{{showAxes}}"></core-localstorage>
       <core-localstorage name="ultiviewer-settings-autoRotate"  value="{{autoRotate}}"></core-localstorage>    
       <core-localstorage name="ultiviewer-settings-showControls"value="{{showControls}}"></core-localstorage>
+      
+      <!--keboard handling-->
+      <core-a11y-keys  keys="t" on-keys-pressed="{{toTranslateMode}}"></core-a11y-keys>
+      <core-a11y-keys  keys="r" on-keys-pressed="{{toRotateMode}}"></core-a11y-keys>
+      <core-a11y-keys  keys="ctrl+d" on-keys-pressed="{{duplicateObject}}"></core-a11y-keys>
+      <core-a11y-keys  keys="del" on-keys-pressed="{{deleteObject}}"></core-a11y-keys>
       
   </template>
   <script src="ulti-viewer.js"></script>

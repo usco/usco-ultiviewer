@@ -124,11 +124,19 @@ Polymer('ulti-viewer', {
     this.objDimensionsHelper = new ObjectDimensionsHelper({textBgColor:"#ffd200"});
     this.addToScene( this.objDimensionsHelper, "helpers", {autoResize:false, autoCenter:false, persistent:true, select:false } );
     
+    this.transformControls = new THREE.TransformControls(this.$.cam.object,this.$.perspectiveView);
+    this.addToScene( this.transformControls, "helpers", {autoResize:false, autoCenter:false, persistent:true, select:false } );
+    
+    
     this.threeJs.updatables.push( this.updateOverlays.bind(this) ); 
     /*//workaround/hack for some css issues:FIXME: is this still necessary??
     try{
     $('<style></style>').appendTo($(document.body)).remove();
     }catch(error){}*/
+    this.async(function(){
+      console.log("impl",this);
+      this.$.perspectiveView.focus();
+    },null,10);
   },
   detached:function()
   {
@@ -172,6 +180,7 @@ Polymer('ulti-viewer', {
       mesh.userData.part = {};
       mesh.userData.part.id = 0;
       mesh.castShadow = true;
+      mesh.receiveShadow = true;
     }
     if( display ) return resourcePromise.then( this.addToScene.bind(this), onDisplayError ).then(afterAdded);
     
@@ -540,9 +549,11 @@ Polymer('ulti-viewer', {
     if( oldSelection && oldSelection.helpers )
     {
       this.objDimensionsHelper.detach( oldSelection );
+      this.transformControls.detach( oldSelection );
     }
     if(newSelection)
     {
+      this.transformControls.attach( newSelection );
       if(this.showDimensions)
       {
         this.objDimensionsHelper.attach( newSelection );
@@ -757,6 +768,31 @@ Polymer('ulti-viewer', {
     }
     if(this.leaderLineTest) this.leaderLineTest.update();
   },
+  
+  //interactions
+  duplicateObject:function(){
+    console.log("duplicating")
+    if(!this.selectedObject) return;
+    
+    var cloned = this.selectedObject.clone();
+    
+    this.addToScene( cloned, "main",{autoResize:false, autoCenter:false } );
+  },
+  
+  deleteObject:function(){
+    console.log("deleting")
+    if(!this.selectedObject) return;
+    this.removeFromScene( this.selectedObject, "main" );
+    this.selectedObject = null;
+  },
+  
+  toRotateMode:function(){
+    this.transformControls.setMode("rotate");
+  }, 
+  toTranslateMode:function(){
+    this.transformControls.setMode("translate");
+  }, 
+  
   //filters
   toFixed:function(o, precision){
     if(!o) return "";
