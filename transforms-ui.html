@@ -1,0 +1,34 @@
+<link rel="import" href="components/polymer/polymer.html">
+
+<polymer-element name="transforms-ui" mode="translate">
+  <template>
+    <section>
+      <core-selector selected="{{mode}}" valueattr="value">
+        <ui-base value="translate">
+          <core-tooltip label="translate" position="bottom">  
+              <paper-icon-button icon="open-with" noink></paper-icon-button>
+          </core-tooltip>
+         </ui-base>   
+         <ui-base value="rotate" style="position: absolute;left: 40px; top: 0px;">
+          <core-tooltip label="rotate" position="bottom">  
+              <paper-icon-button icon="rotation-3d" noink></paper-icon-button>
+          </core-tooltip>
+         </ui-base>  
+         <ui-base value="scale" style="position: absolute;left: 80px; top: 0px;">
+          <core-tooltip label="scale" position="bottom">  
+              <paper-icon-button icon="av:shuffle" noink></paper-icon-button>
+          </core-tooltip>
+         </ui-base>  
+       </core-selector>
+    </section> 
+  </template>
+<script>
+Polymer("transforms-ui",{
+
+  modeChanged:function(){
+    console.log("this.mode", this.mode);
+  }
+});
+</script>
+</polymer-element>
+
