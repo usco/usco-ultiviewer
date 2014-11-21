@@ -1,0 +1,22 @@
+<link rel="import" href="components/polymer/polymer.html">
+
+<polymer-element name="fullscreen-toggler" attributes="fullScreen"  on-click="toggleFullScreen">
+  <template>
+    <core-tooltip label="FullScreen" position="top">
+    <ui-base>
+        <paper-icon-button icon="{{ {'fullscreen': !fullScreen, 'fullscreen-exit': fullScreen} | tokenList}}" > 
+        </paper-icon-button>
+    </ui-base>
+    <core-tooltip>
+  </template>
+<script>
+Polymer("fullscreen-toggler",{
+
+  toggleFullScreen:function()
+  {
+    this.fullScreen =! this.fullScreen;
+  }
+});
+</script>
+</polymer-element>
+
