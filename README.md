@@ -93,6 +93,21 @@ removing all resouces, and flush cache
 interactions:
 =============
 
+General guidelines:
+-------------------
+
+ - things need to be "natural"
+ - things need to be smooth (all in the background)
+ - avoid "hickups" and blocks : save and reload all the application state
+ that includes last used design, tools etc : if you reload the app it should
+ be in the same state you left it
+
+Supported drag & drop sources:
+- urls
+- urls from text files
+- files from desktop
+
+
 Measurements
 - if any measurement is active, deactivate object selection :
 zooming in etc distracts from taking measures across objects

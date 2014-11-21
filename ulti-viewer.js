@@ -119,6 +119,7 @@ Polymer('ulti-viewer', {
     if (this.msRequestFullScreen) document.addEventListener("msfullscreenchange", this.onFullScreenChange.bind(this), false);
     if (this.webkitRequestFullScreen) document.addEventListener("webkitfullscreenchange", this.onFullScreenChange.bind(this), false);
     
+    console.log("fullscreenstuff", this.requestFullscreen, this.webkitRequestFullScreen);
      //add the selection helper
     //dimensions display helper
     this.objDimensionsHelper = new ObjectDimensionsHelper({textBgColor:"#ffd200"});
@@ -291,6 +292,8 @@ Polymer('ulti-viewer', {
     if (e.preventDefault) {
       e.preventDefault(); // Necessary. Allows us to drop.
     }
+    e.dataTransfer.dropEffect = 'copy'; 
+    console.log("e",e,e.dataTransfer)
   
     var data = e.dataTransfer.getData("url");
     if( data!= "")
@@ -303,7 +306,7 @@ Polymer('ulti-viewer', {
     var data=e.dataTransfer.getData("Text");
     if( data!= "" ){
         this.asyncFire('text-dropped', {data:data} );
-        this.loadMesh( e.detail.data );
+        this.loadMesh( data );//e.detail.data
         return;
     }
 
@@ -355,7 +358,7 @@ Polymer('ulti-viewer', {
      event.preventDefault();
      event.stopPropagation();
   },
-  objectSelected:function(e){
+  objectPicked:function(e){
     /*TODO: externalize all of this into custom elements for
       how to handle event binding ?
       perhaps better to use pub/sub ?
@@ -426,6 +429,7 @@ Polymer('ulti-viewer', {
   //attribute change handlers
   onFullScreenChange:function()
   {
+    console.log("fullscreenchanged");
     //workaround to reset this.fullScreen to correct value when pressing exit etc in full screen mode
     this.fullScreen = !(!document.fullscreenElement &&    // alternative standard method
     !document.mozFullScreenElement && !document.webkitFullscreenElement);
@@ -541,16 +545,19 @@ Polymer('ulti-viewer', {
     //console.log("selectedObjectChanged", this.selectedObject);
     var newSelection = this.selectedObject;
     
-    //FIXME: keep the red outline ?
-    //this.outlineObject( newSelection, oldSelection );
-    this.zoomInOnObject( newSelection );
-    
     //this.clearVisualFocusOnSelection();
     if( oldSelection && oldSelection.helpers )
     {
       this.objDimensionsHelper.detach( oldSelection );
       this.transformControls.detach( oldSelection );
     }
+    
+    //FIXME: do this differently
+    if(this.measureType != "") return;
+    
+    //FIXME: keep the red outline ?
+    //this.outlineObject( newSelection, oldSelection );
+    this.zoomInOnObject( newSelection );
     if(newSelection)
     {
       this.transformControls.attach( newSelection );
@@ -561,6 +568,7 @@ Polymer('ulti-viewer', {
       }
       //this.visualFocusOnSelection(newSelection);
     }
+    
   },
   //important data structure change watchers, not sure this should be here either
   annotationsChanged:function(){
@@ -798,14 +806,10 @@ Polymer('ulti-viewer', {
     if(!o) return "";
     return o.toFixed(precision);
   },
-  colorConvert: {
-    toDOM: function(value) {
-      var hexValue = "#"+value.getHexString()
-      return hexValue;
-    },
-    toModel: function(value) {
-      return new THREE.Color(value);
-    }
+  fooBar:function(e){
+    console.log("GNAAA F11");
+    this.fullScreen = true;
+    return true
   }
   
 });

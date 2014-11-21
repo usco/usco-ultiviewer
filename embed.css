@@ -18,10 +18,23 @@ orangeYellow:#ffd200;
   
 
 /* all hovered paper-icon-buttons regardless of depth are getting this style*/
+/*ulti-viewer /deep/ paper-icon-button{
+vertical-align: middle;
+}*/
+
+ulti-viewer /deep/ ui-base.core-selected /deep/ paper-icon-button{
+  background:  #ffd200;
+  color:white;
+}
+
 ulti-viewer /deep/ paper-icon-button:hover{
   color:white;
   background: #ffd200;
 }  
+
+ulti-viewer /deep/ paper-checkbox::shadow #checkbox.checked {
+  border-color: #ffd200;
+}
   
 ulti-viewer /deep/ x-trigger:hover {
   background: #ffd200;
@@ -74,6 +87,7 @@ ulti-viewer /deep/ core-tooltip::shadow #tooltip {
   z-index: 0;
 }
 
+/*Top icons*/
 ulti-viewer::shadow #infos{
   position:absolute;top:5px;right:20px;z-index:15;
 }    
@@ -85,6 +99,37 @@ ulti-viewer::shadow #options{
 ulti-viewer::shadow #measures{
   position:absolute;top:5px;right:100px;z-index:15;
 }
+
+ulti-viewer::shadow #transforms{
+  position:absolute;top:5px;left:300px;z-index:15;
+}
+
+ulti-viewer::shadow #objProps{
+  position:absolute;bottom:0px;left:0px;z-index:15;
+  height: 25px;
+  width: 100%;
+  background:white;
+}
+
+ulti-viewer::shadow #objProps /deep/ input[type="number"]{
+  max-width: 50px;
+  border: none;
+  /* height: 0.5em; */
+  line-height: 0.8em;
+  font-size: 0.7em;
+  font-family: inherit;
+}
+
+ulti-viewer::shadow #objProps /deep/ input[type="color"]{
+border: none;
+padding: 0px;
+margin: 0px;
+width: 18px;
+height: 15px;
+}
+
+
+
 
 
 
