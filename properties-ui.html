@@ -1,0 +1,50 @@
+<link rel="import" href="components/polymer/polymer.html">
+
+<polymer-element name="properties-ui" attributes="selectedObject selectedObjects">
+  <template>
+      <template if="{{selectedObject}}">
+        <ui-base>
+          <div style="height:100%;width:100%">
+            <input type="color" value="{{selectedObject.material.color | colorConvert}}"/> 
+            p: <input type="number" value="{{selectedObject.position.x | toFixed(2)}}" />
+            <input type="number" value="{{selectedObject.position.y | toFixed(2)}}"/>
+            <input type="number" value="{{selectedObject.position.z | toFixed(2)}}"/>
+            &nbsp
+            r: <input type="number" value="{{selectedObject.rotation.x | toFixed(2)}}"/>
+            <input type="number" value="{{selectedObject.rotation.y | toFixed(2)}}"/>
+            <input type="number" value="{{selectedObject.rotation.z | toFixed(2)}}"/>
+            &nbsp
+            s: <input type="number" value="{{selectedObject.scale.x | toFixed(2)}}"/>
+            <input type="number" value="{{selectedObject.scale.y | toFixed(2)}}"/>
+            <input type="number" value="{{selectedObject.scale.z | toFixed(2)}}"/>
+          </div>
+        </ui-base>  
+      </template>
+  </template>
+<script>
+Polymer("properties-ui",{
+  toFixed:{
+    toDOM: function(value, precision) {
+      if(!value) return "0";
+      return value.toFixed(precision);
+    },
+    toModel: function(value) {
+      return parseFloat( value );
+    }
+    
+  },
+  //filters
+  colorConvert: {
+    toDOM: function(value) {
+      var hexValue = "#"+value.getHexString()
+      return hexValue;
+    },
+    toModel: function(value) {
+      return new THREE.Color(value);
+    }
+  }
+
+});
+</script>
+</polymer-element>
+
