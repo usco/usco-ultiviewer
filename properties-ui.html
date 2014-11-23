@@ -5,18 +5,18 @@
       <template if="{{selectedObject}}">
         <ui-base>
           <div style="height:100%;width:100%">
-            <input type="color" value="{{selectedObject.material.color | colorConvert}}"/> 
-            p: <input type="number" value="{{selectedObject.position.x | toFixed(2)}}" />
-            <input type="number" value="{{selectedObject.position.y | toFixed(2)}}"/>
-            <input type="number" value="{{selectedObject.position.z | toFixed(2)}}"/>
+            <input type="color"  step="0.1" value="{{selectedObject.material.color | colorConvert}}"/> 
+            p: <input type="number" step="0.1" value="{{selectedObject.position.x | toFixed(2)}}" />
+            <input type="number" step="0.1" value="{{selectedObject.position.y | toFixed(2)}}"/>
+            <input type="number" step="0.1" value="{{selectedObject.position.z | toFixed(2)}}"/>
             &nbsp
-            r: <input type="number" value="{{selectedObject.rotation.x | toFixed(2)}}"/>
-            <input type="number" value="{{selectedObject.rotation.y | toFixed(2)}}"/>
-            <input type="number" value="{{selectedObject.rotation.z | toFixed(2)}}"/>
+            r: <input type="number" step="0.1" value="{{selectedObject.rotation.x | toFixed(2)}}"/>
+            <input type="number" step="0.1" value="{{selectedObject.rotation.y | toFixed(2)}}"/>
+            <input type="number" step="0.1" value="{{selectedObject.rotation.z | toFixed(2)}}"/>
             &nbsp
-            s: <input type="number" value="{{selectedObject.scale.x | toFixed(2)}}"/>
-            <input type="number" value="{{selectedObject.scale.y | toFixed(2)}}"/>
-            <input type="number" value="{{selectedObject.scale.z | toFixed(2)}}"/>
+            s: <input type="number" step="0.1" value="{{selectedObject.scale.x | toFixed(2)}}"/>
+            <input type="number" step="0.1" value="{{selectedObject.scale.y | toFixed(2)}}"/>
+            <input type="number" step="0.1" value="{{selectedObject.scale.z | toFixed(2)}}"/>
           </div>
         </ui-base>  
       </template>
