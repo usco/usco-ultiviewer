@@ -1,0 +1,26 @@
+<link rel="import" href="components/polymer/polymer.html">
+
+<link rel="import" href="components/usco-command-manager/command-manager-base.html">
+
+<polymer-element name="history-ui" attributes="" extends="history-editor-base">
+  <template>
+    <section>
+         <!--TODO: dropdown-->
+         <tooltip-shadow-button label="undo" icon="undo" disabled?="{{undos.length===0}}"
+         style="position: absolute;left: 200px; top: 0px;"
+         on-tap="{{undo}}"> 
+         </tooltip-shadow-button>
+         
+         <tooltip-shadow-button label="redo" icon="redo" disabled?="{{redos.length===0}}"
+         style="position: absolute;left: 240px; top: 0px;"
+         on-tap="{{redo}}"> 
+         </tooltip-shadow-button>
+    </section> 
+  </template>
+<script>
+Polymer("history-ui",{
+
+});
+</script>
+</polymer-element>
+
