@@ -101,6 +101,9 @@ General guidelines:
  - avoid "hickups" and blocks : save and reload all the application state
  that includes last used design, tools etc : if you reload the app it should
  be in the same state you left it
+ 
+ - given how anoying it can be to "visualize" the offsets from center etc in openscad,
+ displaying the x/y plane offset arrows on the workplane could be usefull
 
 Supported drag & drop sources:
 - urls
@@ -116,6 +119,14 @@ Editing
 - left click on object : select 
 - shift + click : multiple select
 - ctrl + d : duplicate object
+
+- material/color picker
+- put on plane (arbitrary , or base on selection)
+- align
+- mirror
+- multiple selection
+
+
 
 Licence
 =======
