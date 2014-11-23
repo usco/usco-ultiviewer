@@ -10,6 +10,9 @@
 <link rel="import" href="components/core-icons/core-icons.html">
 <link rel="import" href="components/core-icons/social-icons.html">
 <link rel="import" href="components/core-icons/av-icons.html">
+<link rel="import" href="components/core-icons/image-icons.html">
+<link rel="import" href="components/core-icons/editor-icons.html">
+
 <link rel="import" href="components/core-collapse/core-collapse.html">
 <link rel="import" href="components/core-selector/core-selector.html">
 <link rel="import" href="components/core-tooltip/core-tooltip.html">
@@ -33,7 +36,7 @@
   </polymer-element>
 
 
-<polymer-element name="ui-base" on-mouseover="{{onMouseOver}}" on-mouseleave="{{onMouseLeave}}">
+<polymer-element name="ui-base" attributes="disabled" on-mouseover="{{onMouseOver}}" on-mouseleave="{{onMouseLeave}}">
   <template>
     <paper-shadow z="0" animated id="shadow">
       <shadow></shadow>
@@ -43,12 +46,47 @@
 <script>
 Polymer("ui-base",{
   onMouseOver:function(){
-    this.$.shadow.setZ(3);
+    if(!this.disabled) this.$.shadow.setZ(3);
   },
    onMouseLeave:function(){
-    this.$.shadow.setZ(0);
+    if(!this.disabled) this.$.shadow.setZ(0);
   },
 });
 </script>
 </polymer-element>
+
+
+<!--TODO: refactor, see paper-button -->
+<polymer-element name="tooltip-shadow-button" attributes="label icon disabled">
+  <template>
+    <ui-base disabled="{{disabled}}">
+      <core-tooltip label="{{label}}" position="bottom">  
+         <paper-icon-button icon="{{icon}}" noink disabled="{{disabled}}"></paper-icon-button>
+      </core-tooltip>
+     </ui-base>  
+  </template>
+  <script>
+  Polymer("tooltip-shadow-button",{
+    //disabled: {value: false, reflect: true},
+    disabled:false,
+    /*mixinObserve: {
+      disabled: '_disabledChanged'
+    },*/
+    
+    disabledChanged: function() {
+      if (this.disabled) {
+        this.style.pointerEvents = 'none';
+        this.removeAttribute('tabindex');
+        this.setAttribute('aria-disabled', '');
+      } else {
+        this.style.pointerEvents = '';
+        this.setAttribute('tabindex', 0);
+        this.removeAttribute('aria-disabled');
+      }
+    },
+  });
+  </script>
+</polymer-element>
+
+
 
