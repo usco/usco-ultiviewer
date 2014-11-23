@@ -1,6 +1,6 @@
 <link rel="import" href="components/polymer/polymer.html">
 
-<polymer-element name="transforms-ui" mode="translate">
+<polymer-element name="transforms-ui" attributes="mode controls">
   <template>
     <section>
       <core-selector selected="{{mode}}" valueattr="value">
@@ -19,6 +19,40 @@
               <paper-icon-button icon="av:shuffle" noink></paper-icon-button>
           </core-tooltip>
          </ui-base>  
+         
+         <!--TODO: dropdown-->
+         <ui-base value="mirror" style="position: absolute;left: 120px; top: 0px;">
+          <core-tooltip label="mirror" position="bottom">  
+               <paper-menu-button>
+                <paper-icon-button icon="image:compare" noink></paper-icon-button>
+                <paper-dropdown class="dropdown">
+                  <core-menu class="menu">
+                    <paper-item>X</paper-item>
+                    <paper-item>Y</paper-item>
+                    <paper-item>Z</paper-item>
+                  </core-menu>
+                </paper-dropdown>
+              </paper-menu-button>
+          </core-tooltip>
+         </ui-base>  
+         
+         <ui-base value="align" style="position: absolute;left: 160px; top: 0px;">
+          <core-tooltip label="align" position="bottom">  
+            <paper-menu-button>
+              <paper-icon-button icon="editor:vertical-align-center" noink></paper-icon-button>
+              <paper-dropdown class="dropdown">
+                <core-menu class="menu">
+                  <paper-item></paper-item>
+                </core-menu>
+              </paper-dropdown>
+            </paper-menu-button>
+          </core-tooltip>
+         </ui-base>
+         
+         
+         
+         
+         
        </core-selector>
     </section> 
   </template>
@@ -27,6 +61,9 @@ Polymer("transforms-ui",{
 
   modeChanged:function(){
     console.log("this.mode", this.mode);
+    if(["translate","rotate","scale"].indexOf(this.mode) > -1){
+      this.controls.setMode(this.mode);
+    }
   }
 });
 </script>
