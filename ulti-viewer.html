@@ -51,6 +51,7 @@
 <!--interactions-->
 <link rel="import" href="transforms-ui.html">
 <link rel="import" href="properties-ui.html">
+<link rel="import" href="history-ui.html">
 <script src="TransformControls.js"></script>
 
 
@@ -81,11 +82,10 @@ tabindex="0">
           </ul>
         </template>
       </div>-->
-      <transforms-ui id="transforms"> </transforms-ui>
+      <transforms-ui id="transforms" controls="{{transformControls}}"> </transforms-ui>
+      <history-ui id="history"> </history-ui>
       
-      <template if="{{selectedObject}}">
-        <properties-ui id="objProps" selectedObject="{{selectedObject}}"> </properties-ui>
-      </template>
+      <properties-ui id="objProps" selectedObject="{{selectedObject}}"> </properties-ui>
       
       <settings-ui id="options" autoRotate="{{autoRotate}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}"
       showControls="{{showControls}}" showAnnotations="{{showAnnotations}}"> </settings-ui>      

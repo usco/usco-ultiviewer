@@ -181,7 +181,7 @@ Polymer('ulti-viewer', {
       mesh.userData.part = {};
       mesh.userData.part.id = 0;
       mesh.castShadow = true;
-      mesh.receiveShadow = true;
+      //mesh.receiveShadow = true;
     }
     if( display ) return resourcePromise.then( this.addToScene.bind(this), onDisplayError ).then(afterAdded);
     
@@ -783,6 +783,7 @@ Polymer('ulti-viewer', {
     if(!this.selectedObject) return;
     
     var cloned = this.selectedObject.clone();
+    cloned.material = this.selectedObject.material.clone();
     
     this.addToScene( cloned, "main",{autoResize:false, autoCenter:false } );
   },
