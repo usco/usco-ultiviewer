@@ -16,6 +16,10 @@ orangeYellow:#ffd200;
     top:0px !important;
   } */
   
+/*fix for scrollbars*/
+ulti-viewer /deep/ core-menu {
+    overflow: hidden !important;
+}  
 
 /* all hovered paper-icon-buttons regardless of depth are getting this style*/
 /*ulti-viewer /deep/ paper-icon-button{
@@ -116,7 +120,7 @@ ulti-viewer::shadow #objProps /deep/ input[type="number"]{
   border: none;
   /* height: 0.5em; */
   line-height: 0.8em;
-  font-size: 0.7em;
+  font-size: 0.8em;
   font-family: inherit;
 }
 
@@ -129,7 +133,9 @@ height: 15px;
 }
 
 
-
+ulti-viewer::shadow #history{
+  position:absolute;top:5px;left:380px;z-index:15;
+}
 
 
 
