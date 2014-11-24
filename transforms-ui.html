@@ -4,37 +4,52 @@
   <template>
     <section>
       <core-selector selected="{{mode}}" valueattr="value">
-        <ui-base value="translate">
-          <core-tooltip label="translate" position="bottom">  
-              <paper-icon-button icon="open-with" noink></paper-icon-button>
-          </core-tooltip>
-         </ui-base>   
-         <ui-base value="rotate" style="position: absolute;left: 40px; top: 0px;">
-          <core-tooltip label="rotate" position="bottom">  
-              <paper-icon-button icon="rotation-3d" noink></paper-icon-button>
-          </core-tooltip>
-         </ui-base>  
-         <ui-base value="scale" style="position: absolute;left: 80px; top: 0px;">
-          <core-tooltip label="scale" position="bottom">  
-              <paper-icon-button icon="av:shuffle" noink></paper-icon-button>
-          </core-tooltip>
-         </ui-base>  
+         <tooltip-shadow-button label="translate" value="translate" icon="open-with" >
+         </tooltip-shadow-button>
+      
+         <tooltip-shadow-button label="rotate" value="rotate" icon="rotation-3d" 
+         style="position: absolute;left: 40px; top: 0px;">
+         </tooltip-shadow-button>
          
-         <!--TODO: dropdown-->
+         <tooltip-shadow-button label="scale" value="scale" icon="av:shuffle" 
+         style="position: absolute;left: 80px; top: 0px;">
+         </tooltip-shadow-button>
+         
+         <tooltip-dropdown-button label="mirror" value="mirror" icon="image:compare"
+         style="position: absolute;left: 120px; top: 0px;">
+            <paper-item>X</paper-item>
+            <paper-item>Y</paper-item>
+            <paper-item>Z</paper-item>
+         </tooltip-dropdown-button>
+         
+         <tooltip-dropdown-button label="align" value="align" icon="editor:vertical-align-center"
+         style="position: absolute;left: 160px; top: 0px;">
+            <paper-item>Vertical</paper-item>
+            <paper-item>Horizontal</paper-item>
+            <paper-item>Center Along x,y,z</paper-item>
+            <paper-item>Center x</paper-item>
+            <paper-item>Center y</paper-item>
+            <paper-item>Center z</paper-item>
+         </tooltip-dropdown-button>
+         
+         <!--
          <ui-base value="mirror" style="position: absolute;left: 120px; top: 0px;">
           <core-tooltip label="mirror" position="bottom">  
-               <paper-menu-button>
-                <paper-icon-button icon="image:compare" noink></paper-icon-button>
+                <x-trigger icon="image:compare" >
                 <paper-dropdown class="dropdown">
-                  <core-menu class="menu">
+                  <div class="menu"> 
                     <paper-item>X</paper-item>
                     <paper-item>Y</paper-item>
                     <paper-item>Z</paper-item>
-                  </core-menu>
+                  </div>
                 </paper-dropdown>
-              </paper-menu-button>
+              </x-trigger>
           </core-tooltip>
-         </ui-base>  
+         </ui-base>-->
+          <!--<paper-menu-button>
+                <paper-icon-button icon="image:compare" noink></paper-icon-button>
+         
+
          
          <ui-base value="align" style="position: absolute;left: 160px; top: 0px;">
           <core-tooltip label="align" position="bottom">  
@@ -42,12 +57,12 @@
               <paper-icon-button icon="editor:vertical-align-center" noink></paper-icon-button>
               <paper-dropdown class="dropdown">
                 <core-menu class="menu">
-                  <paper-item></paper-item>
+                  <paper-item>Vertical</paper-item>
                 </core-menu>
               </paper-dropdown>
             </paper-menu-button>
           </core-tooltip>
-         </ui-base>
+         </ui-base>-->
          
          
          

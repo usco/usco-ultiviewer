@@ -21,6 +21,12 @@ ulti-viewer /deep/ core-menu {
     overflow: hidden !important;
 }  
 
+ulti-viewer /deep/ paper-item {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
 /* all hovered paper-icon-buttons regardless of depth are getting this style*/
 /*ulti-viewer /deep/ paper-icon-button{
 vertical-align: middle;
@@ -30,6 +36,12 @@ ulti-viewer /deep/ ui-base.core-selected /deep/ paper-icon-button{
   background:  #ffd200;
   color:white;
 }
+
+ulti-viewer /deep/ tooltip-shadow-button.core-selected /deep/ paper-icon-button{
+  background:  #ffd200;
+  color:white;
+}
+
 
 ulti-viewer /deep/ paper-icon-button:hover{
   color:white;
@@ -76,6 +88,7 @@ ulti-viewer /deep/ x-trigger /deep/ paper-item.core-selected {
 }  
 
 
+
 ulti-viewer /deep/ x-trigger /deep/ paper-item::shadow .button-content{
       /*color:green;*/
       height: 20px;
@@ -84,7 +97,6 @@ ulti-viewer /deep/ x-trigger /deep/ paper-item::shadow .button-content{
 ulti-viewer /deep/ x-trigger /deep/ .open-below {
       top: 38px;
 }
-
 
     
 ulti-viewer /deep/ core-tooltip::shadow #tooltip {
