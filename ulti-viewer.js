@@ -778,6 +778,21 @@ Polymer('ulti-viewer', {
   },
   
   //interactions
+  measureDone:function(e,detail,sender){
+    var measurement = detail;
+    
+    for(key in measurement)
+    {
+      if(measurement[key] instanceof THREE.Vector3)
+      {
+        measurement[key] = measurement[key].toArray();
+      }
+    }
+    console.log("measure done", measurement);
+    
+    this.measurements.push( measurement );   
+     
+  },
   duplicateObject:function(){
     console.log("duplicating")
     if(!this.selectedObject) return;
