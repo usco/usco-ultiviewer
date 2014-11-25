@@ -95,6 +95,8 @@ Polymer('ulti-viewer', {
   
   //
   measureType: "",//FIXME: should this be here ?
+  partId: 0, //FIXME: HACK , because we do not yet have "parts" with ids, when imporint meshes
+  
   created: function()
   {
     this.resources = [];
@@ -175,12 +177,15 @@ Polymer('ulti-viewer', {
     }
     function onDisplayError(error){console.log("FAILED to display",error);};
     
-    //temporary hack for annotations
-    
+    //FIXME: temporary hack for annotations etc
+    var self = this;
     function afterAdded( mesh ){ 
+      console.log("here");
       mesh.userData.part = {};
-      mesh.userData.part.id = 0;
+      mesh.userData.part.id = self.partId;
       mesh.castShadow = true;
+      
+      self.partId +=1 ;
       //mesh.receiveShadow = true;
     }
     if( display ) return resourcePromise.then( this.addToScene.bind(this), onDisplayError ).then(afterAdded);
@@ -787,6 +792,11 @@ Polymer('ulti-viewer', {
       {
         measurement[key] = measurement[key].toArray();
       }
+      
+      if(measurement[key] instanceof THREE.Object3D)
+      {
+        measurement[key] = measurement[key].userData.part.id;
+      }
     }
     console.log("measure done", measurement);
     
@@ -822,8 +832,7 @@ Polymer('ulti-viewer', {
     if(!o) return "";
     return o.toFixed(precision);
   },
-  fooBar:function(e){
-    console.log("GNAAA F11");
+  handleFullScreen:function(e){
     this.fullScreen = true;
     return true
   }

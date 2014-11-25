@@ -83,7 +83,7 @@ tabindex="0">
           </ul>
         </template>
       </div>-->
-      <transforms-ui id="transforms" controls="{{transformControls}}"> </transforms-ui>
+      <transforms-ui id="transforms" controls="{{transformControls}}" selectedObject="{{selectedObject}}"> </transforms-ui>
       <history-ui id="history"> </history-ui>
       
       <properties-ui id="objProps" selectedObject="{{selectedObject}}"> </properties-ui>
@@ -211,7 +211,7 @@ tabindex="0">
       <core-a11y-keys  keys="r" on-keys-pressed="{{toRotateMode}}"></core-a11y-keys>
       <core-a11y-keys  keys="ctrl+d" on-keys-pressed="{{duplicateObject}}"></core-a11y-keys>
       <core-a11y-keys  keys="del" on-keys-pressed="{{deleteObject}}"></core-a11y-keys>
-      <core-a11y-keys  keys="F11" on-keys-pressed="{{fooBar}}"></core-a11y-keys>
+      <core-a11y-keys  keys="F11" on-keys-pressed="{{handleFullScreen}}"></core-a11y-keys>
       
   </template>
   <script src="ulti-viewer.js"></script>

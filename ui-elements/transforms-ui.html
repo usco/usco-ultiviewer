@@ -1,6 +1,6 @@
 <link rel="import" href="../components/polymer/polymer.html">
 
-<polymer-element name="transforms-ui" attributes="mode controls">
+<polymer-element name="transforms-ui" attributes="mode controls selectedObject">
   <template>
     <section>
       <core-selector selected="{{mode}}" valueattr="value">
@@ -18,9 +18,18 @@
          <tooltip-dropdown-button label="mirror" value="mirror" icon="image:compare"
          style="position: absolute;left: 120px; top: 0px;">
             <core-selector selected="{{mirrorAxis}}" valueattr="value">
-              <paper-item value="x">X</paper-item>
-              <paper-item value="y">Y</paper-item>
-              <paper-item value="z">Z</paper-item>
+              <paper-item value="x" 
+              on-tap="{{mirrorAlongX}}" on-mouseover="{{mirrorPreviewAlongX}}"
+              on-mouseleave="{{onMirrorMouseLeave}}"
+              >X</paper-item>
+              <paper-item value="y" 
+              on-tap="{{mirrorAlongY}}" on-mouseover="{{mirrorPreviewAlongY}}"
+              on-mouseleave="{{onMirrorMouseLeave}}"
+              >Y</paper-item>
+              <paper-item value="z" 
+              on-tap="{{mirrorAlongZ}}" on-mouseover="{{mirrorPreviewAlongZ}}"
+              on-mouseleave="{{onMirrorMouseLeave}}"
+              >Z</paper-item>
             </core-selector>
          </tooltip-dropdown-button>
          
@@ -75,12 +84,73 @@
   </template>
 <script>
 Polymer("transforms-ui",{
-
+  effectPreviewModel : null,
   modeChanged:function(){
     console.log("this.mode", this.mode);
     if(["translate","rotate","scale"].indexOf(this.mode) > -1){
       this.controls.setMode(this.mode);
     }
+  },
+  mirrorAlong:function(axis){
+    console.log("mirroring");
+    var mS = (new THREE.Matrix4()).identity();
+    //set -1 to the corresponding axis
+    if(axis === "x") mS.elements[0] = -1;
+    if(axis === "y") mS.elements[5] = -1;
+    if(axis === "z") mS.elements[10] = -1;
+    //mS.elements[5] = -1;
+    //mS.elements[10] = -1;
+
+    this.selectedObject.applyMatrix(mS);
+    //mesh.applyMatrix(mS);
+    //object.applyMatrix(mS);
+    
+    if(!this.effectPreviewModel) return;
+    this.selectedObject.parent.remove( this.effectPreviewModel );
+    this.effectPreviewModel = null;
+  },
+  mirrorAlongX:function(){
+    this.mirrorAlong("x");
+  },
+  mirrorAlongY:function(){
+    this.mirrorAlong("y");
+  },
+  mirrorAlongZ:function(){
+    this.mirrorAlong("z");
+  },
+  mirrorPreviewAlong:function(axis){
+    console.log("mirror preview");
+    this.effectPreviewModel = this.selectedObject.clone();
+    var mS = (new THREE.Matrix4()).identity();
+    //set -1 to the corresponding axis
+    if(axis === "x") mS.elements[0] = -1;
+    if(axis === "y") mS.elements[5] = -1;
+    if(axis === "z") mS.elements[10] = -1;
+    
+    this.effectPreviewModel.applyMatrix(mS);
+    
+    this.effectPreviewModel.material = this.selectedObject.material.clone();
+    this.effectPreviewModel.material.color.setHex(0xffd200);//#ffd200
+    this.effectPreviewModel.material.opacity = 0.5;
+    this.effectPreviewModel.material.transparent = true;
+    
+    this.effectPreviewModel.userData.selectable = false;
+    this.selectedObject.parent.add( this.effectPreviewModel );
+    
+  },
+  mirrorPreviewAlongX:function(){
+    this.mirrorPreviewAlong("x");
+  },
+  mirrorPreviewAlongY:function(){
+    this.mirrorPreviewAlong("y");
+  },
+  mirrorPreviewAlongY:function(){
+    this.mirrorPreviewAlong("z");
+  },
+  
+  onMirrorMouseLeave:function(){
+    this.selectedObject.parent.remove( this.effectPreviewModel );
+    this.effectPreviewModel = null;
   }
 });
 </script>
