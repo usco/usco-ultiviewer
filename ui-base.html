@@ -40,7 +40,7 @@
 <polymer-element name="ui-base" attributes="disabled" on-mouseover="{{onMouseOver}}" on-mouseleave="{{onMouseLeave}}">
   <template>
     <paper-shadow z="0" animated id="shadow">
-      <shadow></shadow>
+      <!--<shadow></shadow> FIXME: only works in chrome : broken polyfill?-->
       <content></content>
     </paper-shadow>
   </template>
@@ -95,12 +95,13 @@ Polymer("ui-base",{
 <polymer-element name="tooltip-dropdown-button" attributes="label icon disabled">
   <template>
     <ui-base disabled="{{disabled}}">
-      <core-tooltip label="{{label}}" position="bottom">  
+      <core-tooltip label="{{label}}" position="bottom"> 
+         <core-icon icon="expand-more" id="dropDownArrow"></core-icon>
          <x-trigger icon="{{icon}}" >
           <paper-dropdown class="open-below" halign="right">
             <div class="menu"> 
               <content></content>
-              <shadow></shadow>
+      <!--<shadow></shadow> FIXME: only works in chrome : broken polyfill?-->
             </div>
           </paper-dropdown>
          </x-trigger>

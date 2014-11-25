@@ -32,6 +32,7 @@ ulti-viewer /deep/ paper-item {
 vertical-align: middle;
 }*/
 
+/*custom ui elements*/
 ulti-viewer /deep/ ui-base.core-selected /deep/ paper-icon-button{
   background:  #ffd200;
   color:white;
@@ -42,6 +43,24 @@ ulti-viewer /deep/ tooltip-shadow-button.core-selected /deep/ paper-icon-button{
   color:white;
 }
 
+
+ulti-viewer /deep/ tooltip-dropdown-button.core-selected /deep/ x-trigger{
+  background:  #ffd200;
+  color:white;
+}
+
+ulti-viewer /deep/ tooltip-dropdown-button /deep/ #dropDownArrow{
+  color:#4ebcf6;
+  position:absolute;
+  bottom:-5px;
+  right:-6px;
+  z-index: 10;
+}
+
+
+
+
+/*other , styling for ui elements*/
 ulti-viewer /deep/ paper-icon-button:hover{
   color:white;
   background: #ffd200;
@@ -51,7 +70,7 @@ ulti-viewer /deep/ paper-item {
       color:black;
       font-size: 0.8em;
       font-weight: 400;
-      width:150px;
+      /*width:150px;*/
       height:40px;
 }  
 
@@ -59,6 +78,8 @@ ulti-viewer /deep/ paper-item::shadow .button-content{
       /*color:green;*/
       height: 20px;
 } 
+
+
 
 
 ulti-viewer /deep/ paper-checkbox::shadow #checkbox.checked {

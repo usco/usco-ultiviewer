@@ -3,10 +3,10 @@
 <polymer-element name="fullscreen-toggler" attributes="fullScreen"  on-click="toggleFullScreen">
   <template>
     <core-tooltip label="FullScreen" position="top">
-    <ui-base>
+      <ui-base>
         <paper-icon-button icon="{{ {'fullscreen': !fullScreen, 'fullscreen-exit': fullScreen} | tokenList}}" > 
         </paper-icon-button>
-    </ui-base>
+      </ui-base>
     <core-tooltip>
   </template>
 <script>
