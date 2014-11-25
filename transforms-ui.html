@@ -17,9 +17,11 @@
          
          <tooltip-dropdown-button label="mirror" value="mirror" icon="image:compare"
          style="position: absolute;left: 120px; top: 0px;">
-            <paper-item>X</paper-item>
-            <paper-item>Y</paper-item>
-            <paper-item>Z</paper-item>
+            <core-selector selected="{{mirrorAxis}}" valueattr="value">
+              <paper-item value="x">X</paper-item>
+              <paper-item value="y">Y</paper-item>
+              <paper-item value="z">Z</paper-item>
+            </core-selector>
          </tooltip-dropdown-button>
          
          <tooltip-dropdown-button label="align" value="align" icon="editor:vertical-align-center"

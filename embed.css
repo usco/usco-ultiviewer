@@ -42,11 +42,24 @@ ulti-viewer /deep/ tooltip-shadow-button.core-selected /deep/ paper-icon-button{
   color:white;
 }
 
-
 ulti-viewer /deep/ paper-icon-button:hover{
   color:white;
   background: #ffd200;
 }  
+
+ulti-viewer /deep/ paper-item {
+      color:black;
+      font-size: 0.8em;
+      font-weight: 400;
+      width:150px;
+      height:40px;
+}  
+
+ulti-viewer /deep/ paper-item::shadow .button-content{
+      /*color:green;*/
+      height: 20px;
+} 
+
 
 ulti-viewer /deep/ paper-checkbox::shadow #checkbox.checked {
   border-color: #ffd200;
