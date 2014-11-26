@@ -129,7 +129,7 @@ Polymer('ulti-viewer', {
     
     this.transformControls = new THREE.TransformControls(this.$.cam.object,this.$.perspectiveView);
     this.addToScene( this.transformControls, "helpers", {autoResize:false, autoCenter:false, persistent:true, select:false } );
-    
+    this.transformControls.enabled = false;
     
     this.threeJs.updatables.push( this.updateOverlays.bind(this) ); 
     /*//workaround/hack for some css issues:FIXME: is this still necessary??
@@ -565,7 +565,7 @@ Polymer('ulti-viewer', {
     this.zoomInOnObject( newSelection );
     if(newSelection)
     {
-      this.transformControls.attach( newSelection );
+      if(this.transformControls.enabled)  this.transformControls.attach( newSelection );
       if(this.showDimensions)
       {
         this.objDimensionsHelper.attach( newSelection );

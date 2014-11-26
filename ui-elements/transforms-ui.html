@@ -3,7 +3,7 @@
 <polymer-element name="transforms-ui" attributes="mode controls selectedObject">
   <template>
     <section>
-      <core-selector selected="{{mode}}" valueattr="value">
+      <core-selector selected="{{mode}}" valueattr="value" on-core-activate="{{controlActivated}}">
          <tooltip-shadow-button label="translate" value="translate" icon="open-with" >
          </tooltip-shadow-button>
       
@@ -85,12 +85,41 @@
 <script>
 Polymer("transforms-ui",{
   effectPreviewModel : null,
-  modeChanged:function(){
-    console.log("this.mode", this.mode);
-    if(["translate","rotate","scale"].indexOf(this.mode) > -1){
+  _prevMode:null,
+  
+  controlActivated:function(e, detail){
+    //this is used to toggle a specific control on/off
+    //FIXME: there must be a cleaner way to to this...
+    var nValue = detail.item.attributes[1].value;
+    //console.log("nValue",nValue, this.prevMode);
+    if( nValue === this._prevMode)
+    {
+      this.mode = "";
+    }else{
+      this._prevMode = nValue;
+    }
+  },
+  //attribute change callbacks
+  modeChanged:function(oldMode, newMode){
+    //console.log("this.mode", this.mode, oldMode, newMode);
+    this._prevMode = oldMode;
+    
+    var controlableModes = ["translate","rotate","scale"];
+    
+    if(this.mode === "" || controlableModes.indexOf(this.mode) === -1){
+      this.controls.detach(this.selectedObject );
+      this.controls.enabled = false;
+    }
+    else{ 
+      this.controls.enabled = true;
+      this.controls.attach(this.selectedObject ); 
+    }
+    
+    if(controlableModes.indexOf(this.mode) > -1){
       this.controls.setMode(this.mode);
     }
   },
+  //api
   mirrorAlong:function(axis){
     console.log("mirroring");
     var mS = (new THREE.Matrix4()).identity();

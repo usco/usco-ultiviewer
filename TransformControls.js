@@ -560,6 +560,8 @@
 		this.space = "world";
 		this.size = 1;
 		this.axis = null;
+		
+		this.enabled=true;
 
 		var scope = this;
 
@@ -627,7 +629,6 @@
 		domElement.addEventListener( "touchleave", onPointerUp, false );
 
 		this.attach = function ( object ) {
-
 			scope.object = object;
 
 			this.gizmo["translate"].hide();
@@ -640,7 +641,6 @@
 		};
 
 		this.detach = function ( object ) {
-
 			scope.object = undefined;
 			this.axis = null;
 
