@@ -373,7 +373,7 @@ Polymer('ulti-viewer', {
     this.$.dimensions.onPicked( e );
     var selection = this.$.dimensions.getSelection();
     
-    if(this.measureType == "note")
+    /*if(this.measureType == "note")
     {
       pickingDatas = e.detail.pickingInfos;
       if(pickingDatas.length == 0) return;
@@ -385,7 +385,7 @@ Polymer('ulti-viewer', {
       //FIXME: weird issue with rescaled models and worldToLocal
       console.log("localPosition",localPosition);
       this.annotations.push( {"partId":0 , "type":"point", "title":"Some stuff","text":"Interesting, really", "position":localPosition.toArray(), "author":"", "url":""} );
-    }
+    }*/
     if(this.measureType =="leaderLine")
     {
       console.log("leaderLineTest");
@@ -785,6 +785,7 @@ Polymer('ulti-viewer', {
   //interactions
   measureDone:function(e,detail,sender){
     var measurement = detail;
+    //FIXME , do this better
     
     for(key in measurement)
     {
@@ -795,12 +796,21 @@ Polymer('ulti-viewer', {
       
       if(measurement[key] instanceof THREE.Object3D)
       {
-        measurement[key] = measurement[key].userData.part.id;
+        measurement.partId = measurement[key].userData.part.id;
+        delete measurement[key];
+      }
+      
+      if(key === "point")
+      {
+        measurement["position"] = measurement[key];
+        delete measurement[key];
       }
     }
     console.log("measure done", measurement);
     
-    this.measurements.push( measurement );   
+    //this.measurements.push( measurement );
+    this.annotations.push( measurement );
+    //console.log(  this.measurements ); 
      
   },
   duplicateObject:function(){
