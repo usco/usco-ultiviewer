@@ -10,14 +10,10 @@
 <link rel="import" href="components/three-js-helpers/mirror-plane.html">
 <link rel="import" href="components/three-js-helpers/image-plane.html">
 <link rel="import" href="components/three-js-helpers/dimensions/dimension-helpers.html">
-<!--experimental-->
-<link rel="import" href="components/three-js-helpers/dimensions/distance-helper.html">
-<link rel="import" href="components/three-js-helpers/dimensions/thickness-helper.html">
-<link rel="import" href="components/three-js-helpers/dimensions/diameter-helper.html">
-<link rel="import" href="components/three-js-helpers/dimensions/angle-helper.html">
-<link rel="import" href="components/three-js-helpers/dimensions/note-helper.html">
-<link rel="import" href="components/three-js-helpers/dimensions/dimensions-helper-group.html">
+<!--experimental -->
+<link rel="import" href="components/three-js-helpers/dimensions/usco-annotations.html">
 
+<!--core elements-->
 <link rel="import" href="components/usco-client-deps/usco-client-deps.html">
 <link rel="import" href="components/usco-asset-manager/usco-asset-manager.html">
 
@@ -92,17 +88,10 @@ tabindex="0">
       <settings-ui id="options" autoRotate="{{autoRotate}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}"
       showControls="{{showControls}}" showAnnotations="{{showAnnotations}}"> </settings-ui>      
       <infos-ui    id="infos" > </infos-ui>
-      <measures-ui id="measures" measureType="{{measureType}}"> </measures-ui>
+      <measures-ui id="measures" measureType="{{activeAnnotationType}}"> </measures-ui>
       <fullscreen-toggler fullScreen="{{fullScreen}}"> </fullscreen-toggler>
       
       
-      
-      
-      <template if="{{ measureType=='measureDistance' }}">
-        <div style="position:absolute;bottom:20px;left:50%;z-index:15;background:white">
-          Distance between points {{ measuredDistance | toFixed(2) }}
-        </div>
-      </template>
       <template if="{{ measureType=='leaderLine' }}" id="leaderLineLabel">
         <div  style="position:absolute;right:20px;top:40%;z-index:30" >
           <span style="background: #ffd200;padding: 5px;"> some text </span>
@@ -123,14 +112,9 @@ tabindex="0">
       
       
       <!-- measurements system test -->
-      <dimensions-helper-group id="dimensions" selectedObject="{{selectedObject}}" 
-      selectedMeasurement="{{measureType}}" on-measure-done="{{measureDone}}"> 
-        <distance-helper  id="distHelper" selectedObject="{{selectedObject}}"> </distance-helper>
-        <thickness-helper id="thickHelper" selectedObject="{{selectedObject}}"> </thickness-helper>
-        <diameter-helper  id="diamHelper" selectedObject="{{selectedObject}}"> </diameter-helper>
-        <angle-helper     id="angleHelper" selectedObject="{{selectedObject}}"> </angle-helper>
-        <note-helper     id="noteHelper" selectedObject="{{selectedObject}}"> </note-helper>
-      </dimensions-helper-group>
+      <usco-annotations id="dimensions" selectedObject="{{selectedObject}}" 
+      activeType="{{activeAnnotationType}}" on-measure-done="{{measureDone}}">
+      </usco-annotations>
       
       <!-- anotation overlay test -->
       <template if="{{selectedObject && showAnnotations}}">

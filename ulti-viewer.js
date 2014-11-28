@@ -93,8 +93,6 @@ Polymer('ulti-viewer', {
   hierarchy   : null,
   bom         : null,
   
-  //
-  measureType: "",//FIXME: should this be here ?
   partId: 0, //FIXME: HACK , because we do not yet have "parts" with ids, when imporint meshes
   
   created: function()
@@ -373,7 +371,16 @@ Polymer('ulti-viewer', {
     this.$.dimensions.onPicked( e );
     var selection = this.$.dimensions.getSelection();
     
-    /*if(this.measureType == "note")
+    pickingDatas = e.detail.pickingInfos;
+    if(pickingDatas.length == 0 || !this.selectedObject) return;
+    
+    var object= pickingDatas[0].object;//closest point
+    
+    //FIXME: should this be here ?
+    if(this.activeAnnotationType ) return;
+    this.zoomInOnObject( object );
+    
+    /*if(this.activeAnnotationType == "note")
     {
       pickingDatas = e.detail.pickingInfos;
       if(pickingDatas.length == 0) return;
@@ -385,8 +392,8 @@ Polymer('ulti-viewer', {
       //FIXME: weird issue with rescaled models and worldToLocal
       console.log("localPosition",localPosition);
       this.annotations.push( {"partId":0 , "type":"point", "title":"Some stuff","text":"Interesting, really", "position":localPosition.toArray(), "author":"", "url":""} );
-    }*/
-    if(this.measureType =="leaderLine")
+    }
+    if(this.activeAnnotationType =="leaderLine")
     {
       console.log("leaderLineTest");
       pickingDatas = e.detail.pickingInfos;
@@ -407,7 +414,7 @@ Polymer('ulti-viewer', {
       return;
     }
     
-    return;
+    return;*/
     
     /*this.originalCursor = this.threeJs.style.cursor;
     this.threeJs.style.cursor = "crosshair";
@@ -427,7 +434,7 @@ Polymer('ulti-viewer', {
     this.addToScene( this.pickingHelpers, "helpers", {autoCenter:false,autoResize:false,select:false} );*/
     
     /*
-    else if(this.measureType == "addNote"){
+    else if(this.activeAnnotationType == "addNote"){
     }*/
     
   },
@@ -557,8 +564,8 @@ Polymer('ulti-viewer', {
       this.transformControls.detach( oldSelection );
     }
     
-    //FIXME: do this differently
-    if(this.measureType != "") return;
+    //FIXME: do this differently ?
+    if(this.activeAnnotationType ) return;
     
     //FIXME: keep the red outline ?
     //this.outlineObject( newSelection, oldSelection );
@@ -808,9 +815,9 @@ Polymer('ulti-viewer', {
     }
     console.log("measure done", measurement);
     
-    //this.measurements.push( measurement );
-    this.annotations.push( measurement );
-    //console.log(  this.measurements ); 
+    this.measurements.push( measurement );
+    //this.annotations.push( measurement );
+    console.log(  this.measurements ); 
      
   },
   duplicateObject:function(){

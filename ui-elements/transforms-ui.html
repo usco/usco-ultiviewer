@@ -121,7 +121,7 @@ Polymer("transforms-ui",{
   },
   //api
   mirrorAlong:function(axis){
-    console.log("mirroring");
+    //console.log("mirroring");
     var mS = (new THREE.Matrix4()).identity();
     //set -1 to the corresponding axis
     if(axis === "x") mS.elements[0] = -1;
@@ -148,7 +148,7 @@ Polymer("transforms-ui",{
     this.mirrorAlong("z");
   },
   mirrorPreviewAlong:function(axis){
-    console.log("mirror preview");
+    //console.log("mirror preview");
     this.effectPreviewModel = this.selectedObject.clone();
     var mS = (new THREE.Matrix4()).identity();
     //set -1 to the corresponding axis
@@ -173,7 +173,7 @@ Polymer("transforms-ui",{
   mirrorPreviewAlongY:function(){
     this.mirrorPreviewAlong("y");
   },
-  mirrorPreviewAlongY:function(){
+  mirrorPreviewAlongZ:function(){
     this.mirrorPreviewAlong("z");
   },
   
