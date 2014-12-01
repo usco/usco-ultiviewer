@@ -10,9 +10,9 @@
             <input type="number" step="0.1" value="{{selectedObject.position.y | toFixed(2)}}"/>
             <input type="number" step="0.1" value="{{selectedObject.position.z | toFixed(2)}}"/>
             &nbsp
-            r: <input type="number" step="0.1" value="{{selectedObject.rotation.x | toFixed(2)}}"/>
-            <input type="number" step="0.1" value="{{selectedObject.rotation.y | toFixed(2)}}"/>
-            <input type="number" step="0.1" value="{{selectedObject.rotation.z | toFixed(2)}}"/>
+            r: <input type="number" step="0.1" value="{{selectedObject.rotation.x | angleConvert | toFixed(2)}}"/>
+            <input type="number" step="0.1" value="{{selectedObject.rotation.y | angleConvert | toFixed(2)}}"/>
+            <input type="number" step="0.1" value="{{selectedObject.rotation.z | angleConvert | toFixed(2)}}"/>
             &nbsp
             s: <input type="number" step="0.1" value="{{selectedObject.scale.x | toFixed(2)}}"/>
             <input type="number" step="0.1" value="{{selectedObject.scale.y | toFixed(2)}}"/>
@@ -23,6 +23,7 @@
   </template>
 <script>
 Polymer("properties-ui",{
+  //filters
   toFixed:{
     toDOM: function(value, precision) {
       if(!value) return "0";
@@ -33,7 +34,17 @@ Polymer("properties-ui",{
     }
     
   },
-  //filters
+  
+  //convert between radians and degrees
+  angleConvert: {
+   toDOM: function(value, precision) {
+      if(!value) return 0;
+      return value*180/Math.PI;
+    },
+    toModel: function(value) {
+      return parseFloat( value )*Math.PI/180;
+    }
+  },
   colorConvert: {
     toDOM: function(value) {
       var hexValue = "#"+value.getHexString()
