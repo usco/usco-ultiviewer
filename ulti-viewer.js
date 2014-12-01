@@ -138,6 +138,9 @@ Polymer('ulti-viewer', {
       console.log("impl",this);
       this.$.perspectiveView.focus();
     },null,10);
+    
+    //TODO: this needs to be extracted
+    this.$.fooCtrl.init(this.$.fooCam.object, this.$.perspectiveView);
   },
   detached:function()
   {
@@ -181,8 +184,9 @@ Polymer('ulti-viewer', {
       console.log("here");
       mesh.userData.part = {};
       mesh.userData.part.id = self.partId;
-      mesh.castShadow = true;
+      mesh.userData.part.name = "Part"+self.partId;
       
+      mesh.castShadow = true;
       self.partId +=1 ;
       //mesh.receiveShadow = true;
     }
@@ -366,10 +370,10 @@ Polymer('ulti-viewer', {
       how to handle event binding ?
       perhaps better to use pub/sub ?
     */
-    //console.log("object selected", e.detail.pickingInfos);
+    console.log("object picked", e);
     
-    this.$.dimensions.onPicked( e );
-    var selection = this.$.dimensions.getSelection();
+    this.$.annotations.onPicked( e );
+    var selection = this.$.annotations.getSelection();
     
     pickingDatas = e.detail.pickingInfos;
     if(pickingDatas.length == 0 || !this.selectedObject) return;

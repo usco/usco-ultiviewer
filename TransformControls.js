@@ -541,6 +541,7 @@
 		THREE.Object3D.call( this );
 
 		domElement = ( domElement !== undefined ) ? domElement : document;
+		console.log("attaching TransformControls to",domElement);
 
 		this.gizmo = {};
 		this.gizmo["translate"] = new THREE.TransformGizmoTranslate();
@@ -717,7 +718,7 @@
 		};
 
 		function onPointerHover( event ) {
-
+          //  console.log("pointer move in Transform controls");
 			if ( scope.object === undefined || _dragging === true ) return;
 
 			event.preventDefault();
@@ -745,7 +746,7 @@
 		}
 
 		function onPointerDown( event ) {
-
+            console.log("pointer down in Transform controls");
 			if ( scope.object === undefined || _dragging === true ) return;
 
 			event.preventDefault();
@@ -960,10 +961,13 @@
 		}
 
 		function onPointerUp( event ) {
-
+      console.log("pointer up in transform controls");
 			if ( _dragging && ( scope.axis !== null ) ) {
 				mouseUpEvent.mode = _mode;
 				scope.dispatchEvent( mouseUpEvent )
+				event.preventDefault();
+			  event.stopPropagation();
+			  event.stopImmediatePropagation();
 			}
 			_dragging = false;
 			onPointerHover( event );

@@ -56,7 +56,7 @@
 
 <polymer-element name="ulti-viewer" attributes="showAxis showIndicators"
 on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragover="{{handleDragOver}}" on-drop="{{handleDrop}}" 
-tabindex="0">
+tabindex="0" >
     <template>
       <link rel="stylesheet" type="text/css" href="ulti-viewer.css">
       <!--controls overlay-->
@@ -112,7 +112,7 @@ tabindex="0">
       
       
       <!-- measurements system test -->
-      <usco-annotations id="dimensions" selectedObject="{{selectedObject}}" 
+      <usco-annotations id="annotations" selectedObject="{{selectedObject}}" 
       activeType="{{activeAnnotationType}}" on-measure-done="{{measureDone}}">
       </usco-annotations>
       
@@ -160,9 +160,24 @@ tabindex="0">
           </three-js-scene>
           
           
-          <three-js-viewport name="perspective" id="perspectiveView" class="perspectiveView">
-            <three-js-combinedCamera id="cam" pos=[100,50,200] defaultPos=[100,50,200] orientation="{{camOrientation}}" up=[0,0,1]></three-js-combinedCamera>
+          <three-js-viewport name="perspective" id="perspectiveView" class="perspectiveView"
+          exScenes="naviScene">
+            <three-js-combinedCamera id="cam" pos=[100,50,200] defaultPos=[100,50,200] orientation="{{camOrientation}}" up=[0,0,1]></three-js-combinedCamera >
             <three-js-orbitControls id="camCtrl" cameraUp=[0,0,1] autoRotate="{{autoRotate && (!selectedObject || selectRotate)}}" autoRotateSpeed=2 panSpeed=1.5> </three-js-orbitControls>
+          </three-js-viewport>
+          
+          <!--overlay viewport thingy & scene-->
+          <three-js-scene name="naviScene" active>
+            <axis-helper up=[0,0,1] size=20> </axis-helper>
+          </three-js-scene>
+          
+          <three-js-viewport name="navi" id="naviView" class="naviView" 
+          scenes="naviScene"
+          >
+            <three-js-combinedCamera id="fooCam" pos=[33.33,16.66,66.66] defaultPos=[100,50,200] orientation="{{camOrientation}}" up=[0,0,1]
+              ortho
+            ></three-js-combinedCamera>
+            <three-js-orbitControls id="fooCtrl" cameraUp=[0,0,1] autoRotate="{{autoRotate && (!selectedObject || selectRotate)}}" autoRotateSpeed=2 panSpeed=0 zoomSpeed=0> </three-js-orbitControls>
           </three-js-viewport>
         </three-js>
      
