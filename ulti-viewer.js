@@ -119,7 +119,6 @@ Polymer('ulti-viewer', {
     if (this.msRequestFullScreen) document.addEventListener("msfullscreenchange", this.onFullScreenChange.bind(this), false);
     if (this.webkitRequestFullScreen) document.addEventListener("webkitfullscreenchange", this.onFullScreenChange.bind(this), false);
     
-    console.log("fullscreenstuff", this.requestFullscreen, this.webkitRequestFullScreen);
      //add the selection helper
     //dimensions display helper
     this.objDimensionsHelper = new ObjectDimensionsHelper({textBgColor:"#ffd200"});
@@ -132,7 +131,6 @@ Polymer('ulti-viewer', {
     this.camViewControls = new CamViewControls(20, 4, [this.$.fooCam]);//[this.$.cam,
     this.camViewControls.init( this.$.fooCam.object, this.$.naviView );
     this.addToScene( this.camViewControls, "naviScene", {autoResize:false, autoCenter:false, persistent:true, select:false } );
-    
     this.$.fooCtrl.init(this.$.fooCam.object, this.$.perspectiveView);
     
     this.threeJs.updatables.push( this.updateOverlays.bind(this) ); 
