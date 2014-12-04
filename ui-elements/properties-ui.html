@@ -23,7 +23,9 @@
   </template>
 <script>
 Polymer("properties-ui",{
+  degreeAngles:true,
   //filters
+  //round to 2 decimals
   toFixed:{
     toDOM: function(value, precision) {
       if(!value) return "0";
@@ -32,21 +34,23 @@ Polymer("properties-ui",{
     toModel: function(value) {
       return parseFloat( value );
     }
-    
   },
-  
   //convert between radians and degrees
   angleConvert: {
    toDOM: function(value, precision) {
       if(!value) return 0;
-      return value*180/Math.PI;
+      if(this.degreeAngles) return value*180/Math.PI;
+      return value;
     },
     toModel: function(value) {
-      return parseFloat( value )*Math.PI/180;
+      if(this.degreeAngles) return parseFloat( value )*Math.PI/180;
+      return value;
     }
   },
+  //convert between html hex color and three.js color
   colorConvert: {
     toDOM: function(value) {
+      if(!value) return "#ffffff";
       var hexValue = "#"+value.getHexString()
       return hexValue;
     },
