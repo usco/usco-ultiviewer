@@ -7,7 +7,17 @@ ulti-viewer /deep/ #naviView{
   bottom:10px;
   width:150px;
   height:150px;
-  z-index: 9;
+  z-index: 11;
+  -webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	
+	/*pointer-events: none;*/
+	
+	background:white; opacity:0; filter:Alpha(opacity=0);
 }
 
 /*
@@ -203,6 +213,11 @@ ulti-viewer /deep/ dimensions-helper-group /deep/ distance-helper{
 ulti-viewer /deep/ dimensions-helper-group /deep/ diameter-helper{
   color:#000;
   background-color:blue;
+}
+
+ulti-viewer /deep/ three-js{
+
+  cursor:default;
 }
 
 /*overlay notes styling*/

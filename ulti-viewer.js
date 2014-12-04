@@ -129,18 +129,18 @@ Polymer('ulti-viewer', {
     this.addToScene( this.transformControls, "helpers", {autoResize:false, autoCenter:false, persistent:true, select:false } );
     this.transformControls.enabled = false;
     
+    this.camViewControls = new CamViewControls(20, 4, [this.$.fooCam]);//[this.$.cam,
+    this.camViewControls.init( this.$.fooCam.object, this.$.naviView );
+    this.addToScene( this.camViewControls, "naviScene", {autoResize:false, autoCenter:false, persistent:true, select:false } );
+    
+    this.$.fooCtrl.init(this.$.fooCam.object, this.$.perspectiveView);
+    
     this.threeJs.updatables.push( this.updateOverlays.bind(this) ); 
-    /*//workaround/hack for some css issues:FIXME: is this still necessary??
-    try{
-    $('<style></style>').appendTo($(document.body)).remove();
-    }catch(error){}*/
+    
     this.async(function(){
       console.log("impl",this);
       this.$.perspectiveView.focus();
     },null,10);
-    
-    //TODO: this needs to be extracted
-    this.$.fooCtrl.init(this.$.fooCam.object, this.$.perspectiveView);
   },
   detached:function()
   {

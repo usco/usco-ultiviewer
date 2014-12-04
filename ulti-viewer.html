@@ -10,7 +10,10 @@
 <link rel="import" href="components/three-js-helpers/mirror-plane.html">
 <link rel="import" href="components/three-js-helpers/image-plane.html">
 <link rel="import" href="components/three-js-helpers/dimensions/dimension-helpers.html">
-<!--experimental -->
+
+<link rel="import" href="components/three-js-helpers/camview-helper.html">
+
+<!--experimental, annotations -->
 <link rel="import" href="components/three-js-helpers/dimensions/usco-annotations.html">
 
 <!--core elements-->
@@ -168,14 +171,17 @@ tabindex="0" >
           
           <!--overlay viewport thingy & scene-->
           <three-js-scene name="naviScene" active>
-            <axis-helper up=[0,0,1] size=20> </axis-helper>
+            <camview-helper up=[0,0,1] size=15> </camview-helper>
+            <three-pointLight color="0xffffff" intensity=0.8 pos=[50, 75, 100]> </three-pointLight>
+            <three-hemisphereLight color="0xffffEE" gndColor="0xffffEE" pos="[0, 1200, 1500]" intensity=0.6></three-hemisphereLight>
           </three-js-scene>
           
           <three-js-viewport name="navi" id="naviView" class="naviView" 
-          scenes="naviScene"
+          scenes="naviScene" 
           >
+          <!--controlsId="camCtrl"-->
             <three-js-combinedCamera id="fooCam" pos=[33.33,16.66,66.66] defaultPos=[100,50,200] orientation="{{camOrientation}}" up=[0,0,1]
-              ortho
+              ortho 
             ></three-js-combinedCamera>
             <three-js-orbitControls id="fooCtrl" cameraUp=[0,0,1] autoRotate="{{autoRotate && (!selectedObject || selectRotate)}}" autoRotateSpeed=2 panSpeed=0 zoomSpeed=0> </three-js-orbitControls>
           </three-js-viewport>

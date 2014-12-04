@@ -623,11 +623,11 @@
 		domElement.addEventListener( "mousemove", onPointerMove, false );
 		domElement.addEventListener( "touchmove", onPointerMove, false );
 
-		domElement.addEventListener( "mouseup", onPointerUp, false );
-		domElement.addEventListener( "mouseout", onPointerUp, false );
-		domElement.addEventListener( "touchend", onPointerUp, false );
-		domElement.addEventListener( "touchcancel", onPointerUp, false );
-		domElement.addEventListener( "touchleave", onPointerUp, false );
+		domElement.addEventListener( "mouseup", onPointerUp, true );
+		domElement.addEventListener( "mouseout", onPointerUp, true );
+		domElement.addEventListener( "touchend", onPointerUp, true );
+		domElement.addEventListener( "touchcancel", onPointerUp, true );
+		domElement.addEventListener( "touchleave", onPointerUp, true );
 
 		this.attach = function ( object ) {
 			scope.object = object;
@@ -961,7 +961,7 @@
 		}
 
 		function onPointerUp( event ) {
-      console.log("pointer up in transform controls");
+      //console.log("pointer up in transform controls");
 			if ( _dragging && ( scope.axis !== null ) ) {
 				mouseUpEvent.mode = _mode;
 				scope.dispatchEvent( mouseUpEvent )
