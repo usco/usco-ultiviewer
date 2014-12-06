@@ -166,7 +166,7 @@ ulti-viewer::shadow #options{
 }    
 
 ulti-viewer::shadow #measures{
-  position:absolute;top:5px;right:180px;z-index:15; /*100px*/
+  position:absolute;top:5px;right:300px;z-index:15; /*100px*/
 }
 
 ulti-viewer::shadow #transforms{

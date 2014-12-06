@@ -128,7 +128,11 @@ Polymer('ulti-viewer', {
     this.addToScene( this.transformControls, "helpers", {autoResize:false, autoCenter:false, persistent:true, select:false } );
     this.transformControls.enabled = false;
     
-    this.camViewControls = new CamViewControls(20, 4, [this.$.fooCam]);//[this.$.cam,
+    this.camViewControls = new CamViewControls({size:8, cornerWidth:1,
+      //planesColor:"#17a9f5",edgesColor:"#17a9f5",cornersColor:"#17a9f5",
+      highlightColor:"#ffd200",
+      opacity:0.95},
+       [this.$.fooCam]);//[this.$.cam,
     this.camViewControls.init( this.$.fooCam.object, this.$.naviView );
     this.addToScene( this.camViewControls, "naviScene", {autoResize:false, autoCenter:false, persistent:true, select:false } );
     this.$.fooCtrl.init(this.$.fooCam.object, this.$.perspectiveView);
@@ -587,6 +591,9 @@ Polymer('ulti-viewer', {
   //important data structure change watchers, not sure this should be here either
   annotationsChanged:function(){
     console.log("annotationschanged", this.annotations);
+  },
+  activeAnnotationTypeChanged:function(){
+        console.log("activeAnnotationType", this.annotations);
   },
   
   

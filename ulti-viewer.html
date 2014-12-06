@@ -40,7 +40,7 @@
 
 <link rel="import" href="ui-elements/ui-base.html">
 <link rel="import" href="ui-elements/settings-ui.html">
-<link rel="import" href="ui-elements/measures-ui.html">
+<link rel="import" href="ui-elements/measures-ui2.html">
 <link rel="import" href="ui-elements/infos-ui.html">
 <link rel="import" href="ui-elements/fullscreen-toggler2.html">
 <link rel="import" href="overlay-note.html">
@@ -83,36 +83,17 @@ tabindex="0" >
           </ul>
         </template>
       </div>-->
-      <transforms-ui id="transforms" controls="{{transformControls}}" selectedObject="{{selectedObject}}"> </transforms-ui>
-      <history-ui id="history"> </history-ui>
       
       <properties-ui id="objProps" selectedObject="{{selectedObject}}"> </properties-ui>
       
       <settings-ui id="options" autoRotate="{{autoRotate}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}"
       showControls="{{showControls}}" showAnnotations="{{showAnnotations}}"> </settings-ui>      
       <infos-ui    id="infos" > </infos-ui>
-      <measures-ui id="measures" measureType="{{activeAnnotationType}}"> </measures-ui>
       <fullscreen-toggler fullScreen="{{fullScreen}}"> </fullscreen-toggler>
       
-      
-      <template if="{{ measureType=='leaderLine' }}" id="leaderLineLabel">
-        <div  style="position:absolute;right:20px;top:40%;z-index:30" >
-          <span style="background: #ffd200;padding: 5px;"> some text </span>
-        </div>
-      </template>
-      <!--<template if="{{ mode=='addNote' }}">
-        <div style="position:absolute;bottom:20px;left:50%;z-index:15;background:white">
-          <h1>Add Note:</h1>
-          <div>
-            <input type="text" placeholder="Title"></input>
-          </div>
-          <div>
-            <input type="text" placeholder="Note"></input>
-          </div>
-           
-        </div>
-      </template>-->
-      
+      <transforms-ui id="transforms" controls="{{transformControls}}" selectedObject="{{selectedObject}}"> </transforms-ui>
+      <measures-ui id="measures" measureType="{{activeAnnotationType}}"> </measures-ui>
+      <history-ui id="history"> </history-ui>
       
       <!-- measurements system test -->
       <usco-annotations id="annotations" selectedObject="{{selectedObject}}" 
@@ -165,7 +146,7 @@ tabindex="0" >
           
           <three-js-viewport name="perspective" id="perspectiveView" class="perspectiveView"
           exScenes="naviScene">
-            <three-js-combinedCamera id="cam" pos=[100,50,200] defaultPos=[100,50,200] orientation="{{camOrientation}}" up=[0,0,1]></three-js-combinedCamera >
+            <three-js-combinedCamera id="cam" pos=[100,-100,100] defaultPos=[-100,-50,200] orientation="{{camOrientation}}" up=[0,0,1]></three-js-combinedCamera >
             <three-js-orbitControls id="camCtrl" cameraUp=[0,0,1] autoRotate="{{autoRotate && (!selectedObject || selectRotate)}}" autoRotateSpeed=2 panSpeed=1.5> </three-js-orbitControls>
           </three-js-viewport>
           
@@ -180,7 +161,7 @@ tabindex="0" >
           scenes="naviScene" pickable=false
           >
           <!--controlsId="camCtrl"-->
-            <three-js-combinedCamera id="fooCam" pos=[33.33,16.66,66.66] defaultPos=[100,50,200] orientation="{{camOrientation}}" up=[0,0,1]
+            <three-js-combinedCamera id="fooCam" pos=[33.33,-33.33,33.33] defaultPos=[100,50,200] orientation="{{camOrientation}}" up=[0,0,1]
               ortho 
             ></three-js-combinedCamera>
             <three-js-orbitControls id="fooCtrl" cameraUp=[0,0,1] autoRotate="{{autoRotate && (!selectedObject || selectRotate)}}" autoRotateSpeed=2 panSpeed=0 zoomSpeed=0> </three-js-orbitControls>
