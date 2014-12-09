@@ -2,7 +2,7 @@
 
 <polymer-element name="measures-ui" attributes="measureType">
   <template>
-     <core-selector selected="{{measureType}}" valueattr="value">
+     <core-selector selected="{{measureType}}" valueattr="value" on-core-activate="{{controlActivated}}">
          <tooltip-shadow-button label="distance" value="distance" icon="settings-ethernet" >
          </tooltip-shadow-button>
       
@@ -23,7 +23,7 @@
          </tooltip-shadow-button>
      </core-selector>
   </template>
-  <!-- on-core-activate="{{controlActivated}}"
+  <!-- 
     <ui-base>
     <core-tooltip label="Measures" position="bottom">
       <x-trigger icon="settings-ethernet" >
@@ -63,6 +63,25 @@
   </template>-->
 <script>
 Polymer("measures-ui",{
+  measureType:null,
+  _prevMode:null,
+  controlActivated:function(e, detail){
+    //this is used to toggle a specific control on/off
+    //FIXME: there must be a cleaner way to to this...
+    var nValue = detail.item.attributes[1].value;
+    //console.log("nValue",nValue, this._prevMode);
+    if( nValue === this._prevMode)
+    {
+      this.measureType = null;
+    }else{
+      this._prevMode = nValue;
+    }
+  },
+  //attribute change callbacks
+  measureTypeChanged:function(oldMode, newMode){
+    //console.log("this.mode", this.measureType, oldMode, newMode);
+    this._prevMode = oldMode;
+  },
 });
 </script>
 </polymer-element>
