@@ -128,7 +128,7 @@ Polymer('ulti-viewer', {
     this.addToScene( this.transformControls, "helpers", {autoResize:false, autoCenter:false, persistent:true, select:false } );
     this.transformControls.enabled = false;
     
-    this.camViewControls = new CamViewControls({size:8, cornerWidth:1,
+    this.camViewControls = new CamViewControls({size:9, cornerWidth:1.5,
       //planesColor:"#17a9f5",edgesColor:"#17a9f5",cornersColor:"#17a9f5",
       highlightColor:"#ffd200",
       opacity:0.95},
@@ -472,6 +472,7 @@ Polymer('ulti-viewer', {
   },
   autoRotateChanged:function()
   {
+    console.log("autoRotateChanged",this.autoRotate);
     var controls = this.$.camCtrl;
     if(this.autoRotate == false ) return;
     
@@ -595,8 +596,10 @@ Polymer('ulti-viewer', {
   activeAnnotationTypeChanged:function(){
         console.log("activeAnnotationType", this.annotations);
   },
+  toolCategoryChanged:function(){
+    console.log("toolCategoryChanged", this.toolCategory);
   
-  
+  },
   //helpers
   //FIXME: this is a "helper"/transform/whatever 
   //just like centering , resizing etc... food for thought/
@@ -799,35 +802,74 @@ Polymer('ulti-viewer', {
   },
   
   //interactions
-  measureDone:function(e,detail,sender){
-    var measurement = detail;
-    //FIXME , do this better
+  annotationDone:function(e,detail,sender){
+    var annotation = detail;
+    console.log("annotation raw", annotation);
     
-    for(key in measurement)
+    var annotationHelper = null;
+    switch(annotation.type)
     {
-      if(measurement[key] instanceof THREE.Vector3)
+      case "distance":
+        /*var annotationHelper = new DistanceHelper({arrowColor:0x000000,
+          textBgColor:"#ffd200",
+          start:annotation.start, end:annotation.end,
+          startObject:annotation.startObject,
+          endObject:annotation.endObject
+          });
+        console.log("annotation.startObject",annotation.startObject);*/
+        //annotation.startObject.add( annotationHelper );
+        //annotationHelper.set( {start:annotationHelper.start, end:annotationHelper.end} );
+        
+        //this.addToScene( annotationHelper, "helpers", {autoResize:false, autoCenter:false, persistent:false, select:false } );
+      break;
+      case "thickness":
+        var annotationHelper = new ThicknessHelper({arrowColor:0x000000,
+          textBgColor:"#ffd200",
+          thickness:annotation.value, point:annotation.point,
+          normal: annotation.normal});
+        
+        annotation.object.add( annotationHelper );
+        //this.addToScene( annotationHelper, "helpers", {autoResize:false, autoCenter:false, persistent:false, select:false } );
+      break;
+      case "diameter":
+        var annotationHelper = new DiameterHelper({arrowColor:0x000000,
+          textBgColor:"#ffd200",
+          diameter:annotation.value, orientation:annotation.orientation,
+          center:annotation.center});
+          
+          annotationHelper.position.sub( annotation.object.position );
+          annotation.object.add( annotationHelper );
+      break;
+
+    }
+    if(annotationHelper) {
+      //this.addToScene( annotationHelper, "helpers", {autoResize:false, autoCenter:false, persistent:false, select:false } );
+    }
+    
+    
+    //add annotationData to storage
+    //FIXME , do this better
+    for(key in annotation)
+    {
+      if(annotation[key] instanceof THREE.Vector3)
       {
-        measurement[key] = measurement[key].toArray();
+        annotation[key] = annotation[key].toArray();
       }
       
-      if(measurement[key] instanceof THREE.Object3D)
+      if(annotation[key] instanceof THREE.Object3D)
       {
-        measurement.partId = measurement[key].userData.part.id;
-        delete measurement[key];
+        annotation.partId = annotation[key].userData.part.id;
+        delete annotation[key];
       }
       
       if(key === "point")
       {
-        measurement["position"] = measurement[key];
-        delete measurement[key];
+        annotation["position"] = annotation[key];
+        delete annotation[key];
       }
     }
-    console.log("measure done", measurement);
-    
-    this.measurements.push( measurement );
-    //this.annotations.push( measurement );
-    console.log(  this.measurements ); 
-     
+    console.log("annotation done", annotation);
+    this.annotations.push( annotation );
   },
   duplicateObject:function(){
     console.log("duplicating")

@@ -91,19 +91,21 @@ tabindex="0" >
       <infos-ui    id="infos" > </infos-ui>
       <fullscreen-toggler fullScreen="{{fullScreen}}"> </fullscreen-toggler>
       
-      <transforms-ui id="transforms" controls="{{transformControls}}" selectedObject="{{selectedObject}}"> </transforms-ui>
-      <measures-ui id="measures" measureType="{{activeAnnotationType}}"> </measures-ui>
+      <core-selector valueattr="value" selectedItem="{{toolCategory}}">
+        <transforms-ui id="transforms" value="transforms" controls="{{transformControls}}" selectedObject="{{selectedObject}}"> </transforms-ui>
+        <measures-ui id="measures" value="annotations" measureType="{{activeAnnotationType}}"> </measures-ui>
+      </core-selector>
       <history-ui id="history"> </history-ui>
       
       <!-- measurements system test -->
       <usco-annotations id="annotations" selectedObject="{{selectedObject}}" 
-      activeType="{{activeAnnotationType}}" on-measure-done="{{measureDone}}">
+      activeType="{{activeAnnotationType}}" on-annotation-done="{{annotationDone}}">
       </usco-annotations>
       
       <!-- anotation overlay test -->
       <template if="{{selectedObject && showAnnotations}}">
         <template repeat="{{annotation,i in annotations}}">
-          <template if="{{selectedObject.userData.part.id == annotation.partId}}">
+          <template if="{{selectedObject.userData.part.id == annotation.partId && annotation.type==='note'}}">
             <overlay-note number="{{i}}" note="{{annotation}}"> </overlay-note>
            </template>
         </template>
