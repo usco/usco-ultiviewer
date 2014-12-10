@@ -143,6 +143,9 @@ Polymer('ulti-viewer', {
       console.log("impl",this);
       this.$.perspectiveView.focus();
     },null,10);
+    
+    //fetch any parameters passed to viewer via url
+    this.getUrlParams();
   },
   detached:function()
   {
@@ -472,7 +475,6 @@ Polymer('ulti-viewer', {
   },
   autoRotateChanged:function()
   {
-    console.log("autoRotateChanged",this.autoRotate);
     var controls = this.$.camCtrl;
     if(this.autoRotate == false ) return;
     
@@ -810,26 +812,31 @@ Polymer('ulti-viewer', {
     switch(annotation.type)
     {
       case "distance":
-        /*var annotationHelper = new DistanceHelper({arrowColor:0x000000,
+        var annotationHelper = new DistanceHelper({arrowColor:0x000000,
           textBgColor:"#ffd200",
           start:annotation.start, end:annotation.end,
           startObject:annotation.startObject,
           endObject:annotation.endObject
           });
-        console.log("annotation.startObject",annotation.startObject);*/
+          
+        //annotationHelper.position.sub( annotation.startObject.position );
         //annotation.startObject.add( annotationHelper );
+        
+        //TODO: uughh do not like this
+        //this.threeJs.updatables.push( annotationHelper ); 
         //annotationHelper.set( {start:annotationHelper.start, end:annotationHelper.end} );
         
-        //this.addToScene( annotationHelper, "helpers", {autoResize:false, autoCenter:false, persistent:false, select:false } );
+        this.addToScene( annotationHelper, "helpers", {autoResize:false, autoCenter:false, persistent:false, select:false } );
+        
       break;
       case "thickness":
         var annotationHelper = new ThicknessHelper({arrowColor:0x000000,
           textBgColor:"#ffd200",
           thickness:annotation.value, point:annotation.point,
           normal: annotation.normal});
-        
+          
+        annotationHelper.position.sub( annotation.object.position );
         annotation.object.add( annotationHelper );
-        //this.addToScene( annotationHelper, "helpers", {autoResize:false, autoCenter:false, persistent:false, select:false } );
       break;
       case "diameter":
         var annotationHelper = new DiameterHelper({arrowColor:0x000000,
@@ -837,8 +844,8 @@ Polymer('ulti-viewer', {
           diameter:annotation.value, orientation:annotation.orientation,
           center:annotation.center});
           
-          annotationHelper.position.sub( annotation.object.position );
-          annotation.object.add( annotationHelper );
+        annotationHelper.position.sub( annotation.object.position );
+        annotation.object.add( annotationHelper );
       break;
 
     }
@@ -895,6 +902,50 @@ Polymer('ulti-viewer', {
     this.transformControls.setMode("translate");
   }, 
   
+  //helpers
+  getUrlParams:function( ){
+    /*var url = window.location.href;
+    var urlElems = url.split("?")
+    var name = urlElems.shift().split("/").pop();
+    var queryParams = urlElems.pop().split("&");
+    
+    console.log("URL", url, urlElems, name, queryParams);*/
+    
+    //see http://stackoverflow.com/questions/1034621/get-current-url-in-web-browser
+    var match,
+        pl     = /\+/g,  // Regex for replacing addition symbol with a space
+        search = /([^&=]+)=?([^&]*)/g,
+        decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+        query  = window.location.search.substring(1);
+
+    urlParams = {};
+    while (match = search.exec(query))
+    {
+       var key = decode(match[1]);
+       var value = decode(match[2]);
+       if( key in urlParams){
+        urlParams[key] = [urlParams[key]].concat([value]);
+       }else
+       {
+        urlParams[key] = value
+       }
+    }
+    //console.log("URL", urlParams);
+    if("modelUrl" in urlParams)
+    {
+      if( Object.prototype.toString.call( urlParams["modelUrl"] ) === '[object Array]' )
+      {
+        for( var i=0;i<urlParams["modelUrl"].length;i++)
+        {
+          this.loadMesh(urlParams["modelUrl"][i],{display:true});
+        }
+      }
+      else
+      {
+        this.loadMesh(urlParams["modelUrl"],{display:true});
+      }
+    }
+  },
   //filters
   toFixed:function(o, precision){
     if(!o) return "";
