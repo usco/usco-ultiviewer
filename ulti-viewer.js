@@ -88,10 +88,13 @@ Polymer('ulti-viewer', {
   resources : null, 
   
   //After this point, highly experimental attributes
+  activeTool : null,
+  toolCategory: null,
+  
   annotations : [],
-  measurements: null,//FIXME: NOT SURE, at ALL !
   hierarchy   : null,
   bom         : null,
+  
   
   partId: 0, //FIXME: HACK , because we do not yet have "parts" with ids, when imporint meshes
   
@@ -104,8 +107,6 @@ Polymer('ulti-viewer', {
     
     //note: annotation positions are relative to their parent
     this.annotations  = [];
-    //should measurements be a different category/structure than annotations ?
-    this.measurements = [];
   },
   ready:function(){
     this.threeJs      = this.$.threeJs;
@@ -385,67 +386,11 @@ Polymer('ulti-viewer', {
     
     var object= pickingDatas[0].object;//closest point
     
-    //FIXME: should this be here ?
-    if(this.activeAnnotationType ) return;
+    //FIXME: hardCoded, do this better
+    if(this.toolCategory === "annotations" && this.activeTool) return;
+    //TODO: should be togglable behaviour
     this.zoomInOnObject( object );
-    
-    /*if(this.activeAnnotationType == "note")
-    {
-      pickingDatas = e.detail.pickingInfos;
-      if(pickingDatas.length == 0) return;
-      var point = pickingDatas[0].point;//closest point
-      
-      console.log("pickingDatas",pickingDatas, point);
-      
-      var localPosition = this.selectedObject.worldToLocal( point.clone() );
-      //FIXME: weird issue with rescaled models and worldToLocal
-      console.log("localPosition",localPosition);
-      this.annotations.push( {"partId":0 , "type":"point", "title":"Some stuff","text":"Interesting, really", "position":localPosition.toArray(), "author":"", "url":""} );
-    }
-    if(this.activeAnnotationType =="leaderLine")
-    {
-      console.log("leaderLineTest");
-      pickingDatas = e.detail.pickingInfos;
-      if(pickingDatas.length == 0) return;
-      var point = pickingDatas[0].point;//closest point
-      this.pickedPoint = point;
-      
-      if(!this.leaderLineTest)  
-      {
-        this.leaderLineTest = new LeaderLineHelper3D();
-        this.addToScene( this.leaderLineTest, "helpers", {autoCenter:false,autoResize:false,select:false} );
-      }
-      
-      this.leaderLineTest.setCamera( this.$.cam.object );
-      this.leaderLineTest.setLabel( this.$.leaderLineLabel.nextElementSibling );    
-      this.leaderLineTest.setPoint( point );
-      this.leaderLineTest.update();
-      return;
-    }
-    
-    return;*/
-    
-    /*this.originalCursor = this.threeJs.style.cursor;
-    this.threeJs.style.cursor = "crosshair";
-    
-    
-    if(this.pickingHelpers)
-    {
-      this.removeFromScene( this.pickingHelpers,"helpers");
-    }
-    this.pickingHelpers = new THREE.Object3D();
-    
-    for(var i=0;i<  pickingDatas.length;i++)
-    {
-      var pt = pickingDatas[i].point
-      //this.pickingHelpers.add( new CrossHelper({position:pt}) );
-    }  
-    this.addToScene( this.pickingHelpers, "helpers", {autoCenter:false,autoResize:false,select:false} );*/
-    
-    /*
-    else if(this.activeAnnotationType == "addNote"){
-    }*/
-    
+    //FIXME: weird issue with rescaled models and worldToLocal
   },
   //attribute change handlers
   onFullScreenChange:function()
@@ -574,7 +519,7 @@ Polymer('ulti-viewer', {
     }
     
     //FIXME: do this differently ?
-    if(this.activeAnnotationType ) return;
+    if(this.toolCategory === "annotations" &&  this.activeTool) return;
     
     //FIXME: keep the red outline ?
     //this.outlineObject( newSelection, oldSelection );
@@ -592,15 +537,14 @@ Polymer('ulti-viewer', {
     
   },
   //important data structure change watchers, not sure this should be here either
-  annotationsChanged:function(){
-    console.log("annotationschanged", this.annotations);
+  annotationsChanged:function(oldAnnotations, newAnnotations){
+    console.log("annotationschanged", oldAnnotations, newAnnotations, this.annotations);
   },
-  activeAnnotationTypeChanged:function(){
-        console.log("activeAnnotationType", this.annotations);
+  activeToolChanged:function(oldTool,newTool){
+    console.log("activeToolChanged",oldTool,newTool, this.activeTool);
   },
-  toolCategoryChanged:function(){
-    console.log("toolCategoryChanged", this.toolCategory);
-  
+  toolCategoryChanged:function(oldCateg,newCateg){
+    console.log("toolCategoryChanged",oldCateg,newCateg, this.toolCategory);
   },
   //helpers
   //FIXME: this is a "helper"/transform/whatever 
@@ -721,11 +665,6 @@ Polymer('ulti-viewer', {
         newSelection.outline = outline;
         newSelection.add(outline);
     }
-  },
-  //other helpers
-  measureDistance:function(){
-    
-  
   },
   //various
   updateOverlays: function(){

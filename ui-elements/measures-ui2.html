@@ -1,8 +1,8 @@
 <link rel="import" href="../components/polymer/polymer.html">
 
-<polymer-element name="measures-ui" attributes="measureType">
+<polymer-element name="measures-ui" attributes="activeTool">
   <template>
-     <core-selector selected="{{measureType}}" valueattr="value" on-core-activate="{{controlActivated}}">
+     <core-selector selected="{{activeTool}}" valueattr="value" on-core-activate="{{controlActivated}}">
          <tooltip-shadow-button label="distance" value="distance" icon="settings-ethernet" >
          </tooltip-shadow-button>
       
@@ -29,7 +29,7 @@
       <x-trigger icon="settings-ethernet" >
         <paper-dropdown class="open-below" halign="right">
           <div class="menu" > 
-            <core-selector selected="{{measureType}}" valueattr="value">
+            <core-selector selected="{{activeTool}}" valueattr="value">
               <paper-item noink>
                 <core-icon style="padding-right:8px" icon="clear"></core-icon>
                 Nothing
@@ -63,24 +63,25 @@
   </template>-->
 <script>
 Polymer("measures-ui",{
-  measureType:null,
-  _prevMode:null,
+  activeTool:null,
+  _tools: ["distance","thickness","angle","diameter","note"],
+  _prevTool:null,
   controlActivated:function(e, detail){
     //this is used to toggle a specific control on/off
     //FIXME: there must be a cleaner way to to this...
     var nValue = detail.item.attributes[1].value;
-    //console.log("nValue",nValue, this._prevMode);
-    if( nValue === this._prevMode)
+    //console.log("nValue",nValue, this._prevTool);
+    if( nValue === this._prevTool)
     {
-      this.measureType = null;
+      this.activeTool = null;
     }else{
-      this._prevMode = nValue;
+      this._prevTool = nValue;
     }
   },
   //attribute change callbacks
-  measureTypeChanged:function(oldMode, newMode){
-    //console.log("this.mode", this.measureType, oldMode, newMode);
-    this._prevMode = oldMode;
+  activeToolChanged:function(oldTool, newTool){
+    //console.log("this.mode", this.activeTool, oldTool, newTool);
+    this._prevTool = oldTool;
   },
 });
 </script>

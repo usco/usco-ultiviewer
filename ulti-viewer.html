@@ -91,15 +91,17 @@ tabindex="0" >
       <infos-ui    id="infos" > </infos-ui>
       <fullscreen-toggler fullScreen="{{fullScreen}}"> </fullscreen-toggler>
       
-      <core-selector valueattr="value" selectedItem="{{toolCategory}}">
-        <transforms-ui id="transforms" value="transforms" controls="{{transformControls}}" selectedObject="{{selectedObject}}"> </transforms-ui>
-        <measures-ui id="measures" value="annotations" measureType="{{activeAnnotationType}}"> </measures-ui>
+      <core-selector valueattr="value" selected="{{toolCategory}}">
+        <transforms-ui id="transforms" value="transforms" controls="{{transformControls}}" 
+        selectedObject="{{selectedObject}}" activeTool="{{activeTool}}"> 
+        </transforms-ui>
+        <measures-ui id="measures" value="annotations" activeTool="{{activeTool}}"> </measures-ui>
       </core-selector>
       <history-ui id="history"> </history-ui>
       
       <!-- measurements system test -->
       <usco-annotations id="annotations" selectedObject="{{selectedObject}}" 
-      activeType="{{activeAnnotationType}}" on-annotation-done="{{annotationDone}}">
+      activeType="{{activeTool}}" on-annotation-done="{{annotationDone}}">
       </usco-annotations>
       
       <!-- anotation overlay test -->
@@ -110,6 +112,8 @@ tabindex="0" >
            </template>
         </template>
       </template>
+      
+      <input type="button" value="export annot"style="z-index:20;position:absolute;right:10px;top:50%"> Export Annotations</input>
       
       <!--viewer itself-->
       <three-js id="threeJs" 
@@ -195,6 +199,8 @@ tabindex="0" >
       <core-localstorage name="ultiviewer-settings-showAxes"    value="{{showAxes}}"></core-localstorage>
       <core-localstorage name="ultiviewer-settings-autoRotate"  value="{{autoRotate}}"></core-localstorage>    
       <core-localstorage name="ultiviewer-settings-showControls"value="{{showControls}}"></core-localstorage>
+      
+      <core-localstorage name="ultiviewer-data-annotations"     value="{{annotations}}"></core-localstorage>
       
       <!--keboard handling-->
       <core-a11y-keys  keys="t" on-keys-pressed="{{toTranslateMode}}"></core-a11y-keys>

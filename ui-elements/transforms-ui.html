@@ -1,9 +1,9 @@
 <link rel="import" href="../components/polymer/polymer.html">
 
-<polymer-element name="transforms-ui" attributes="mode controls selectedObject">
+<polymer-element name="transforms-ui" attributes="activeTool controls selectedObject ">
   <template>
     <section>
-      <core-selector selected="{{mode}}" valueattr="value" on-core-activate="{{controlActivated}}">
+      <core-selector selected="{{activeTool}}" valueattr="value" on-core-activate="{{controlActivated}}">
          <tooltip-shadow-button label="translate" value="translate" icon="open-with" >
          </tooltip-shadow-button>
       
@@ -84,39 +84,53 @@
   </template>
 <script>
 Polymer("transforms-ui",{
+  activeTool:null,
+  _prevTool:null,
+  _tools: ["translate","rotate","scale","mirror","align"],
+  _controlableTools : ["translate","rotate","scale"],
   effectPreviewModel : null,
-  _prevMode:null,
   
   controlActivated:function(e, detail){
     //this is used to toggle a specific control on/off
     //FIXME: there must be a cleaner way to to this...
     var nValue = detail.item.attributes[1].value;
-    //console.log("nValue",nValue, this.prevMode);
-    if( nValue === this._prevMode)
+    //console.log("nValue",nValue, this.prevTool);
+    if( nValue === this._prevTool)
     {
-      this.mode = "";
+      this.activeTool = "";
     }else{
-      this._prevMode = nValue;
+      this._prevTool = nValue;
     }
   },
   //attribute change callbacks
-  modeChanged:function(oldMode, newMode){
-    //console.log("this.mode", this.mode, oldMode, newMode);
-    this._prevMode = oldMode;
+  activeToolChanged:function(oldTool, newTool){
+    //console.log("this.activeTool", this.activeTool, oldTool, newTool);
+    this._prevTool = oldTool;
     
-    var controlableModes = ["translate","rotate","scale"];
+    var controlableTools = this._controlableTools;
     
-    if(this.mode === "" || controlableModes.indexOf(this.mode) === -1){
+    if(this.activeTool === "" || controlableTools.indexOf(this.activeTool) === -1){
       this.controls.detach(this.selectedObject );
       this.controls.enabled = false;
     }
     else{ 
-      this.controls.enabled = true;
-      this.controls.attach(this.selectedObject ); 
+      if(this.selectedObject){
+        this.controls.enabled = true;
+        this.controls.attach(this.selectedObject ); 
+      }
     }
     
-    if(controlableModes.indexOf(this.mode) > -1){
-      this.controls.setMode(this.mode);
+    if(controlableTools.indexOf(this.activeTool) > -1 && this.selectedObject){
+      this.controls.setMode(this.activeTool);
+    }
+  },
+  selectedObjectChanged:function(){
+    var controlableTools = this._controlableTools;
+    if(this.activeTool && this.activeTool !== "" && controlableTools.indexOf(this.activeTool) !== -1){
+      if(this.selectedObject){
+        this.controls.enabled = true;
+        this.controls.attach(this.selectedObject ); 
+      }
     }
   },
   //api
@@ -176,7 +190,6 @@ Polymer("transforms-ui",{
   mirrorPreviewAlongZ:function(){
     this.mirrorPreviewAlong("z");
   },
-  
   onMirrorMouseLeave:function(){
     this.selectedObject.parent.remove( this.effectPreviewModel );
     this.effectPreviewModel = null;
