@@ -43,6 +43,7 @@ Polymer("properties-ui",{
       return value;
     },
     toModel: function(value) {
+      if(!value) return 0;
       if(this.degreeAngles) return parseFloat( value )*Math.PI/180;
       return value;
     }
