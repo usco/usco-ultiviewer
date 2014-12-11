@@ -1,6 +1,6 @@
 <link rel="import" href="../components/polymer/polymer.html">
 
-<polymer-element name="settings-ui" attributes="showControls autoRotate showGrid showAxes showAnnotations">
+<polymer-element name="settings-ui" attributes="showControls autoRotate showGrid showAxes showAnnotations selectionZoom">
   <template>
     <ui-base>
       <div class="viewSettings">
@@ -27,6 +27,10 @@
             <paper-item>
               <paper-checkbox style="padding-right:8px" for checked="{{autoRotate}}"></paper-checkbox>
               Autorotate
+            </paper-item>
+            <paper-item>
+              <paper-checkbox style="padding-right:8px" for checked="{{selectionZoom}}"></paper-checkbox>
+              Zoom in on selection
             </paper-item>
           </div>
         </paper-dropdown>

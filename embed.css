@@ -315,6 +315,7 @@ margin: 0 auto;padding:0;
 background:white;
 }
 
+/*TODO:remove*/
 ulti-viewer /deep/ progress-text {
   background:white;
   width: 100%;
@@ -324,6 +325,28 @@ ulti-viewer /deep/ progress-text {
   margin-right: auto;
   z-index:14;
   text-align:center;
+}
+
+ulti-viewer /deep/ progress-bar {
+  background:white;
+  width: 100%;
+  position:absolute;
+  z-index:14;
+  /*text-align:center;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;*/
+}
+
+ulti-viewer /deep/ progress-bar::shadow paper-progress{
+  width:100%;
+}
+ulti-viewer /deep/ paper-progress::shadow #activeProgress {
+  background-color: #e91e63;
+}
+
+ulti-viewer /deep/ paper-progress::shadow #progressContainer {
+  background-color: #ffffff;
 }
 
 /*for camera controls*/

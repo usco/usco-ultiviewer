@@ -36,7 +36,8 @@
 <!--2d ui elements-->
 <link rel="import" href="ui-elements/view-navigator.html">
 <link rel="import" href="ui-elements/progress-cubic.html">
-<link rel="import" href="ui-elements/progress-text.html">
+<!--<link rel="import" href="ui-elements/progress-text.html">-->
+<link rel="import" href="ui-elements/progress-cool.html">
 
 <link rel="import" href="ui-elements/ui-base.html">
 <link rel="import" href="ui-elements/settings-ui.html">
@@ -67,8 +68,8 @@ tabindex="0" >
         <view-navigator controls="{{$.camCtrl}}" camera="{{$.cam}}" autoRotate="{{autoRotate}}"> </view-navigator>
       </template>
       
-      <progress-text resources="{{resources}}">
-      </progress-text>
+      <progress-bar resources="{{resources}}">
+      </progress-bar>
       
       <!--
       <div class="resourceLoader">
@@ -87,7 +88,7 @@ tabindex="0" >
       <properties-ui id="objProps" selectedObject="{{selectedObject}}"> </properties-ui>
       
       <settings-ui id="options" autoRotate="{{autoRotate}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}"
-      showControls="{{showControls}}" showAnnotations="{{showAnnotations}}"> </settings-ui>      
+      showControls="{{showControls}}" showAnnotations="{{showAnnotations}}" selectionZoom="{{selectionZoom}}"> </settings-ui>      
       <infos-ui    id="infos" > </infos-ui>
       <fullscreen-toggler fullScreen="{{fullScreen}}"> </fullscreen-toggler>
       
@@ -113,8 +114,8 @@ tabindex="0" >
         </template>
       </template>
       
-      <input type="button" value="export annot"style="z-index:20;position:absolute;right:10px;top:50%"> Export Annotations</input>
-      
+      <!--<input type="button" value="export annot"style="z-index:20;position:absolute;right:10px;top:50%"> Export Annotations</input>
+      -->
       <!--viewer itself-->
       <three-js id="threeJs" 
       selectedObject="{{selectedObject}}" selectedObjects="{{selectedObjects}}" highlightedObject="{{highlightedObject}}"
@@ -142,16 +143,16 @@ tabindex="0" >
               <grid-helper up=[0,0,1]> </grid-helper>
             </template>
             
-              <template repeat="{{resource in resources}}">
+              <!--<template repeat="{{resource in resources}}">
                 <template if="{{!resource.loaded}}">
                   <progress-cubic resource="{{resource}}"> </progress-cubic>
                 </template>
-              </template>
+              </template>-->
           </three-js-scene>
           
           
           <three-js-viewport name="perspective" id="perspectiveView" class="perspectiveView"
-          exScenes="naviScene">
+          exScenes="naviScene" on-dblclick="{{doubleTapHandler}}">
             <three-js-combinedCamera id="cam" pos=[100,-100,100] defaultPos=[-100,-50,200] orientation="{{camOrientation}}" up=[0,0,1]></three-js-combinedCamera >
             <three-js-orbitControls id="camCtrl" cameraUp=[0,0,1] autoRotate="{{autoRotate && (!selectedObject || selectRotate)}}" autoRotateSpeed=2 panSpeed=1.5> </three-js-orbitControls>
           </three-js-viewport>
@@ -199,6 +200,7 @@ tabindex="0" >
       <core-localstorage name="ultiviewer-settings-showAxes"    value="{{showAxes}}"></core-localstorage>
       <core-localstorage name="ultiviewer-settings-autoRotate"  value="{{autoRotate}}"></core-localstorage>    
       <core-localstorage name="ultiviewer-settings-showControls"value="{{showControls}}"></core-localstorage>
+      <core-localstorage name="ultiviewer-settings-selectionZoom"value="{{selectionZoom}}"></core-localstorage>
       
       <core-localstorage name="ultiviewer-data-annotations"     value="{{annotations}}"></core-localstorage>
       

@@ -1,0 +1,71 @@
+<link rel="import" href="../components/polymer/polymer.html">
+<link rel="import" href="../components/paper-progress/paper-progress.html">
+
+<polymer-element name="progress-bar" attributes="resources">
+  <template>
+    <template if="{{loadsInProgress>0 && totalProgress<=99}}">
+        <!--<span> Loading: model(s)...</span> <span class="progressPercent"> {{totalProgress | toFixed(2) }} % </span>-->
+        <paper-progress value="{{totalProgress}}"></paper-progress>
+     </template>
+  </template>
+
+  <script>
+    Polymer("progress-bar",{
+      totalProgress: 0, 
+      resources: null,
+      //warningSize: 100000,//byte size above which to display a warning to the user
+      loadsInProgress: 0,
+      resourcesChanged:function()
+      {
+        this.loadsInProgress = 0;
+        this.totalProgress = 0;
+        var observer = new CompoundObserver();
+        
+        for(var i=0;i<this.resources.length;i++)
+        {
+          var resource = this.resources[i];
+          if(!resource.loaded)
+          {
+            this.loadsInProgress+=1;
+            observer.addPath(resource, 'fetchProgress');
+            observer.addPath(resource, 'parseProgress');
+            observer.addPath(resource, 'loaded');
+          }
+        }
+        var self = this;
+        observer.open(function(newValues, oldValues) {
+          self.totalProgress = 0;
+          // Use for-in to iterte which values have changed.
+          for(var i=0; i<newValues.length;i+=3)
+          {
+            var resProgres = 100;
+            resProgress = newValues[i]*0.7 + newValues[i+1]*0.3;
+            if(newValues[i+2] == true) resProgress = 100;
+            
+            self.totalProgress += resProgress/self.loadsInProgress;
+            //console.log("resprogres", i/2,resProgress);
+          }
+        });
+       
+      },
+      created:function()
+      {
+      },
+      detached:function()
+      {
+      },
+      progressPercentChanged:function()
+      {
+          var level = this.progressPercent/100 * this.height;
+          this.levelMesh.position.z = level;
+          var loaderMesh = this.loaderMesh;
+          loaderMesh.position.z = level/2;
+          loaderMesh.scale.z = level;
+      },
+      //filters
+      toFixed:function(o,precision){
+        return o.toFixed(precision);
+      }
+    });
+  </script>
+</polymer-element>

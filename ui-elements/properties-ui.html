@@ -5,18 +5,39 @@
       <template if="{{selectedObject}}">
         <ui-base>
           <div style="height:100%;width:100%">
-            <input type="color"  step="0.1" value="{{selectedObject.material.color | colorConvert}}"/> 
-            p: <input type="number" step="0.1" value="{{selectedObject.position.x | toFixed(2)}}" />
-            <input type="number" step="0.1" value="{{selectedObject.position.y | toFixed(2)}}"/>
-            <input type="number" step="0.1" value="{{selectedObject.position.z | toFixed(2)}}"/>
-            &nbsp
-            r: <input type="number" step="0.1" value="{{selectedObject.rotation.x | angleConvert | toFixed(2)}}"/>
-            <input type="number" step="0.1" value="{{selectedObject.rotation.y | angleConvert | toFixed(2)}}"/>
-            <input type="number" step="0.1" value="{{selectedObject.rotation.z | angleConvert | toFixed(2)}}"/>
-            &nbsp
-            s: <input type="number" step="0.1" value="{{selectedObject.scale.x | toFixed(2)}}"/>
-            <input type="number" step="0.1" value="{{selectedObject.scale.y | toFixed(2)}}"/>
-            <input type="number" step="0.1" value="{{selectedObject.scale.z | toFixed(2)}}"/>
+            &nbsp 
+            <core-tooltip label="Color" position="top"> 
+              <input type="color"  step="0.1" value="{{selectedObject.material.color | colorConvert}}"/> 
+            </core-tooltip>
+            |
+            <core-tooltip label="Position" position="top"> 
+              p: <input type="number" step="0.1" value="{{selectedObject.position.x | toFixed(2)}}" />
+              <input type="number" step="0.1" value="{{selectedObject.position.y | toFixed(2)}}"/>
+              <input type="number" step="0.1" value="{{selectedObject.position.z | toFixed(2)}}"/>
+            </core-tooltip>
+            |
+            <core-tooltip label="Rotation" position="top">  
+              r: <input type="number" step="0.1" value="{{selectedObject.rotation.x | angleConvert | toFixed(2)}}"/>
+              <input type="number" step="0.1" value="{{selectedObject.rotation.y | angleConvert | toFixed(2)}}"/>
+              <input type="number" step="0.1" value="{{selectedObject.rotation.z | angleConvert | toFixed(2)}}"/>
+            </core-tooltip>
+            |
+            <core-tooltip label="Scale" position="top">  
+              s: <input type="number" step="0.1" value="{{selectedObject.scale.x | toFixed(2)}}"/>
+              <input type="number" step="0.1" value="{{selectedObject.scale.y | toFixed(2)}}"/>
+              <input type="number" step="0.1" value="{{selectedObject.scale.z | toFixed(2)}}"/>
+            </core-tooltip>
+            |
+            <core-tooltip label="Dimensions" position="top">  
+              d: <input type="number" step="0.1" min="0" value="{{selectedObject.scale.x| scaleConvert('l') | toFixed(2)}}"/>
+              <input type="number" step="0.1" min="0" value="{{selectedObject.scale.y | scaleConvert('w') | toFixed(2)}}"/>
+              <input type="number" step="0.1" min="0" value="{{selectedObject.scale.z | scaleConvert('h') | toFixed(2)}}"/>
+            </core-tooltip>
+            |
+            <span style="font-size:0.8em">
+            faces:{{selectedObject.geometry.attributes.position.length/3}} &nbsp
+            vertices:{{selectedObject.geometry.attributes.position.length}}
+            </span>
           </div>
         </ui-base>  
       </template>
@@ -24,6 +45,31 @@
 <script>
 Polymer("properties-ui",{
   degreeAngles:true,
+  meshSize: {w:0,l:0,h:0},
+  
+  selectedObjectChanged:function(){
+    this.meshSize = this.getAbsoluteSize();
+  },
+  observe:{
+    "selectedObject.scale.x":"selectedObjectChanged",
+    "selectedObject.scale.y":"selectedObjectChanged",
+    "selectedObject.scale.z":"selectedObjectChanged",
+  },
+  //helpers
+  getAbsoluteSize:function(){
+    var size = {w:0,l:0,h:0};
+    if(!this.selectedObject) return this.selectedObject;
+    
+    var bbox = new THREE.Box3().setFromObject( this.selectedObject );
+    var length = ( (bbox.max.x-bbox.min.x).toFixed(2) )/1; // division by one to coerce to number
+    var width  = ( (bbox.max.y-bbox.min.y).toFixed(2) )/1;
+    var height = ( (bbox.max.z-bbox.min.z).toFixed(2) )/1;
+    
+    size.w = width;
+    size.l = length;
+    size.h = height;
+    return size;
+  },
   //filters
   //round to 2 decimals
   toFixed:{
@@ -46,6 +92,41 @@ Polymer("properties-ui",{
       if(!value) return 0;
       if(this.degreeAngles) return parseFloat( value )*Math.PI/180;
       return value;
+    }
+  },
+  //convert between scale and absolute size
+  scaleConvert: {
+     toDOM: function(value, axis) {
+      if(!value) return 0;
+      return this.meshSize[axis];
+    },
+    toModel: function(value, axis) {
+      //TODO : do the "safing" of values better( no divisions by zero, nothing under 0 )
+      var minScale = 0.0001;
+      if(!value) return minScale;
+      
+      if(value <= 0) value = minScale;
+      //var foo = this.meshSize[axis];
+      var map = {"l":"x","w":"y","h":"z"};
+      var mapped = map[axis];
+      var axisScale = this.selectedObject.scale[ mapped ];
+      if( axisScale <= minScale ) axisScale = minScale;
+      
+      var scaling = 1/ axisScale;
+      
+      var meshSize = this.meshSize[axis];
+      if(meshSize <= minScale) meshSize = minScale;
+      
+      var originalSize = meshSize * scaling;
+      var targetScale = value/(originalSize);
+      
+      console.log("axis", axis,"mappedaxis",mapped,"originalSize",originalSize, "targetSize", value);
+      console.log("scaling",scaling,"targetScale",targetScale);
+      
+      if(targetScale <= minScale) targetScale = minScale;
+      
+      if(this.meshSize[axis] <= minScale) this.meshSize[axis] = minScale;
+      return targetScale;
     }
   },
   //convert between html hex color and three.js color

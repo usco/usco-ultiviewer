@@ -50,6 +50,16 @@ Polymer('ulti-viewer', {
    * @type boolean
   */
   selectRotate:true,
+  
+  /**
+   * toggles zooming in on selected object
+   * 
+   * 
+   * @attribute selectionZoom
+   * @type boolean
+  */
+  selectionZoom:true,
+  
   /**
    * orientation of the camera: top, left, right, bottom, diagonal
    * 
@@ -92,6 +102,7 @@ Polymer('ulti-viewer', {
   toolCategory: null,
   
   annotations : [],
+  activeAnnotation:null,
   hierarchy   : null,
   bom         : null,
   
@@ -295,6 +306,12 @@ Polymer('ulti-viewer', {
     event.preventDefault();
     return false;
   },
+  doubleTapHandler:function( event ){
+    console.log("double click.tap");
+    if(this.selectedObject){
+      this.zoomInOnObject( this.selectedObject );
+    }
+  },
   handleDragOver:function(e) {
     if (e.preventDefault) {
       e.preventDefault();
@@ -389,7 +406,7 @@ Polymer('ulti-viewer', {
     //FIXME: hardCoded, do this better
     if(this.toolCategory === "annotations" && this.activeTool) return;
     //TODO: should be togglable behaviour
-    this.zoomInOnObject( object );
+    if(this.selectionZoom) this.zoomInOnObject( object );
     //FIXME: weird issue with rescaled models and worldToLocal
   },
   //attribute change handlers
@@ -523,7 +540,7 @@ Polymer('ulti-viewer', {
     
     //FIXME: keep the red outline ?
     //this.outlineObject( newSelection, oldSelection );
-    this.zoomInOnObject( newSelection );
+    if(this.selectionZoom) this.zoomInOnObject( newSelection );
     if(newSelection)
     {
       if(this.transformControls.enabled)  this.transformControls.attach( newSelection );
@@ -546,6 +563,8 @@ Polymer('ulti-viewer', {
   toolCategoryChanged:function(oldCateg,newCateg){
     console.log("toolCategoryChanged",oldCateg,newCateg, this.toolCategory);
   },
+  
+  
   //helpers
   //FIXME: this is a "helper"/transform/whatever 
   //just like centering , resizing etc... food for thought/
