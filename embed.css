@@ -203,6 +203,11 @@ ulti-viewer::shadow #history{
 }
 
 
+ulti-viewer::shadow #inputOutput{
+  position:absolute;top:5px;left:180px;z-index:15;
+
+}
+
 
 /*styling of 3d elements using css*/
 ulti-viewer /deep/ dimensions-helper-group /deep/ distance-helper{
@@ -328,19 +333,26 @@ ulti-viewer /deep/ progress-text {
 }
 
 ulti-viewer /deep/ progress-bar {
-  background:white;
-  width: 100%;
   position:absolute;
-  z-index:14;
+  z-index:16;
+  left:0px;top:0px;right:0px;
+  height:4px;
   /*text-align:center;
   display: block;
   margin-left: auto;
   margin-right: auto;*/
 }
 
-ulti-viewer /deep/ progress-bar::shadow paper-progress{
+ulti-viewer /deep/ progress-bar /deep/ paper-progress{
+  position:absolute;
+  left:0px;top:0px;bottom:0px;right:0px;
+  width:100%
+}
+
+ulti-viewer /deep/ progress-bar /deep/ core-tooltip{
   width:100%;
 }
+
 ulti-viewer /deep/ paper-progress::shadow #activeProgress {
   background-color: #e91e63;
 }

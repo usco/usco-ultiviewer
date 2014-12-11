@@ -1,0 +1,22 @@
+<link rel="import" href="../components/polymer/polymer.html">
+
+<polymer-element name="io-ui" attributes="selectedObject activeScene">
+  <template>
+    <section>
+       <tooltip-shadow-button label="save scene" value="saveScene" icon="save" >
+       </tooltip-shadow-button>
+    </section> 
+  </template>
+<script>
+Polymer("io-ui",{
+  activeScene:null,
+  
+  //attribute change handlers
+  activeSceneChanged:function(){
+    console.log("activeSceneChanged",this.activeScene);
+  
+  }
+});
+</script>
+</polymer-element>
+

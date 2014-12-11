@@ -4,9 +4,11 @@
 <polymer-element name="progress-bar" attributes="resources">
   <template>
     <template if="{{loadsInProgress>0 && totalProgress<=99}}">
-        <!--<span> Loading: model(s)...</span> <span class="progressPercent"> {{totalProgress | toFixed(2) }} % </span>-->
-        <paper-progress value="{{totalProgress}}"></paper-progress>
-     </template>
+       <core-tooltip label="Loading: data...{{totalProgress | toFixed(2) }} %" position="bottom">  
+          <!--<span> Loading: model(s)...</span> <span class="progressPercent"> {{totalProgress | toFixed(2) }} % </span>-->
+          <paper-progress value="{{totalProgress}}"></paper-progress>
+        </core-tooltip>
+    </template>
   </template>
 
   <script>
