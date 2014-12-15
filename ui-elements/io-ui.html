@@ -1,6 +1,7 @@
 <link rel="import" href="../components/polymer/polymer.html">
 
-<script src="../io/SceneExporter.js"></script>
+<script src="../io/SceneSerializer.js"></script>
+<script src="../io/FileSaver.min.js"></script>
 
 <polymer-element name="io-ui" attributes="selectedObject resources activeScene">
   <template>
@@ -15,22 +16,25 @@ Polymer("io-ui",{
   
   //custom element lifecycle callbacks
   ready:function(){
-    this.sceneExporter = new THREE.SceneExporter();
+    this.sceneSerializer = new SceneSerializer();
   },
   //event handlers
   saveSceneHandler:function( event ){
-    console.log("please save the scene");
-    console.log("activeScene",this.activeScene);
-    console.log("resources",this.resources);
-    var sceneOutput = this.sceneExporter.parse( this.activeScene );
+    console.log("saving the scene");
+    /*console.log("activeScene",this.activeScene);
+    console.log("resources",this.resources);*/
+    var sceneOutput = this.sceneSerializer.serialize( this.activeScene );
     console.log(sceneOutput);
+    var sceneTextOutput =  JSON.stringify( sceneOutput );
+    var blob = new Blob([sceneTextOutput], {type: "application/json;charset=utf-8"});
+    //saveAs(blob, "testScene.json");
   },
   //attribute change handlers
   activeSceneChanged:function(){
-    console.log("activeSceneChanged",this.activeScene);
+    //console.log("activeSceneChanged",this.activeScene);
   },
   selectedObjectChanged:function(){
-    console.log("selectedObject",this.selectedObject);
+    //console.log("selectedObject",this.selectedObject);
   }
 });
 </script>
