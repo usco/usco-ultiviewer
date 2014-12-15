@@ -29,14 +29,18 @@
             </core-tooltip>
             |
             <core-tooltip label="Dimensions" position="top">  
-              d: <input type="number" step="0.1" min="0" value="{{selectedObject.scale.x| scaleConvert('l') | toFixed(2)}}"/>
-              <input type="number" step="0.1" min="0" value="{{selectedObject.scale.y | scaleConvert('w') | toFixed(2)}}"/>
-              <input type="number" step="0.1" min="0" value="{{selectedObject.scale.z | scaleConvert('h') | toFixed(2)}}"/>
+              d: <input type="number" step="0.1" min="0" value="{{meshSize.l | scaleConvert('l') | toFixed(2)}}"/>
+              <input type="number" step="0.1" min="0" value="{{meshSize.w | scaleConvert('w') | toFixed(2)}}"/>
+              <input type="number" step="0.1" min="0" value="{{meshSize.h | scaleConvert('h') | toFixed(2)}}"/>
             </core-tooltip>
             |
             <span style="font-size:0.8em">
             faces:{{selectedObject.geometry.attributes.position.length/3}} &nbsp
             vertices:{{selectedObject.geometry.attributes.position.length}}
+            </span>
+            |
+            <span style="font-size:0.8em">
+            {{selectedObject.userData.part.name}}
             </span>
           </div>
         </ui-base>  
@@ -48,7 +52,9 @@ Polymer("properties-ui",{
   meshSize: {w:0,l:0,h:0},
   
   selectedObjectChanged:function(){
+    console.log("selectionChanged")
     this.meshSize = this.getAbsoluteSize();
+    console.log("size", this.meshSize);
   },
   observe:{
     "selectedObject.scale.x":"selectedObjectChanged",
@@ -57,6 +63,7 @@ Polymer("properties-ui",{
   },
   //helpers
   getAbsoluteSize:function(){
+    console.log("getting absolute size");
     var size = {w:0,l:0,h:0};
     if(!this.selectedObject) return this.selectedObject;
     
@@ -126,6 +133,8 @@ Polymer("properties-ui",{
       if(targetScale <= minScale) targetScale = minScale;
       
       if(this.meshSize[axis] <= minScale) this.meshSize[axis] = minScale;
+      
+      this.selectedObject.scale[mapped] = targetScale;
       return targetScale;
     }
   },

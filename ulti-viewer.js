@@ -198,10 +198,8 @@ Polymer('ulti-viewer', {
     //FIXME: temporary hack for annotations etc
     var self = this;
     function afterAdded( mesh ){ 
-      console.log("here");
-      mesh.userData.part = {};
+      console.log("adding fake part data");
       mesh.userData.part.id = self.partId;
-      mesh.userData.part.name = "Part"+self.partId;
       
       mesh.castShadow = true;
       self.partId +=1 ;
@@ -260,8 +258,14 @@ Polymer('ulti-viewer', {
         //nice color: 0x00a9ff
         var material = new THREE.MeshPhongMaterial( { color: 0x17a9f5, specular: 0xffffff, shininess: 5, shading: THREE.FlatShading} );
         //new THREE.MeshLambertMaterial( {opacity:1,transparent:false,color: 0x0088ff} );
-        var shape = new THREE.Mesh(shape, material);
+        shape = new THREE.Mesh(shape, material);
       }
+
+      shape.userData.part = {};
+      shape.userData.part.name = resource.name;//"Part"+self.partId;
+      shape.userData.resource = resource;
+      shape.name = resource.name;
+      
       
       /*var geometry = shape.geometry;
       if(geometry)
@@ -307,7 +311,6 @@ Polymer('ulti-viewer', {
     return false;
   },
   doubleTapHandler:function( event ){
-    console.log("double click.tap");
     if(this.selectedObject){
       this.zoomInOnObject( this.selectedObject );
     }
