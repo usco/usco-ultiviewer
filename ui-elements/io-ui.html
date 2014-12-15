@@ -1,9 +1,11 @@
 <link rel="import" href="../components/polymer/polymer.html">
 
-<polymer-element name="io-ui" attributes="selectedObject activeScene">
+<script src="../io/SceneExporter.js"></script>
+
+<polymer-element name="io-ui" attributes="selectedObject resources activeScene">
   <template>
     <section>
-       <tooltip-shadow-button label="save scene" value="saveScene" icon="save" >
+       <tooltip-shadow-button label="save scene" value="saveScene" icon="save" on-tap="{{saveSceneHandler}}" >
        </tooltip-shadow-button>
     </section> 
   </template>
@@ -11,10 +13,24 @@
 Polymer("io-ui",{
   activeScene:null,
   
+  //custom element lifecycle callbacks
+  ready:function(){
+    this.sceneExporter = new THREE.SceneExporter();
+  },
+  //event handlers
+  saveSceneHandler:function( event ){
+    console.log("please save the scene");
+    console.log("activeScene",this.activeScene);
+    console.log("resources",this.resources);
+    var sceneOutput = this.sceneExporter.parse( this.activeScene );
+    console.log(sceneOutput);
+  },
   //attribute change handlers
   activeSceneChanged:function(){
     console.log("activeSceneChanged",this.activeScene);
-  
+  },
+  selectedObjectChanged:function(){
+    console.log("selectedObject",this.selectedObject);
   }
 });
 </script>
