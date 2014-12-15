@@ -178,6 +178,7 @@ ulti-viewer::shadow #objProps{
   height: 25px;
   width: 100%;
   background:white;
+  font-size: 0.8em;
 }
 
 ulti-viewer::shadow #objProps /deep/ input[type="number"]{
@@ -195,6 +196,18 @@ padding: 0px;
 margin: 0px;
 width: 18px;
 height: 15px;
+}
+
+ulti-viewer::shadow #gridProps{
+  position:absolute;bottom:0px;right:80px;z-index:15;
+  height: 25px;
+  width: 200;
+  font-size: 0.8em;
+}
+
+ulti-viewer::shadow #gridProps /deep/ select{
+background: white;
+border: white;
 }
 
 

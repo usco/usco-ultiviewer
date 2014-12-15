@@ -45,6 +45,8 @@
 <link rel="import" href="ui-elements/measures-ui2.html">
 <link rel="import" href="ui-elements/infos-ui.html">
 <link rel="import" href="ui-elements/fullscreen-toggler2.html">
+<link rel="import" href="ui-elements/grid-ui.html">
+
 <link rel="import" href="overlay-note.html">
 
 <script src="components/three-js-helpers/dimensions/LeaderLineHelper3D.js"></script>
@@ -86,9 +88,10 @@ tabindex="0" >
         </template>
       </div>-->
       
-      <io-ui id="inputOutput" activeScene="{{$.activeScene.object}}"></io-ui>
+      <io-ui id="inputOutput" selectedObject="{{selectedObject}}" activeScene="{{$.activeScene.object}}" resources="{{resources}}"></io-ui>
       
       <properties-ui id="objProps" selectedObject="{{selectedObject}}"> </properties-ui>
+      <grid-ui id="gridProps" grid="{{$.grid}}"> </grid-ui>
       
       <settings-ui id="options" autoRotate="{{autoRotate}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}"
       showControls="{{showControls}}" showAnnotations="{{showAnnotations}}" selectionZoom="{{selectionZoom}}"> </settings-ui>      
@@ -143,7 +146,7 @@ tabindex="0" >
               <axis-helper up=[0,0,1]> </axis-helper>
             </template>
             <template if="{{showGrid}}">
-              <grid-helper up=[0,0,1]> </grid-helper>
+              <grid-helper id="grid" up=[0,0,1]> </grid-helper>
             </template>
             
               <!--<template repeat="{{resource in resources}}">

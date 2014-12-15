@@ -1,0 +1,64 @@
+<link rel="import" href="../components/polymer/polymer.html">
+
+<polymer-element name="grid-ui" attributes="grid">
+  <template>
+    <div style="height:100%;width:100%">
+      <span> <core-icon icon="image:grid-on" style="height: 14px;
+width: 14px;"> </core-icon> Grid </span>
+      <select value="{{selectedPreset}}">  
+        <option template repeat="{{key in presets | getKeys }}" value="{{key}}">
+           {{key}} : 
+           <template if="{{presets[key].width}}">
+            {{presets[key].length}}x{{presets[key].width}}
+           </template>
+           <template if="{{presets[key].diameter}}">
+            Ø {{presets[key].diameter}}
+           </template>
+        </option>
+      </select>
+    </div>
+  </template>
+<script>
+Polymer("grid-ui",{
+  grid:null,
+  selectedPreset:null,
+  presets:
+    {"UM1":{type:"rectangular",width:210,length:210,height:205},
+    "UM2":{type:"rectangular",width:230,length:225,height:205},
+    "GenericDelta":{type:"circular",diameter:170,height:180} }
+  ,
+  //attribute change handlers
+  gridChanged:function(){
+    console.log("this.grid",this.grid);
+  },
+  selectedPresetChanged:function(){
+    console.log("grid preset", this.selectedPreset);
+    //TODO: grid helper should allow setting width & height independantly
+    if(this.grid){
+      console.log("this.grid.size",this.grid.size);
+      var curPreset = this.presets[ this.selectedPreset ];
+      if(curPreset.width) this.grid.size = curPreset.width ;
+      if(curPreset.diameter) this.grid.size = curPreset.diameter ;
+    }
+  },
+  //filters
+  //get object keys
+  getKeys : function(o){
+    var keys = Object.keys(o);
+    //console.log("keys", keys, o);
+    return keys;
+  },
+  //round to 2 decimals
+  toFixed:{
+    toDOM: function(value, precision) {
+      if(!value) return "0";
+      return value.toFixed(precision);
+    },
+    toModel: function(value) {
+      return parseFloat( value );
+    }
+  },
+});
+</script>
+</polymer-element>
+
