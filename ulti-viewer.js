@@ -786,7 +786,7 @@ Polymer('ulti-viewer', {
         //TODO: uughh do not like this
         //this.threeJs.updatables.push( annotationHelper ); 
         //annotationHelper.set( {start:annotationHelper.start, end:annotationHelper.end} );
-        
+        annotationHelper.updatable = true;
         this.addToScene( annotationHelper, "helpers", {autoResize:false, autoCenter:false, persistent:false, select:false } );
         
       break;
@@ -807,6 +807,19 @@ Polymer('ulti-viewer', {
           
         annotationHelper.position.sub( annotation.object.position );
         annotation.object.add( annotationHelper );
+      break;
+      case "angle":
+        console.log("annotation",annotation);
+        var annotationHelper = new AngularDimHelper({arrowColor:0x000000,
+          textBgColor:"#ffd200",
+          start:annotation.start, mid: annotation.mid, end:annotation.end,
+          startObject:annotation.startObject,
+          midObject:annotation.midObject,
+          endObject:annotation.endObject});
+          
+        annotationHelper.position.sub( annotation.startObject.position );
+        annotation.startObject.add( annotationHelper );
+      
       break;
 
     }
