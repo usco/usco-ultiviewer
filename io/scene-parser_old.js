@@ -1,63 +1,22 @@
 /**
- * @originalauthor alteredq / http://alteredqualia.com/
- * @author massive changes by kaosat-dev
+ * @author alteredq / http://alteredqualia.com/
+ * changes by kaosat-dev
  */
 
 SceneParser = function ( manager ) {
+
 	this.geometryHandlers = {};
 	this.hierarchyHandlers = {};
-	//this.addGeometryHandler( "ascii", THREE.JSONLoader );
 
-  //TODO: for all external resources (meshes), load them all first
+	this.addGeometryHandler( "ascii", THREE.JSONLoader );
+
 };
 
-SceneParser.prototype.parse = function( json ){
-  var data = json;
-  var results = [];
-  data = JSON.parse( data );
-  
-  	// toplevel loader function, delegates to handle_children
+SceneParser.prototype.parse = function( ){
 
-		function handle_objects() {
-			handle_children( result.scene, data.objects );
-		}
 
-		// handle all the children from the loaded json and attach them to given parent
-
-		function handle_children( parent, children ) {
-		
-		  var object = result.objects[ objID ];
-		  var objJSON = children[ objID ];
-		
-		}
-
-    pos = objJSON.position;
-		rot = objJSON.rotation;
-		scl = objJSON.scale;
-		quat = objJSON.quaternion;
-
-		object = new THREE.Object3D();
-		object.name = objID;
-		object.position.fromArray( pos );
-
-		if ( quat ) {
-
-			object.quaternion.fromArray( quat );
-
-		} else {
-
-			object.rotation.fromArray( rot );
-
-		}
-
-		object.scale.fromArray( scl );
-		object.visible = ( objJSON.visible !== undefined ) ? objJSON.visible : false;
-
-		parent.add( object );
 }
 
-
-/*
 SceneParser.prototype = {
 
 
@@ -73,7 +32,11 @@ SceneParser.prototype = {
 
 	},
 
+	parse: function ( json, callbackFinished, url ) {
 
+		var scope = this;
+
+		var urlBase = THREE.Loader.prototype.extractUrlBase( url );
 
 		var geometry, material, camera, fog,
 			texture, images, color,
@@ -169,6 +132,13 @@ SceneParser.prototype = {
 
 		};
 
+		// toplevel loader function, delegates to handle_children
+
+		function handle_objects() {
+
+			handle_children( result.scene, data.objects );
+
+		}
 
 		// handle all the children from the loaded json and attach them to given parent
 
@@ -1171,4 +1141,4 @@ SceneParser.prototype = {
 
 	}
 
-}*/
+}

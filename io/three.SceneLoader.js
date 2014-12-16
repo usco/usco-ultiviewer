@@ -1,65 +1,48 @@
 /**
- * @originalauthor alteredq / http://alteredqualia.com/
- * @author massive changes by kaosat-dev
+ * @author alteredq / http://alteredqualia.com/
  */
 
-SceneParser = function ( manager ) {
+THREE.SceneLoader = function ( manager ) {
+
+	this.onLoadStart = function () {};
+	this.onLoadProgress = function() {};
+	this.onLoadComplete = function () {};
+
+	this.callbackSync = function () {};
+	this.callbackProgress = function () {};
+
 	this.geometryHandlers = {};
 	this.hierarchyHandlers = {};
-	//this.addGeometryHandler( "ascii", THREE.JSONLoader );
 
-  //TODO: for all external resources (meshes), load them all first
+	this.addGeometryHandler( "ascii", THREE.JSONLoader );
+
+	this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
+
 };
 
-SceneParser.prototype.parse = function( json ){
-  var data = json;
-  var results = [];
-  data = JSON.parse( data );
-  
-  	// toplevel loader function, delegates to handle_children
+THREE.SceneLoader.prototype = {
 
-		function handle_objects() {
-			handle_children( result.scene, data.objects );
-		}
+	constructor: THREE.SceneLoader,
 
-		// handle all the children from the loaded json and attach them to given parent
+	load: function ( url, onLoad, onProgress, onError ) {
 
-		function handle_children( parent, children ) {
-		
-		  var object = result.objects[ objID ];
-		  var objJSON = children[ objID ];
-		
-		}
+		var scope = this;
 
-    pos = objJSON.position;
-		rot = objJSON.rotation;
-		scl = objJSON.scale;
-		quat = objJSON.quaternion;
+		var loader = new THREE.XHRLoader( scope.manager );
+		loader.setCrossOrigin( this.crossOrigin );
+		loader.load( url, function ( text ) {
 
-		object = new THREE.Object3D();
-		object.name = objID;
-		object.position.fromArray( pos );
+			scope.parse( JSON.parse( text ), onLoad, url );
 
-		if ( quat ) {
+		}, onProgress, onError );
 
-			object.quaternion.fromArray( quat );
+	},
 
-		} else {
+	setCrossOrigin: function ( value ) {
 
-			object.rotation.fromArray( rot );
+		this.crossOrigin = value;
 
-		}
-
-		object.scale.fromArray( scl );
-		object.visible = ( objJSON.visible !== undefined ) ? objJSON.visible : false;
-
-		parent.add( object );
-}
-
-
-/*
-SceneParser.prototype = {
-
+	},
 
 	addGeometryHandler: function ( typeID, loaderClass ) {
 
@@ -73,7 +56,11 @@ SceneParser.prototype = {
 
 	},
 
+	parse: function ( json, callbackFinished, url ) {
 
+		var scope = this;
+
+		var urlBase = THREE.Loader.prototype.extractUrlBase( url );
 
 		var geometry, material, camera, fog,
 			texture, images, color,
@@ -117,6 +104,7 @@ SceneParser.prototype = {
 			objects: {},
 			cameras: {},
 			lights: {},
+			fogs: {},
 			empties: {},
 			groups: {}
 
@@ -169,6 +157,13 @@ SceneParser.prototype = {
 
 		};
 
+		// toplevel loader function, delegates to handle_children
+
+		function handle_objects() {
+
+			handle_children( result.scene, data.objects );
+
+		}
 
 		// handle all the children from the loaded json and attach them to given parent
 
@@ -366,7 +361,103 @@ SceneParser.prototype = {
 
 						}
 
-					} 
+					// lights
+
+					} else if ( objJSON.type === "AmbientLight" || objJSON.type === "PointLight" ||
+						objJSON.type === "DirectionalLight" || objJSON.type === "SpotLight" ||
+						objJSON.type === "HemisphereLight" || objJSON.type === "AreaLight" ) {
+
+						var color = objJSON.color;
+						var intensity = objJSON.intensity;
+						var distance = objJSON.distance;
+						var position = objJSON.position;
+						var rotation = objJSON.rotation;
+
+						switch ( objJSON.type ) {
+
+							case 'AmbientLight':
+								light = new THREE.AmbientLight( color );
+								break;
+
+							case 'PointLight':
+								light = new THREE.PointLight( color, intensity, distance );
+								light.position.fromArray( position );
+								break;
+
+							case 'DirectionalLight':
+								light = new THREE.DirectionalLight( color, intensity );
+								light.position.fromArray( objJSON.direction );
+								break;
+
+							case 'SpotLight':
+								light = new THREE.SpotLight( color, intensity, distance, 1 );
+								light.angle = objJSON.angle;
+								light.position.fromArray( position );
+								light.target.set( position[ 0 ], position[ 1 ] - distance, position[ 2 ] );
+								light.target.applyEuler( new THREE.Euler( rotation[ 0 ], rotation[ 1 ], rotation[ 2 ], 'XYZ' ) );
+								break;
+
+							case 'HemisphereLight':
+								light = new THREE.DirectionalLight( color, intensity, distance );
+								light.target.set( position[ 0 ], position[ 1 ] - distance, position[ 2 ] );
+								light.target.applyEuler( new THREE.Euler( rotation[ 0 ], rotation[ 1 ], rotation[ 2 ], 'XYZ' ) );
+								break;
+
+							case 'AreaLight':
+								light = new THREE.AreaLight(color, intensity);
+								light.position.fromArray( position );
+								light.width = objJSON.size;
+								light.height = objJSON.size_y;
+								break;
+
+						}
+
+						parent.add( light );
+
+						light.name = objID;
+						result.lights[ objID ] = light;
+						result.objects[ objID ] = light;
+
+					// cameras
+
+					} else if ( objJSON.type === "PerspectiveCamera" || objJSON.type === "OrthographicCamera" ) {
+
+						pos = objJSON.position;
+						rot = objJSON.rotation;
+						quat = objJSON.quaternion;
+
+						if ( objJSON.type === "PerspectiveCamera" ) {
+
+							camera = new THREE.PerspectiveCamera( objJSON.fov, objJSON.aspect, objJSON.near, objJSON.far );
+
+						} else if ( objJSON.type === "OrthographicCamera" ) {
+
+							camera = new THREE.OrthographicCamera( objJSON.left, objJSON.right, objJSON.top, objJSON.bottom, objJSON.near, objJSON.far );
+
+						}
+
+						camera.name = objID;
+						camera.position.fromArray( pos );
+
+						if ( quat !== undefined ) {
+
+							camera.quaternion.fromArray( quat );
+
+						} else if ( rot !== undefined ) {
+
+							camera.rotation.fromArray( rot );
+
+						} else if ( objJSON.target ) {
+
+						    camera.lookAt( new THREE.Vector3().fromArray( objJSON.target ) );
+
+						}
+
+						parent.add( camera );
+
+						result.cameras[ objID ] = camera;
+						result.objects[ objID ] = camera;
+
 					// pure Object3D
 
 					} else {
@@ -1171,4 +1262,4 @@ SceneParser.prototype = {
 
 	}
 
-}*/
+}

@@ -1,0 +1,58 @@
+<link rel="import" href="../components/polymer/polymer.html">
+
+<script src="SceneSerializer.js"></script>
+<script src="scene-parser.js"></script>
+<script src="FileSaver.min.js"></script>
+
+<polymer-element name="io-ui" attributes="selectedObject resources activeScene viewer">
+  <template>
+    <section>
+       <tooltip-shadow-button label="save scene" value="saveScene" icon="save" on-tap="{{saveSceneHandler}}" >
+       </tooltip-shadow-button>
+       <tooltip-shadow-button label="load scene" value="loadScene" icon="folder-open" on-tap="{{loadSceneHandler}}" 
+       style="position: absolute;left: 40px; top: 0px;">
+       </tooltip-shadow-button>
+       
+    </section> 
+  </template>
+<script>
+Polymer("io-ui",{
+  activeScene:null,
+  
+  //custom element lifecycle callbacks
+  ready:function(){
+    this.sceneSerializer = new SceneSerializer();
+    this.sceneParser     = new SceneParser();
+  },
+  //event handlers
+  saveSceneHandler:function( event ){
+    console.log("saving the scene");
+    /*console.log("activeScene",this.activeScene);
+    console.log("resources",this.resources);*/
+    var sceneOutput = this.sceneSerializer.serialize( this.activeScene );
+    console.log(sceneOutput);
+    var sceneTextOutput =  JSON.stringify( sceneOutput );
+    var blob = new Blob([sceneTextOutput], {type: "application/json;charset=utf-8"});
+    //saveAs(blob, "testScene.json");
+  },
+  loadSceneHandler:function( event ){
+    console.log("loading the scene");
+    this.viewer.clearScene("main");
+    //TODO: how to integrate into asset manager ?
+    //"http://localhost:8080/demo-data/testScene.json"
+    
+    //FIXME: remove this, this is just for testing
+    var rawJson = '{"metadata":{"formatVersion":"0.0.1","type":"scene","generatedBy":"SceneSerializer","objects":2,"geometries":2,"materials":2,"textures":0},"urlBaseType":"relativeToScene","objects":{"UM2CableChain_ChainSegment.STL":{"geometry":"Geometry_233","material":"Material_160","position":[0,0,7.000000476837158],"rotation":[0,0,0],"scale":[1,1,1],"visible":true},"UM2CableChain_BedEnd.STL":{"geometry":"Geometry_254","material":"Material_189","position":[0,0,8.000000953674316],"rotation":[0,0,0],"scale":[1,1,1],"visible":true}},"geometries":{},"materials":{"Material_160":{"type":"MeshPhongMaterial","parameters":{"color":1550837,"ambient":16777215,"emissive":0,"specular":16777215,"shininess":5,"bumpScale":1,"reflectivity":1,"transparent":false,"opacity":1,"wireframe":false,"wireframeLinewidth":1}},"Material_189":{"type":"MeshPhongMaterial","parameters":{"color":1550837,"ambient":16777215,"emissive":0,"specular":16777215,"shininess":5,"bumpScale":1,"reflectivity":1,"transparent":false,"opacity":1,"wireframe":false,"wireframeLinewidth":1}}},"textures":{},"defaults":{"camera":""}}';
+    this.sceneParser.parse( rawJson );
+  },
+  //attribute change handlers
+  activeSceneChanged:function(){
+    //console.log("activeSceneChanged",this.activeScene);
+  },
+  selectedObjectChanged:function(){
+    //console.log("selectedObject",this.selectedObject);
+  }
+});
+</script>
+</polymer-element>
+

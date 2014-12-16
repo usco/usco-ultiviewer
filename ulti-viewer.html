@@ -13,8 +13,6 @@
 
 <link rel="import" href="components/three-js-helpers/camview-helper.html">
 
-<!--experimental, annotations -->
-<link rel="import" href="components/three-js-helpers/dimensions/usco-annotations.html">
 
 <!--core elements-->
 <link rel="import" href="components/usco-client-deps/usco-client-deps.html">
@@ -34,30 +32,32 @@
 
 
 <!--2d ui elements-->
-<link rel="import" href="ui-elements/view-navigator.html">
-<link rel="import" href="ui-elements/progress-cubic.html">
-<!--<link rel="import" href="ui-elements/progress-text.html">-->
-<link rel="import" href="ui-elements/progress-bar.html">
-
 <link rel="import" href="ui-elements/ui-base.html">
-<link rel="import" href="ui-elements/io-ui.html">
-<link rel="import" href="ui-elements/settings-ui.html">
-<link rel="import" href="ui-elements/measures-ui2.html">
-<link rel="import" href="ui-elements/infos-ui.html">
-<link rel="import" href="ui-elements/fullscreen-toggler2.html">
-<link rel="import" href="ui-elements/grid-ui.html">
 
+<!--io-->
+<link rel="import" href="io/io-ui.html">
+
+<!--transforms-->
+<script src="transforms/TransformControls.js"></script>
+<link rel="import" href="transforms/transforms-ui.html">
+
+<!--annotations-->
+<link rel="import" href="components/three-js-helpers/dimensions/usco-annotations.html">
+<link rel="import" href="annotations/measures-ui2.html">
 <link rel="import" href="overlay-note.html">
 
-<script src="components/three-js-helpers/dimensions/LeaderLineHelper3D.js"></script>
-<!--<link rel="import" href="components/observe-array-items/observe-array-items.html">-->
-
+<!--various-->
+<link rel="import" href="ui-elements/progress-bar.html">
+<link rel="import" href="ui-elements/infos-ui.html">
+<link rel="import" href="ui-elements/fullscreen-toggler2.html">
+<link rel="import" href="ui-elements/settings-ui.html">
+<link rel="import" href="ui-elements/view-navigator.html">
 
 <!--interactions-->
-<link rel="import" href="ui-elements/transforms-ui.html">
 <link rel="import" href="ui-elements/properties-ui.html">
+<link rel="import" href="ui-elements/grid-ui.html">
 <link rel="import" href="ui-elements/history-ui.html">
-<script src="TransformControls.js"></script>
+
 
 
 
@@ -88,7 +88,7 @@ tabindex="0" >
         </template>
       </div>-->
       
-      <io-ui id="inputOutput" selectedObject="{{selectedObject}}" activeScene="{{$.activeScene.object}}" resources="{{resources}}"></io-ui>
+      <io-ui id="inputOutput" selectedObject="{{selectedObject}}" activeScene="{{$.activeScene.object}}" resources="{{resources}}" viewer="{{$.threeJs}}" ></io-ui>
       
       <properties-ui id="objProps" selectedObject="{{selectedObject}}"> </properties-ui>
       <grid-ui id="gridProps" grid="{{$.grid}}"> </grid-ui>
@@ -122,6 +122,8 @@ tabindex="0" >
       
       <!--<input type="button" value="export annot"style="z-index:20;position:absolute;right:10px;top:50%"> Export Annotations</input>
       -->
+      
+      
       <!--viewer itself-->
       <three-js id="threeJs" 
       selectedObject="{{selectedObject}}" selectedObjects="{{selectedObjects}}" highlightedObject="{{highlightedObject}}"
@@ -148,7 +150,6 @@ tabindex="0" >
             <template if="{{showGrid}}">
               <grid-helper id="grid" up=[0,0,1]> </grid-helper>
             </template>
-            
               <!--<template repeat="{{resource in resources}}">
                 <template if="{{!resource.loaded}}">
                   <progress-cubic resource="{{resource}}"> </progress-cubic>
@@ -187,6 +188,7 @@ tabindex="0" >
                            path=["text","title"]
                            on-array-item-changed="{{annotationsChanged}}">
       </observe-array-items>-->
+     
      
       <!--core elements: loaders, etc-->
       <usco-client-deps> </usco-client-deps>
