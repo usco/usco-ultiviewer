@@ -46,22 +46,27 @@
         //modelUrl = currentUrl+"/demo-data/Constellation.amf";
         
         var annotations = [
-          {partId:0 , type:"point", title:"Goomba",text:"Interesting", position:[20,32,3], orientation:[0,0,1], author:"xxx", link:""},
-          {partId:0 ,type:"point", title:"Crux",text:"This is some trully remarquable engineering!", position:[-20,-16,6],orientation:[0,0,1], author:"exa", link:""},
+          {partId:0 , type:"note", title:"Goomba",text:"Interesting", position:[20,32,3], orientation:[0,0,1], author:"xxx", link:""},
+          {partId:0 ,type:"note", title:"Crux",text:"This is some trully remarquable engineering!", position:[-20,-16,6],orientation:[0,0,1], author:"exa", link:""},
         ];
         
-        ultiViewer.annotations = annotations;
+        //ultiViewer.annotations = annotations;
         
         
         setTimeout(function(){
           ultiViewer.loadMesh(modelUrl,{display:true}).then(function(){
-         
-          //FIXME: hack, this is needed right now because meshes don't have adequate
-          //metadata 
-          ultiViewer.selectedObject.userData.part = {};
-          ultiViewer.selectedObject.userData.part.id = 0;
-          
+            //FIXME: hack, this is needed right now because meshes don't have adequate
+            //metadata 
+            //ultiViewer.selectedObject.userData.part = {};
+            //ultiViewer.selectedObject.userData.part.id = 0;
           });
+          ultiViewer.loadMesh(currentUrl+"/demo-data/UM2CableChain_ChainSegment.STL",{display:true}).then(function(){
+            //FIXME: hack, this is needed right now because meshes don't have adequate
+            //metadata 
+            //ultiViewer.selectedObject.userData.part = {};
+            //ultiViewer.selectedObject.userData.part.id = 1;
+          });
+          
         },1000 );
         
     });

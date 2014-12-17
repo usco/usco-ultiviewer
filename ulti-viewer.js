@@ -106,8 +106,9 @@ Polymer('ulti-viewer', {
   hierarchy   : null,
   bom         : null,
   
-  
-  partId: 0, //FIXME: HACK , because we do not yet have "parts" with ids, when imporint meshes
+  parts: {},
+  partWaiters: {},
+  //partId: 0, //FIXME: HACK , because we do not yet have "parts" with ids, when imporint meshes
   
   created: function()
   {
@@ -118,6 +119,17 @@ Polymer('ulti-viewer', {
     
     //note: annotation positions are relative to their parent
     this.annotations  = [];
+    /*this.annotationsObserver = new ArrayObserver(this.annotations);
+    
+    this.annotationsObserver.open(function(splices) {
+      console.log("gnaaa", splices);
+      splices.forEach(function(splice) {
+        console.log("index",splice.index); // index position that the change occurred.
+        console.log("removed",splice.removed); // an array of values representing the sequence of elements which were removed
+        console.log("added",splice.addedCount); // the number of elements which were inserted.
+      });
+      
+    });*/
   },
   ready:function(){
     this.threeJs      = this.$.threeJs;
@@ -198,12 +210,15 @@ Polymer('ulti-viewer', {
     //FIXME: temporary hack for annotations etc
     var self = this;
     function afterAdded( mesh ){ 
-      console.log("adding fake part data");
-      mesh.userData.part.id = self.partId;
-      
       mesh.castShadow = true;
-      self.partId +=1 ;
       //mesh.receiveShadow = true;
+      var partId = mesh.userData.part.id;
+      self.parts[ partId] = mesh ;
+      if(self.partWaiters[ partId ])
+      {
+        console.log("resolving mesh for ", partId);
+        self.partWaiters[ partId ].resolve( mesh );
+      }
     }
     if( display ) return resourcePromise.then( this.addToScene.bind(this), onDisplayError ).then(afterAdded);
     
@@ -260,12 +275,16 @@ Polymer('ulti-viewer', {
         //new THREE.MeshLambertMaterial( {opacity:1,transparent:false,color: 0x0088ff} );
         shape = new THREE.Mesh(shape, material);
       }
+      
+      hashCode = function(s){
+        return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);              
+      }
 
       shape.userData.part = {};
       shape.userData.part.name = resource.name;//"Part"+self.partId;
+      shape.userData.part.id = hashCode(resource.uri)
       shape.userData.resource = resource;
       shape.name = resource.name;
-      
       
       /*var geometry = shape.geometry;
       if(geometry)
@@ -557,8 +576,143 @@ Polymer('ulti-viewer', {
     
   },
   //important data structure change watchers, not sure this should be here either
-  annotationsChanged:function(oldAnnotations, newAnnotations){
+  annotationsChanged:function(oldAnnotations, newAnnotations, foo){
+    if(oldAnnotations){
+      if(oldAnnotations.length == 1)
+      {
+        if("removed" in oldAnnotations[0]){
+          //console.log("array observer");
+          newAnnotations = [ this.annotations[oldAnnotations[0].index ] ];
+        }
+      }
+    }
     console.log("annotationschanged", oldAnnotations, newAnnotations, this.annotations);
+    //console.log("parts", this.parts);
+    var self = this;
+    var Q = require("q");
+    
+    for(var i=0;i<newAnnotations.length;i++)
+    {
+      addAnnotation( newAnnotations[i] );
+    }
+    
+    function addAnnotation( annotationData ){
+      var annotationHelper = null;
+      
+      var annotation = {};
+      for (var key in annotationData)
+      {
+        if(["position","normal","orientation","center","start","mid","end"].indexOf( key ) > -1 )
+        {
+          annotation[key] = new THREE.Vector3().fromArray( annotationData[key] );
+        }
+        else if(["object","startObject","midObject","endObject"].indexOf( key ) > -1 ){
+          if(!annotation._instances) annotation._instances = {};
+          annotation._instances[key] = annotationData[key];//push( annotationData[key] );
+        }
+        else{
+          annotation[key] = annotationData[key];
+        }
+      }
+      //console.log("annotation",annotation);
+      
+      var partsToWaitFor = [];
+      var argNames = [];
+      for( var key in annotation._instances  )//var i=0;i<annotation._instances.length;i++)
+      {
+        var partId = annotation._instances[key];
+        
+        if(!self.partWaiters[ partId ] )
+        {
+          //console.log(" no waiters for", partId);
+          self.partWaiters[ partId ] = Q.defer();
+        }
+        partsToWaitFor.push( self.partWaiters[ partId ].promise );
+        argNames.push( key );
+        
+        //var partIndex = self.parts.indexOf( partId );
+        //resolve all waiters where 
+        if( partId in self.parts)
+        {
+          self.partWaiters[ partId ].resolve( self.parts[ partId ] );
+        }
+        
+      }
+      //only add annotation once ALL its dependency parts have been loaded
+      Q.all( partsToWaitFor).then(function(res)
+      {
+        //console.log("all meshes/parts loaded, yeah !", res);
+        for(var i=0;i<argNames.length;i++)
+        {
+          var key = argNames[i];
+          annotation[key] = res[i];
+        }
+        finalizeAnnotation();
+      });
+      
+      
+      function finalizeAnnotation(){
+        
+        switch(annotation.type)
+        {
+          case "distance":
+            var annotationHelper = new DistanceHelper({arrowColor:0x000000,
+              textBgColor:"#ffd200",
+              start:annotation.start, end:annotation.end,
+              startObject:annotation.startObject,
+              endObject:annotation.endObject
+              });
+              
+            //annotationHelper.position.sub( annotation.startObject.position );
+            //annotation.startObject.add( annotationHelper );
+            
+            //TODO: uughh do not like this
+            //this.threeJs.updatables.push( annotationHelper ); 
+            //annotationHelper.set( {start:annotationHelper.start, end:annotationHelper.end} );
+            annotationHelper.updatable = true;
+            self.addToScene( annotationHelper, "helpers", {autoResize:false, autoCenter:false, persistent:false, select:false } );
+            
+          break;
+          case "thickness":
+            var annotationHelper = new ThicknessHelper({arrowColor:0x000000,
+              textBgColor:"#ffd200",
+              thickness:annotation.value, point:annotation.position,
+              normal: annotation.normal});
+              
+            annotationHelper.position.sub( annotation.object.position );
+            annotation.object.add( annotationHelper );
+          break;
+          
+          case "diameter":
+            var annotationHelper = new DiameterHelper({arrowColor:0x000000,
+              textBgColor:"#ffd200",
+              diameter:annotation.value, orientation:annotation.orientation,
+              center:annotation.center});
+              
+            annotationHelper.position.sub( annotation.object.position );
+            annotation.object.add( annotationHelper );
+          break;
+          case "angle":
+            var annotationHelper = new AngularDimHelper({arrowColor:0x000000,
+              textBgColor:"#ffd200",
+              start:annotation.start, mid: annotation.mid, end:annotation.end,
+              startObject:annotation.startObject,
+              midObject:annotation.midObject,
+              endObject:annotation.endObject});
+              
+            annotationHelper.position.sub( annotation.startObject.position );
+            annotation.startObject.add( annotationHelper );
+          break;
+          case "note":
+            var annotationHelper = new NoteHelper({arrowColor:0x000000,
+              textBgColor:"#ffd200",
+              point:annotation.position, object:annotation.object})
+              
+            annotationHelper.position.sub( annotation.object.position );
+            annotation.object.add( annotationHelper );
+        }
+      }
+    }
   },
   activeToolChanged:function(oldTool,newTool){
     console.log("activeToolChanged",oldTool,newTool, this.activeTool);
@@ -768,66 +922,6 @@ Polymer('ulti-viewer', {
   annotationDone:function(e,detail,sender){
     var annotation = detail;
     console.log("annotation raw", annotation);
-    
-    var annotationHelper = null;
-    switch(annotation.type)
-    {
-      case "distance":
-        var annotationHelper = new DistanceHelper({arrowColor:0x000000,
-          textBgColor:"#ffd200",
-          start:annotation.start, end:annotation.end,
-          startObject:annotation.startObject,
-          endObject:annotation.endObject
-          });
-          
-        //annotationHelper.position.sub( annotation.startObject.position );
-        //annotation.startObject.add( annotationHelper );
-        
-        //TODO: uughh do not like this
-        //this.threeJs.updatables.push( annotationHelper ); 
-        //annotationHelper.set( {start:annotationHelper.start, end:annotationHelper.end} );
-        annotationHelper.updatable = true;
-        this.addToScene( annotationHelper, "helpers", {autoResize:false, autoCenter:false, persistent:false, select:false } );
-        
-      break;
-      case "thickness":
-        var annotationHelper = new ThicknessHelper({arrowColor:0x000000,
-          textBgColor:"#ffd200",
-          thickness:annotation.value, point:annotation.point,
-          normal: annotation.normal});
-          
-        annotationHelper.position.sub( annotation.object.position );
-        annotation.object.add( annotationHelper );
-      break;
-      case "diameter":
-        var annotationHelper = new DiameterHelper({arrowColor:0x000000,
-          textBgColor:"#ffd200",
-          diameter:annotation.value, orientation:annotation.orientation,
-          center:annotation.center});
-          
-        annotationHelper.position.sub( annotation.object.position );
-        annotation.object.add( annotationHelper );
-      break;
-      case "angle":
-        console.log("annotation",annotation);
-        var annotationHelper = new AngularDimHelper({arrowColor:0x000000,
-          textBgColor:"#ffd200",
-          start:annotation.start, mid: annotation.mid, end:annotation.end,
-          startObject:annotation.startObject,
-          midObject:annotation.midObject,
-          endObject:annotation.endObject});
-          
-        annotationHelper.position.sub( annotation.startObject.position );
-        annotation.startObject.add( annotationHelper );
-      
-      break;
-
-    }
-    if(annotationHelper) {
-      //this.addToScene( annotationHelper, "helpers", {autoResize:false, autoCenter:false, persistent:false, select:false } );
-    }
-    
-    
     //add annotationData to storage
     //FIXME , do this better
     for(key in annotation)
@@ -840,7 +934,8 @@ Polymer('ulti-viewer', {
       if(annotation[key] instanceof THREE.Object3D)
       {
         annotation.partId = annotation[key].userData.part.id;
-        delete annotation[key];
+        annotation[key] = annotation[key].userData.part.id;
+        //delete annotation[key];
       }
       
       if(key === "point")
