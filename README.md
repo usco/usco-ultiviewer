@@ -99,29 +99,56 @@ General guidelines:
  - things need to be "natural"
  - things need to be smooth (all in the background)
  - avoid "hickups" and blocks : save and reload all the application state
- that includes last used design, tools etc : if you reload the app it should
- be in the same state you left it
+ that includes last used design, tools etc 
  
  - given how anoying it can be to "visualize" the offsets from center etc in openscad,
  displaying the x/y plane offset arrows on the workplane could be usefull
 
+ - "rwylo" : right where you left off : if you reload the app it should
+ be in the same state you left it : this includes:
+   - loaded meshes
+   - annotations
+   - selected tool
+   - toggled options
+   - camera angle/position
+
+
 Supported drag & drop sources:
+------------------------------
 - urls
 - urls from text files
 - files from desktop
 
+General ui behaviour
+--------------------
+ - double tap : zoom in on selected point of selected object
+ - one tool active at a time: you should not have measurement/annotation
+ tools active at the same time as translate/rotate etc
+ 
+Order of precendence with mouse interactions:
+---------------------------------------------
+ 1) object transformations
+ 2) camera movements
+ 3) object picking/selection
+ 
+ - Annotations are "closer" to the user: do not let taps/clicks
+ fall through 
+ 
 
 Measurements
+------------
 - if any measurement is active, deactivate object selection :
 zooming in etc distracts from taking measures across objects
 
 Editing
+-------
 - left click on object : select 
 - shift + click : multiple select
 - ctrl + d : duplicate object
+- supr/del : delete object 
 
 - material/color picker
-- put on plane (arbitrary , or base on selection)
+- put on plane (arbitrary , or based on selection)
 - align
 - mirror
 - multiple selection

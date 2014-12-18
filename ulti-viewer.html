@@ -46,6 +46,9 @@
 <link rel="import" href="annotations/measures-ui2.html">
 <link rel="import" href="overlay-note.html">
 
+<!--object focus/zoom etc effects-->
+<link rel="import" href="components/three-js-helpers/objectEffects/object-effects.html">
+
 <!--various-->
 <link rel="import" href="ui-elements/progress-bar.html">
 <link rel="import" href="ui-elements/infos-ui.html">
@@ -129,7 +132,7 @@ tabindex="0" >
       selectedObject="{{selectedObject}}" selectedObjects="{{selectedObjects}}" highlightedObject="{{highlightedObject}}"
       on-objectpicked="{{objectPicked}}"
       >
-          <three-stats id="stats" show=true channel='render'></three-stats>
+          <three-stats id="stats" show=false channel='render'></three-stats>
           <tween-js></tween-js>
           
           <three-js-webglRenderer id="webglRenderer"></three-js-webglRenderer>
@@ -159,7 +162,7 @@ tabindex="0" >
           
           
           <three-js-viewport name="perspective" id="perspectiveView" class="perspectiveView"
-          exScenes="naviScene" on-dblclick="{{doubleTapHandler}}">
+          exScenes="naviScene" on-doubletap="{{doubleTapHandler}}" >
             <three-js-combinedCamera id="cam" pos=[100,-100,100] defaultPos=[-100,-50,200] orientation="{{camOrientation}}" up=[0,0,1]></three-js-combinedCamera >
             <three-js-orbitControls id="camCtrl" cameraUp=[0,0,1] autoRotate="{{autoRotate && (!selectedObject || selectRotate)}}" autoRotateSpeed=2 panSpeed=1.5> </three-js-orbitControls>
           </three-js-viewport>
@@ -216,6 +219,7 @@ tabindex="0" >
       <!--keboard handling-->
       <core-a11y-keys  keys="t" on-keys-pressed="{{toTranslateMode}}"></core-a11y-keys>
       <core-a11y-keys  keys="r" on-keys-pressed="{{toRotateMode}}"></core-a11y-keys>
+      <core-a11y-keys  keys="s" on-keys-pressed="{{toScaleMode}}"></core-a11y-keys>
       <core-a11y-keys  keys="ctrl+d" on-keys-pressed="{{duplicateObject}}"></core-a11y-keys>
       <core-a11y-keys  keys="del" on-keys-pressed="{{deleteObject}}"></core-a11y-keys>
       <core-a11y-keys  keys="F11" on-keys-pressed="{{handleFullScreen}}"></core-a11y-keys>

@@ -107,29 +107,24 @@ Polymer('ulti-viewer', {
   bom         : null,
   
   parts: {},
-  partWaiters: {},
-  //partId: 0, //FIXME: HACK , because we do not yet have "parts" with ids, when imporint meshes
+  _partWaiters: {},
+  _annotationMeshes: [],//list of all annotation 3d meshes
   
   created: function()
   {
     this.resources = [];
     this.meshes    = [];
-    this.minObjectSize = 20;//minimum size (in arbitrarty/opengl units) before requiring re-scaling (upwards)
-    this.maxObjectSize = 200;//maximum size (in arbitrarty/opengl units) before requiring re-scaling (downwards)
+    
+    this.settings = {
+      minObjectSize: 20,//minimum size (in arbitrarty/opengl units) before requiring re-scaling (upwards)
+      maxObjectSize: 200//maximum size (in arbitrarty/opengl units) before requiring re-scaling (downwards)
+    }
     
     //note: annotation positions are relative to their parent
     this.annotations  = [];
-    /*this.annotationsObserver = new ArrayObserver(this.annotations);
     
-    this.annotationsObserver.open(function(splices) {
-      console.log("gnaaa", splices);
-      splices.forEach(function(splice) {
-        console.log("index",splice.index); // index position that the change occurred.
-        console.log("removed",splice.removed); // an array of values representing the sequence of elements which were removed
-        console.log("added",splice.addedCount); // the number of elements which were inserted.
-      });
-      
-    });*/
+    //helpers
+    this._zoomInOnObject = new ZoomInOnObject();
   },
   ready:function(){
     this.threeJs      = this.$.threeJs;
@@ -142,6 +137,9 @@ Polymer('ulti-viewer', {
     if (this.mozRequestFullScreen) document.addEventListener("mozfullscreenchange", this.onFullScreenChange.bind(this), false);
     if (this.msRequestFullScreen) document.addEventListener("msfullscreenchange", this.onFullScreenChange.bind(this), false);
     if (this.webkitRequestFullScreen) document.addEventListener("webkitfullscreenchange", this.onFullScreenChange.bind(this), false);
+    
+    //setup some visual utilities
+    this._zoomInOnObject.camera = this.$.cam.object;
     
      //add the selection helper
     //dimensions display helper
@@ -214,10 +212,10 @@ Polymer('ulti-viewer', {
       //mesh.receiveShadow = true;
       var partId = mesh.userData.part.id;
       self.parts[ partId] = mesh ;
-      if(self.partWaiters[ partId ])
+      if(self._partWaiters[ partId ])
       {
         console.log("resolving mesh for ", partId);
-        self.partWaiters[ partId ].resolve( mesh );
+        self._partWaiters[ partId ].resolve( mesh );
       }
     }
     if( display ) return resourcePromise.then( this.addToScene.bind(this), onDisplayError ).then(afterAdded);
@@ -237,8 +235,8 @@ Polymer('ulti-viewer', {
     var options = options || {};
     options.autoCenter = options.autoCenter === undefined ? true: options.autoCenter;
     options.autoResize = options.autoResize === undefined ? true: options.autoResize;
-    options.minSize    = options.minSize === undefined ? this.minObjectSize: options.minSize; 
-    options.maxSize    = options.maxSize === undefined ? this.maxObjectSize: options.maxSize; 
+    options.minSize    = options.minSize === undefined ? this.settings.minObjectSize: options.minSize; 
+    options.maxSize    = options.maxSize === undefined ? this.settings.maxObjectSize: options.maxSize; 
     options.persistent = options.persistent === undefined ? false: options.persistent; 
     options.select     = options.select === undefined ? true: options.select; 
     
@@ -330,8 +328,9 @@ Polymer('ulti-viewer', {
     return false;
   },
   doubleTapHandler:function( event ){
+    //console.log("double tap in viewer", event);
     if(this.selectedObject){
-      this.zoomInOnObject( this.selectedObject );
+      this._zoomInOnObject.execute( this.selectedObject, {position:event.detail.pickingInfos[0].point} );
     }
   },
   handleDragOver:function(e) {
@@ -377,45 +376,39 @@ Polymer('ulti-viewer', {
     //console.log("resource",resource);
     this.dismissResource( resource );
   },
-  onDownloadTap:function(event)
-  {
-     var link = document.createElement("a");
-     //TODO: rethink this whole aspect: even when keeping the initial "raw" data
-     //things are a bit convoluted : perhaps an intermediary step would be for the viewer
-     //to be able to act as a "format converter": once we have working "writers/serialisers"
-     //the initial data format would not matter and exporting data would be more clean
-     var href = null;
-     var download = null;
-     
-     //walk up the object tree
-     function findSelectionsResource(object)
-     {
-        var currentObject = object;            
-        while(currentObject)
-        {
-           if (!(!currentObject.meta))
-           {
-              return currentObject;
-           }
-           currentObject= object.parent;
-        }
-     }
-     resourceRoot = findSelectionsResource(this.selectedObject);
-
-     if( resourceRoot ) href = resourceRoot.meta.resource.uri;
-     if( ! href) return;
-
-		 link.href = href;
-		 link.click();
-     event.preventDefault();
-     event.stopPropagation();
-  },
   objectPicked:function(e){
     /*TODO: externalize all of this into custom elements for
       how to handle event binding ?
       perhaps better to use pub/sub ?
     */
     console.log("object picked", e);
+    //FIXME: experimental: try to select the ROOT helper if possible
+    var pickingDatas = e.detail.pickingInfos;
+    if(pickingDatas.length == 0) return;
+    
+    var object = pickingDatas[0].object; 
+    
+    function walkUp( node ){
+      if(node){
+        if(node instanceof AnnotationHelper){
+          return node;
+        }
+        if( node.parent)
+        {
+          return walkUp( node.parent);
+        }
+      }
+      return null;
+    }
+    
+    var annotation = walkUp(object);
+    if(annotation)
+    {
+      console.log("found root helper", annotation);
+      //this.selectedObject = annotation;
+      e.stopImmediatePropagation();
+      return
+    }
     
     this.$.annotations.onPicked( e );
     var selection = this.$.annotations.getSelection();
@@ -428,8 +421,10 @@ Polymer('ulti-viewer', {
     //FIXME: hardCoded, do this better
     if(this.toolCategory === "annotations" && this.activeTool) return;
     //TODO: should be togglable behaviour
-    if(this.selectionZoom) this.zoomInOnObject( object );
+    if(this.selectionZoom) this._zoomInOnObject.execute( object );
     //FIXME: weird issue with rescaled models and worldToLocal
+    
+    
   },
   //attribute change handlers
   onFullScreenChange:function()
@@ -476,63 +471,9 @@ Polymer('ulti-viewer', {
   {
     return;
     //console.log("highlightedObjectChanged",oldHovered,newHovered);
-    this.selectionColor = 0xf7c634;//0xff5400;//0xfffccc;
-	  this.outlineColor = 0xffc200;
-    function validForOutline(selection)
-    {
-      return (!(selection.hoverOutline != null) && !(selection.outline != null) && !(selection.name === "hoverOutline") && !(selection.name === "boundingCage") && !(selection.name === "selectOutline"))
-    }
-
-    var curHovered = this.highlightedObject;
-
-    if (curHovered != null )
-    {
-      var hoverEffect = new THREE.Object3D();
-      var outline, outlineMaterial;
-      curHovered.currentHoverHex = curHovered.material.color.getHex();
-      curHovered.material.color.setHex(this.selectionColor);
-      //curHovered.material.vertexColors = THREE.FaceColors;
-      
-      //curHovered.currentHoverHexSpec = curHovered.material.specular.getHex();
-      //curHovered.material.specular.setHex(this.selectionColor);
-      
-      //curHovered.material.shininess=8; //.setHex(this.selectionColor);
-      outlineMaterial = new THREE.MeshBasicMaterial({
-          color: 0xffc200,
-          side: THREE.BackSide
-        });
-
-      outlineMaterialTest = new THREE.LineBasicMaterial({
-          color: 0xffc200,
-          linewidth: 10
-          //side: THREE.BackSide
-        });
-      outlineMaterialTest = new THREE.MeshBasicMaterial({ 
-          color: 0xffc200,
-          wireframe: true, wireframeLinewidth: 4 ,side: THREE.BackSide} );
-
-      outline = new THREE.Object3D();//new THREE.Mesh(curHovered.geometry, outlineMaterial);
-      outline.scale.multiplyScalar(1.03);
-      outline.name = "hoverOutline";
-      curHovered.hoverOutline = outline;
-      curHovered.add(outline);
-    }
-    if(oldHovered != null)
-    {
-      if (oldHovered.hoverOutline != null)
-      {
-        oldHovered.material.color.setHex(oldHovered.currentHoverHex);
-        //oldHovered.material.specular.setHex(oldHovered.currentHoverHexSpec);
-        //oldHovered.material.shininess = 10;
-
-        oldHovered.remove(oldHovered.hoverOutline);
-        oldHovered.hoverOutline = null;
-      }
-    }
   },
   selectedObjectsChanged:function()
   {
-    //f96a5e
     //console.log("selectedObjectsChanged", this.selectedObjects);
     if(this.selectedObjects)
     {
@@ -547,11 +488,11 @@ Polymer('ulti-viewer', {
   },
   selectedObjectChanged:function(oldSelection)
   {
-    //console.log("selectedObjectChanged", this.selectedObject);
+    console.log("selectedObjectChanged", this.selectedObject);
     var newSelection = this.selectedObject;
     
     //this.clearVisualFocusOnSelection();
-    if( oldSelection && oldSelection.helpers )
+    if( oldSelection && oldSelection.helpers && ! (oldSelection instanceof AnnotationHelper) )
     {
       this.objDimensionsHelper.detach( oldSelection );
       this.transformControls.detach( oldSelection );
@@ -562,14 +503,17 @@ Polymer('ulti-viewer', {
     
     //FIXME: keep the red outline ?
     //this.outlineObject( newSelection, oldSelection );
-    if(this.selectionZoom) this.zoomInOnObject( newSelection );
+    if(this.selectionZoom) this._zoomInOnObject.execute( newSelection );
     if(newSelection)
     {
       if(this.transformControls.enabled)  this.transformControls.attach( newSelection );
       if(this.showDimensions)
       {
-        this.objDimensionsHelper.attach( newSelection );
-        if(!(newSelection.helpers)) newSelection.helpers = {}
+        if(! (newSelection instanceof AnnotationHelper) )
+        {
+          this.objDimensionsHelper.attach( newSelection );
+          if(!(newSelection.helpers)) newSelection.helpers = {}
+        }
       }
       //this.visualFocusOnSelection(newSelection);
     }
@@ -622,26 +566,23 @@ Polymer('ulti-viewer', {
       {
         var partId = annotation._instances[key];
         
-        if(!self.partWaiters[ partId ] )
+        if(!self._partWaiters[ partId ] )
         {
-          //console.log(" no waiters for", partId);
-          self.partWaiters[ partId ] = Q.defer();
+          self._partWaiters[ partId ] = Q.defer();
         }
-        partsToWaitFor.push( self.partWaiters[ partId ].promise );
+        partsToWaitFor.push( self._partWaiters[ partId ].promise );
         argNames.push( key );
         
         //var partIndex = self.parts.indexOf( partId );
         //resolve all waiters where 
         if( partId in self.parts)
         {
-          self.partWaiters[ partId ].resolve( self.parts[ partId ] );
+          self._partWaiters[ partId ].resolve( self.parts[ partId ] );
         }
-        
       }
       //only add annotation once ALL its dependency parts have been loaded
       Q.all( partsToWaitFor).then(function(res)
       {
-        //console.log("all meshes/parts loaded, yeah !", res);
         for(var i=0;i<argNames.length;i++)
         {
           var key = argNames[i];
@@ -650,9 +591,8 @@ Polymer('ulti-viewer', {
         finalizeAnnotation();
       });
       
-      
       function finalizeAnnotation(){
-        
+        var annotationHelper = null;
         switch(annotation.type)
         {
           case "distance":
@@ -662,10 +602,8 @@ Polymer('ulti-viewer', {
               startObject:annotation.startObject,
               endObject:annotation.endObject
               });
-              
             //annotationHelper.position.sub( annotation.startObject.position );
             //annotation.startObject.add( annotationHelper );
-            
             //TODO: uughh do not like this
             //this.threeJs.updatables.push( annotationHelper ); 
             //annotationHelper.set( {start:annotationHelper.start, end:annotationHelper.end} );
@@ -711,6 +649,21 @@ Polymer('ulti-viewer', {
             annotationHelper.position.sub( annotation.object.position );
             annotation.object.add( annotationHelper );
         }
+        
+        //store annotation object/mesh
+        self._annotationMeshes.push( annotationHelper );
+      }
+    }
+  },
+  showAnnotationsChanged:function(oldShowAnnotations, newShowAnnotations){
+    var _annotationMeshes = this._annotationMeshes;
+    for(var i=0;i<_annotationMeshes.length;i++)
+    {
+      if(newShowAnnotations){
+      _annotationMeshes[i].show();
+      }else
+      {
+        _annotationMeshes[i].hide();
       }
     }
   },
@@ -720,128 +673,8 @@ Polymer('ulti-viewer', {
   toolCategoryChanged:function(oldCateg,newCateg){
     console.log("toolCategoryChanged",oldCateg,newCateg, this.toolCategory);
   },
-  
-  
   //helpers
-  //FIXME: this is a "helper"/transform/whatever 
-  //just like centering , resizing etc... food for thought/
-  //refactoring
-  //TODO: move these somewhere else, preferably a helper
-  focusOnObject  :function(newSelection, oldSelection)
-  {
-    //visual helper: make objects other than main selection slightly transparent
-    if( newSelection ) {
-      for(var i = 0; i < this.rootAssembly.children.length;i++)
-      {
-        var child = this.rootAssembly.children[i];
-        if(selection == child)
-        {
-          child.material.opacity = child.material._oldOpacity;
-          child.material.transparent = child.material._oldTransparent;
-          continue;
-        }
-        child.material._oldOpacity = child.material.opacity;
-        child.material._oldTransparent = child.material.transparent;
-        child.oldRenderDepth = child.renderDepth;
-    
-        //child.renderDepth = 0;
-        //child.material.renderDepth = 0;
-        child.material.opacity = 0.3;
-        child.material.transparent = true;
-      }
-    }
-    
-    if(!newSelection && !oldSelection)
-    {
-      for(var i = 0; i < this.rootAssembly.children.length;i++)
-      {
-        var child = this.rootAssembly.children[i];
-        child.material.opacity = child.material._oldOpacity;
-        child.material.transparent = child.material._oldTransparent;
-        //child.renderDepth = child.material._oldRenderDepth;
-      }
-    }
-  },
-  zoomInOnObject:function( object , options){
-    var scope = this;//TODO: this is temporary, until this "effect" is an object
-   //possible alternative to resizing : zooming in on objects
-    if(!object) return;
-    
-    var options = options || {};
-    
-    var orientation = options.orientation === undefined ? null: options.orientation;//to force a given "look at " vector
-    var distance = options.distance === undefined ? 3: options.distance;
-    var zoomTime = options.zoomTime === undefined ? 400: options.zoomTime;
-    
-    var camera = this.$.cam.object;
-    var camPos = camera.position.clone();
-    var camTgt = camera.target.clone();
-    var camTgtTarget =object.position.clone();
-    
-    var camPosTarget = camera.position.clone().sub( object.position ) ;
-    
-    //camera.target.copy( object.position );
-    var camLookatVector = new THREE.Vector3( 0, 0, 1 );
-    camLookatVector.applyQuaternion( camera.quaternion );
-    camLookatVector.normalize();
-    camLookatVector.multiplyScalar( object.boundingSphere.radius*distance );
-    camLookatVector = object.position.clone().add( camLookatVector );
-    
-    camPosTarget = camLookatVector;
-    
-    var precision = 0.001;
-    
-    //console.log(camPosTarget, camPos);
-    //Simple using vector.equals( otherVector) is not good enough 
-    if(Math.abs(camPos.x - camPosTarget.x)<= precision &&
-     (Math.abs(camPos.y - camPosTarget.y)<= precision) &&
-     (Math.abs(camPos.z - camPosTarget.z)<= precision) )
-    {
-      //already at target, do nothing
-      return;
-    }   
-    var tween = new TWEEN.Tween( camPos )
-      .to( camPosTarget , zoomTime )
-      .easing( TWEEN.Easing.Quadratic.In )
-      .onUpdate( function () {
-        camera.position.copy(camPos);   
-      } )
-      .start();
-      var tween2 = new TWEEN.Tween( camTgt )
-      .to( camTgtTarget , zoomTime )
-      .easing( TWEEN.Easing.Quadratic.In )
-      .onUpdate( function () {
-        camera.target.copy(camTgt);   
-      } )
-      .start();
-      //tween2.chain( tween );
-      //tween2.start();
-   },
-   outlineObject:function(newSelection, oldSelection)
-  {
-    this.selectionColor = 0xfffccc;
-    //remove from old selection
-    if(oldSelection != null)
-    {
-      oldSelection.remove(oldSelection.outline);
-      oldSelection.cage = null;
-      oldSelection.outline = null;
-      //oldSelection.material.color.setHex( oldSelection.currentSelectHex );
-    }
-    //add to new selection
-    if(newSelection != null)
-    {
-        var outlineMaterial = new THREE.MeshBasicMaterial({
-          color: 0xff0000,//0xffc200,
-          side: THREE.BackSide
-        });
-        outline = new THREE.Mesh(newSelection.geometry, outlineMaterial);
-        outline.name = "selectOutline";
-        outline.scale.multiplyScalar(1.02);
-        newSelection.outline = outline;
-        newSelection.add(outline);
-    }
-  },
+ 
   //various
   updateOverlays: function(){
     var p, v, percX, percY, left, top;
@@ -921,23 +754,20 @@ Polymer('ulti-viewer', {
   //interactions
   annotationDone:function(e,detail,sender){
     var annotation = detail;
-    console.log("annotation raw", annotation);
+    //console.log("annotation raw", annotation);
     //add annotationData to storage
-    //FIXME , do this better
     for(key in annotation)
     {
       if(annotation[key] instanceof THREE.Vector3)
       {
         annotation[key] = annotation[key].toArray();
       }
-      
       if(annotation[key] instanceof THREE.Object3D)
       {
         annotation.partId = annotation[key].userData.part.id;
         annotation[key] = annotation[key].userData.part.id;
         //delete annotation[key];
       }
-      
       if(key === "point")
       {
         annotation["position"] = annotation[key];
@@ -948,7 +778,7 @@ Polymer('ulti-viewer', {
     this.annotations.push( annotation );
   },
   duplicateObject:function(){
-    console.log("duplicating")
+    console.log("duplicating selection")
     if(!this.selectedObject) return;
     
     var cloned = this.selectedObject.clone();
@@ -958,28 +788,24 @@ Polymer('ulti-viewer', {
   },
   
   deleteObject:function(){
-    console.log("deleting")
+    console.log("deleting selection")
     if(!this.selectedObject) return;
     this.removeFromScene( this.selectedObject, "main" );
     this.selectedObject = null;
   },
   
   toRotateMode:function(){
-    this.transformControls.setMode("rotate");
+    this.activeTool = this.activeTool === "rotate" ? null: "rotate";
   }, 
   toTranslateMode:function(){
-    this.transformControls.setMode("translate");
+    this.activeTool = this.activeTool === "translate" ? null: "translate";
+  }, 
+  toScaleMode:function(){
+    this.activeTool = this.activeTool === "scale" ? null: "scale";
   }, 
   
   //helpers
   getUrlParams:function( ){
-    /*var url = window.location.href;
-    var urlElems = url.split("?")
-    var name = urlElems.shift().split("/").pop();
-    var queryParams = urlElems.pop().split("&");
-    
-    console.log("URL", url, urlElems, name, queryParams);*/
-    
     //see http://stackoverflow.com/questions/1034621/get-current-url-in-web-browser
     var match,
         pl     = /\+/g,  // Regex for replacing addition symbol with a space
