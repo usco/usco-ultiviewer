@@ -21,31 +21,36 @@ width: 14px;"> </core-icon> Grid </span>
 <script>
 Polymer("grid-ui",{
   grid:null,
-  selectedPreset:null,
+  selectedPreset:"default",
   presets:
-    {"UM1":{type:"rectangular",width:210,length:210,height:205},
+    {
+    "default":{type:"rectangular",width:200,length:200,height:200},
+    "UM1":{type:"rectangular",width:210,length:210,height:205},
     "UM2":{type:"rectangular",width:230,length:225,height:205},
+    "Weirdo":{type:"rectangular",width:53,length:225,height:205},
     "GenericDelta":{type:"circular",diameter:170,height:180} }
   ,
   //attribute change handlers
   gridChanged:function(){
-    console.log("this.grid",this.grid);
+    this.updateGrid();
   },
   selectedPresetChanged:function(){
-    console.log("grid preset", this.selectedPreset);
-    //TODO: grid helper should allow setting width & height independantly
-    if(this.grid){
-      console.log("this.grid.size",this.grid.size);
-      var curPreset = this.presets[ this.selectedPreset ];
-      if(curPreset.width) this.grid.size = curPreset.width ;
-      if(curPreset.diameter) this.grid.size = curPreset.diameter ;
-    }
+    this.updateGrid();
+  },
+  //helpers
+  updateGrid:function(){
+    var curPreset = this.presets[ this.selectedPreset ];
+    
+    if(!curPreset) return;
+    this.grid.type = curPreset.type ;
+    if(curPreset.width) this.grid.width = curPreset.width ;
+    if(curPreset.length) this.grid.length = curPreset.length ;
+    if(curPreset.diameter) this.grid.width = curPreset.diameter ;
   },
   //filters
   //get object keys
   getKeys : function(o){
     var keys = Object.keys(o);
-    //console.log("keys", keys, o);
     return keys;
   },
   //round to 2 decimals
