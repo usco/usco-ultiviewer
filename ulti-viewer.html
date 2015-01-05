@@ -30,6 +30,8 @@
 <link rel="import" href="components/polymer-gestures/polymer-gestures.html">
 <link rel="import" href="components/core-a11y-keys/core-a11y-keys.html">
 
+<!-- mixins -->
+<link rel="import" href="mixins.html">
 
 <!--2d ui elements-->
 <link rel="import" href="ui-elements/ui-base.html">
@@ -62,11 +64,7 @@
 <link rel="import" href="ui-elements/history-ui.html">
 
 
-
-
-<polymer-element name="ulti-viewer" attributes="showAxis showIndicators"
-on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragover="{{handleDragOver}}" on-drop="{{handleDrop}}" 
-tabindex="0" >
+<polymer-element name="ulti-viewer" attributes="showAxis showIndicators" tabindex="0" >
     <template>
       <link rel="stylesheet" type="text/css" href="ulti-viewer.css">
       <!--controls overlay-->

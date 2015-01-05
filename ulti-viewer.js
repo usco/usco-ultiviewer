@@ -1,5 +1,5 @@
 
-Polymer('ulti-viewer', {
+Polymer('ulti-viewer', Polymer.mixin({
   /**
    * toggle to show grid or not
    * 
@@ -132,12 +132,6 @@ Polymer('ulti-viewer', {
   },
   domReady:function()
   {
-    //needed since we do not inherit from three-js but do composition
-    if (this.requestFullscreen) document.addEventListener("fullscreenchange", this.onFullScreenChange.bind(this), false);
-    if (this.mozRequestFullScreen) document.addEventListener("mozfullscreenchange", this.onFullScreenChange.bind(this), false);
-    if (this.msRequestFullScreen) document.addEventListener("msfullscreenchange", this.onFullScreenChange.bind(this), false);
-    if (this.webkitRequestFullScreen) document.addEventListener("webkitfullscreenchange", this.onFullScreenChange.bind(this), false);
-    
     //setup some visual utilities
     this._zoomInOnObject.camera = this.$.cam.object;
     
@@ -168,10 +162,22 @@ Polymer('ulti-viewer', {
     
     //fetch any parameters passed to viewer via url
     this.getUrlParams();
+    
+    //mixin tests
+    this.initDragAndDrop();
+    this.initFullScreen();
+    this.attachNoScroll();
+    
+    this.addEventListener("url-dropped", this.urlDroppedHandler, false);
+    this.addEventListener("text-dropped", this.textDroppedHandler, false);
+    this.addEventListener("files-dropped", this.filesDroppedHandler, false);
+    
   },
   detached:function()
   {
     this.clearResources();
+    this.detachDragAndDrop();
+    this.detachNoScroll();
   },
   //internal api
   injectPlugin:function(pluginNode){
@@ -321,54 +327,24 @@ Polymer('ulti-viewer', {
     if (index > -1) this.resources.splice(index, 1);
   },
   //event handlers
-  //prevents scrolling whole page if using scroll & mouse is within viewer
-  onMouseWheel:function (event)
-  {
-    event.preventDefault();
-    return false;
-  },
   doubleTapHandler:function( event ){
     //console.log("double tap in viewer", event);
     if(this.selectedObject){
       this._zoomInOnObject.execute( this.selectedObject, {position:event.detail.pickingInfos[0].point} );
     }
   },
-  handleDragOver:function(e) {
-    if (e.preventDefault) {
-      e.preventDefault();
-    }
+  urlDroppedHandler:function( event ){
+    console.log("urlDroppedHandler",event);
+    this.loadMesh( event.detail.data );
   },
-  handleDrop:function(e)
-  {
-    if (e.preventDefault) {
-      e.preventDefault(); // Necessary. Allows us to drop.
-    }
-    e.dataTransfer.dropEffect = 'copy'; 
-    console.log("e",e,e.dataTransfer)
-  
-    var data = e.dataTransfer.getData("url");
-    if( data!= "")
-    {
-      this.asyncFire('url-dropped', {data:data} );
-      this.loadMesh( data );
-      return;
-    }
-    
-    var data=e.dataTransfer.getData("Text");
-    if( data!= "" ){
-        this.asyncFire('text-dropped', {data:data} );
-        this.loadMesh( data );//e.detail.data
-        return;
-    }
-
-    var files = e.dataTransfer.files;
-    if(files)
-    {
-      this.asyncFire('files-dropped', {data:files});
-      for (var i = 0, f; f = files[i]; i++) {
+  textDroppedHandler:function( event ){
+    console.log("textDroppedHandler",event);
+    this.loadMesh( event.detail.data );
+  },
+  filesDroppedHandler:function( event ){
+    console.log("filesDroppedHandler",event);
+    for (var i = 0, f; f = event.detail.data[i]; i++) {
         this.loadMesh( f );
-      }
-      return;
     }
   },
   onReqDismissResource:function(event, detail, sender) {
@@ -423,35 +399,8 @@ Polymer('ulti-viewer', {
     //TODO: should be togglable behaviour
     if(this.selectionZoom) this._zoomInOnObject.execute( object );
     //FIXME: weird issue with rescaled models and worldToLocal
-    
-    
   },
   //attribute change handlers
-  onFullScreenChange:function()
-  {
-    console.log("fullscreenchanged");
-    //workaround to reset this.fullScreen to correct value when pressing exit etc in full screen mode
-    this.fullScreen = !(!document.fullscreenElement &&    // alternative standard method
-    !document.mozFullScreenElement && !document.webkitFullscreenElement);
-  },
-  fullScreenChanged:function()
-  {
-    if(this.fullScreen)
-    {
-      if(this.requestFullScreen)this.requestFullScreen();
-      if(this.webkitRequestFullScreen)this.webkitRequestFullScreen();
-      if(this.mozRequestFullScreen)this.mozRequestFullScreen();
-      if(this.msRequestFullscreen)this.msRequestFullscreen();
-    }
-    else
-    {
-      if(document.cancelFullScreen) document.cancelFullScreen();
-      if(document.webkitCancelFullScreen) document.webkitCancelFullScreen();
-      if(document.mozCancelFullScreen) document.mozCancelFullScreen();
-      if(document.msCancelFullScreen) document.msCancelFullScreen();
-    }
-    
-  },
   autoRotateChanged:function()
   {
     var controls = this.$.camCtrl;
@@ -649,7 +598,6 @@ Polymer('ulti-viewer', {
             annotationHelper.position.sub( annotation.object.position );
             annotation.object.add( annotationHelper );
         }
-        
         //store annotation object/mesh
         self._annotationMeshes.push( annotationHelper );
       }
@@ -846,9 +794,4 @@ Polymer('ulti-viewer', {
     if(!o) return "";
     return o.toFixed(precision);
   },
-  handleFullScreen:function(e){
-    this.fullScreen = true;
-    return true
-  }
-  
-});
+}, Window.dragAndDropMixin, Window.fullScreenMixin, Window.noScrollMixin));
