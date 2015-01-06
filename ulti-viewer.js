@@ -155,8 +155,8 @@ Polymer('ulti-viewer', Polymer.mixin({
     
     this.threeJs.updatables.push( this.updateOverlays.bind(this) ); 
     
+    //FIXME: does this work at all ???
     this.async(function(){
-      console.log("impl",this);
       this.$.perspectiveView.focus();
     },null,10);
     
@@ -220,11 +220,11 @@ Polymer('ulti-viewer', Polymer.mixin({
       self.parts[ partId] = mesh ;
       if(self._partWaiters[ partId ])
       {
-        console.log("resolving mesh for ", partId);
+        //console.log("resolving mesh for ", partId);
         self._partWaiters[ partId ].resolve( mesh );
       }
       
-      //FIXME: not sure about these
+      //FIXME: not sure about these, they are used for selection levels
       mesh.selectable = true;
       mesh.selectTrickleUp = false;
       
@@ -339,15 +339,15 @@ Polymer('ulti-viewer', Polymer.mixin({
     }
   },
   urlDroppedHandler:function( event ){
-    console.log("urlDroppedHandler",event);
+    //console.log("urlDroppedHandler",event);
     this.loadMesh( event.detail.data );
   },
   textDroppedHandler:function( event ){
-    console.log("textDroppedHandler",event);
+    //console.log("textDroppedHandler",event);
     this.loadMesh( event.detail.data );
   },
   filesDroppedHandler:function( event ){
-    console.log("filesDroppedHandler",event);
+    //console.log("filesDroppedHandler",event);
     for (var i = 0, f; f = event.detail.data[i]; i++) {
         this.loadMesh( f );
     }
@@ -449,8 +449,16 @@ Polymer('ulti-viewer', Polymer.mixin({
   },
   selectedObjectChanged:function(oldSelection)
   {
-    console.log("selectedObjectChanged", this.selectedObject);
+    //console.log("selectedObjectChanged", this.selectedObject);
     var newSelection = this.selectedObject;
+    
+    //FIXME: hack
+    if( oldSelection && oldSelection.highlight ){
+      oldSelection.highlight(false);
+    }
+    if( newSelection && newSelection.highlight ){
+      newSelection.highlight(true);
+    }
     
     //this.clearVisualFocusOnSelection();
     if( oldSelection && oldSelection.helpers && ! (oldSelection instanceof AnnotationHelper) )
@@ -496,11 +504,9 @@ Polymer('ulti-viewer', Polymer.mixin({
       }
     }
     console.log("annotationschanged", oldAnnotations, newAnnotations, this.annotations);
-    
     /*for(var i=0;i<removedAnnotations.length;i++)
     {
     }*/
-    
     //console.log("parts", this.parts);
     var self = this;
     var Q = require("q");
@@ -582,7 +588,7 @@ Polymer('ulti-viewer', Polymer.mixin({
             //this.threeJs.updatables.push( annotationHelper ); 
             //annotationHelper.set( {start:annotationHelper.start, end:annotationHelper.end} );
             annotationHelper.updatable = true;
-            self.addToScene( annotationHelper, "helpers", {autoResize:false, autoCenter:false, persistent:false, select:false } );
+            self.addToScene( annotationHelper, "main", {autoResize:false, autoCenter:false, persistent:false, select:false } );
             
           break;
           case "thickness":
@@ -643,10 +649,25 @@ Polymer('ulti-viewer', Polymer.mixin({
     }
   },
   activeToolChanged:function(oldTool,newTool){
-    console.log("activeToolChanged",oldTool,newTool, this.activeTool);
+    //console.log("activeToolChanged",oldTool,newTool, this.activeTool);
   },
   toolCategoryChanged:function(oldCateg,newCateg){
-    console.log("toolCategoryChanged",oldCateg,newCateg, this.toolCategory);
+    //console.log("toolCategoryChanged",oldCateg,newCateg, this.toolCategory);
+  },
+  
+  xRayTest:function(){
+    var scene = this.threeJs.getScene("main");
+    scene = this.selectedObject;
+    scene.traverse(function( child ) {
+		  if ( child.material && child instanceof THREE.Mesh ){
+		    //child.material.highlight( flag );
+		    child.material.blending = THREE.AdditiveBlending;//AdditiveAlphaBlending;//AdditiveBlending;
+        child.material.transparent=true;
+        child.material.opacity = 0.99;
+        child.material.side = THREE.BackSide;
+		  }
+    });
+    
   },
   //helpers
  
@@ -662,14 +683,24 @@ Polymer('ulti-viewer', Polymer.mixin({
     for(var i=0;i<overlays.length;i++)
     {
       var overlay = overlays[i];
-      var annotation = this.annotations[i];
+      var number = overlay.number;
+      var annotation = this.annotations[number];
       
+      if( annotation.type !== "note") continue;
       if( target.userData.part.id !== annotation.partId ) continue;
       
       var overlayEl = overlay;
-      var offset = new THREE.Vector3().fromArray( annotation.position );
+      var position = new THREE.Vector3().fromArray( annotation.position );
+     
+      //position.sub( target.position );
       
-      if(!annotation.poi){
+      //this.matrixWorld.multiplyMatrices( this.parent.matrixWorld, this.matrix );
+      //position.add( 
+      //annotationHelper.position.sub( annotation.object.position );
+      //annotation.object.add( annotationHelper );
+      
+      
+      /*if(!annotation.poi){
 
         var poi = new THREE.Object3D();
         poi.boundingSphere = new THREE.Sphere(offset.clone(), 15);
@@ -685,16 +716,16 @@ Polymer('ulti-viewer', Polymer.mixin({
         target.add(poi);
         poi.position.copy( bla );
         annotation.poi = poi;
-      }
+      }*/
       
-      if(!overlay.poi)
+      /*if(!overlay.poi)
       {
         overlay.poi = annotation.poi;
         overlay.zoomInOnObject = this.zoomInOnObject.bind(this)
-      }
+      }*/
       
       var self = this;
-      drawOverlay( overlayEl, offset);
+      drawOverlay( overlayEl, position);
     }
     
     
@@ -703,8 +734,8 @@ Polymer('ulti-viewer', Polymer.mixin({
       p = new THREE.Vector3().setFromMatrixPosition( target.matrixWorld );// target.matrixWorld.getPosition().clone();
       p.x += offset.x; 
       p.y += offset.y;
-      p.z += offset.z;
-      v = p.clone().project(camera);
+      p.z += offset.z ;
+      v = p.clone().project( camera );
       percX = (v.x + 1) / 2;
       percY = (-v.y + 1) / 2;
       
@@ -717,13 +748,10 @@ Polymer('ulti-viewer', Polymer.mixin({
       width = 30;
       height = 30;
       
-      // position the overlay so that it's center is on top of
-      // the sphere we're tracking
       overlay.style.left = (left - width / 2) + 'px'
       overlay.style.top = (top - height / 2) + 'px'
       //console.log("gna",overlay, left, top);
     }
-    if(this.leaderLineTest) this.leaderLineTest.update();
   },
   
   //interactions

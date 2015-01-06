@@ -125,7 +125,6 @@ Polymer("transforms-ui",{
     }
   },
   selectedObjectChanged:function(){
-    console.log("foo");
     var controlableTools = this._controlableTools;
     if(this.activeTool && this.activeTool !== "" && controlableTools.indexOf(this.activeTool) !== -1){
       if(this.selectedObject && !(this.selectedObject instanceof AnnotationHelper) ){

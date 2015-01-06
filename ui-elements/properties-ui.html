@@ -70,7 +70,7 @@ Polymer("properties-ui",{
   },
   //helpers
   getAbsoluteSize:function(){
-    console.log("getting absolute size");
+    //console.log("getting absolute size");
     var size = {w:0,l:0,h:0};
     if(!this.selectedObject) return this.selectedObject;
     
@@ -134,8 +134,8 @@ Polymer("properties-ui",{
       var originalSize = meshSize * scaling;
       var targetScale = value/(originalSize);
       
-      console.log("axis", axis,"mappedaxis",mapped,"originalSize",originalSize, "targetSize", value);
-      console.log("scaling",scaling,"targetScale",targetScale);
+      //console.log("axis", axis,"mappedaxis",mapped,"originalSize",originalSize, "targetSize", value);
+      //console.log("scaling",scaling,"targetScale",targetScale);
       
       if(targetScale <= minScale) targetScale = minScale;
       
