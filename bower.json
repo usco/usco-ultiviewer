@@ -29,10 +29,13 @@
     "paper-shadow": "Polymer/paper-shadow#~0.5.1",
     "usco-command-manager": "usco/usco-command-manager",
     "core-menu": "Polymer/core-menu#~0.5.1",
-    "paper-item": "Polymer/paper-item#~0.5.1"
+    "paper-item": "Polymer/paper-item#~0.5.1",
+    "usco-ui-mixins": "usco/usco-ui-mixins"
   },
   "resolutions": {
-    "polymer": "^0.5.0",
-    "webcomponentsjs": "~0.5.1"
+    "polymer": "master",
+    "webcomponentsjs": "master",
+    "core-component-page": "master",
+    "platform": "master"
   }
 }
