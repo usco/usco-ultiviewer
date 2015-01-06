@@ -223,6 +223,11 @@ Polymer('ulti-viewer', Polymer.mixin({
         console.log("resolving mesh for ", partId);
         self._partWaiters[ partId ].resolve( mesh );
       }
+      
+      //FIXME: not sure about these
+      mesh.selectable = true;
+      mesh.selectTrickleUp = false;
+      
     }
     if( display ) return resourcePromise.then( this.addToScene.bind(this), onDisplayError ).then(afterAdded);
     
@@ -360,6 +365,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     console.log("object picked", e);
     //FIXME: experimental: try to select the ROOT helper if possible
     var pickingDatas = e.detail.pickingInfos;
+    if(!pickingDatas) return;
     if(pickingDatas.length == 0) return;
     
     var object = pickingDatas[0].object; 
@@ -419,7 +425,13 @@ Polymer('ulti-viewer', Polymer.mixin({
   highlightedObjectChanged:function(oldHovered,newHovered)
   {
     return;
-    //console.log("highlightedObjectChanged",oldHovered,newHovered);
+    console.log("highlightedObjectChanged", oldHovered, newHovered);
+    if(oldHovered){ oldHovered.highlight( null ); }
+    if(newHovered){
+      console.log(newHovered._originalNode );
+      newHovered.highlight( newHovered._originalNode );
+    }
+    
   },
   selectedObjectsChanged:function()
   {
@@ -455,7 +467,9 @@ Polymer('ulti-viewer', Polymer.mixin({
     if(this.selectionZoom) this._zoomInOnObject.execute( newSelection );
     if(newSelection)
     {
-      if(this.transformControls.enabled)  this.transformControls.attach( newSelection );
+      if(this.transformControls.enabled && !(newSelection instanceof AnnotationHelper)){
+        this.transformControls.attach( newSelection );
+      }
       if(this.showDimensions)
       {
         if(! (newSelection instanceof AnnotationHelper) )
@@ -469,17 +483,24 @@ Polymer('ulti-viewer', Polymer.mixin({
     
   },
   //important data structure change watchers, not sure this should be here either
-  annotationsChanged:function(oldAnnotations, newAnnotations, foo){
+  annotationsChanged:function(oldAnnotations, newAnnotations){
+    var removedAnnotations = [];
     if(oldAnnotations){
       if(oldAnnotations.length == 1)
       {
         if("removed" in oldAnnotations[0]){
           //console.log("array observer");
           newAnnotations = [ this.annotations[oldAnnotations[0].index ] ];
+          removedAnnotations = oldAnnotations[0].removed;
         }
       }
     }
     console.log("annotationschanged", oldAnnotations, newAnnotations, this.annotations);
+    
+    /*for(var i=0;i<removedAnnotations.length;i++)
+    {
+    }*/
+    
     //console.log("parts", this.parts);
     var self = this;
     var Q = require("q");
@@ -493,6 +514,10 @@ Polymer('ulti-viewer', Polymer.mixin({
       var annotationHelper = null;
       
       var annotation = {};
+      //fixme: hack:
+      annotation._orig = annotationData;
+      
+      
       for (var key in annotationData)
       {
         if(["position","normal","orientation","center","start","mid","end"].indexOf( key ) > -1 )
@@ -598,6 +623,8 @@ Polymer('ulti-viewer', Polymer.mixin({
             annotationHelper.position.sub( annotation.object.position );
             annotation.object.add( annotationHelper );
         }
+        
+        annotationHelper._orig = annotation._orig;
         //store annotation object/mesh
         self._annotationMeshes.push( annotationHelper );
       }
@@ -738,7 +765,21 @@ Polymer('ulti-viewer', Polymer.mixin({
   deleteObject:function(){
     console.log("deleting selection")
     if(!this.selectedObject) return;
-    this.removeFromScene( this.selectedObject, "main" );
+    //this.removeFromScene( this.selectedObject, "main" );
+    
+    if(this.selectedObject instanceof AnnotationHelper )
+    {
+      //FIXME how to handle this better
+      var annotation = this.selectedObject._orig;
+      
+      console.log("please remove annotation", annotation);
+      var index = this.annotations.indexOf( annotation );
+      this.annotations.splice(index, 1);
+    }
+    
+    //FIXME : is this needed ? should the change watcher of annotations/objects
+    //deal with it: so far, YES, since annotations do NOT know about their representations
+    this.selectedObject.parent.remove( this.selectedObject ) ;
     this.selectedObject = null;
   },
   
