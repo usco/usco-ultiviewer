@@ -35,12 +35,14 @@
             </core-tooltip>
             |
             <span style="font-size:0.8em">
-            faces:{{selectedObject.geometry.attributes.position.length/3}} &nbsp
-            vertices:{{selectedObject.geometry.attributes.position.length}}
+              <template if="{{selectedObject.geometry}}">
+                 faces:{{selectedObject.geometry.attributes.position.length/3}} &nbsp
+                 vertices:{{selectedObject.geometry.attributes.position.length}}
+              </template>
             </span>
             |
             <span style="font-size:0.8em">
-            {{selectedObject.userData.part.name}}
+              {{displayName}}
             </span>
           </div>
         </ui-base>  
@@ -48,13 +50,18 @@
   </template>
 <script>
 Polymer("properties-ui",{
+  displayName : "",
   degreeAngles:true,
   meshSize: {w:0,l:0,h:0},
-  
+  //TODO: add calculation of geometric data within a hierarchy
   selectedObjectChanged:function(){
-    console.log("selectionChanged")
+    if(!this.selectedObject) {this.displayName = ""; return}
+    if( this.selectedObject.userData.part ){
+      this.displayName = this.selectedObject.userData.part.name;
+    }else{
+      this.displayName = this.selectedObject.name;
+    }
     this.meshSize = this.getAbsoluteSize();
-    console.log("size", this.meshSize);
   },
   observe:{
     "selectedObject.scale.x":"selectedObjectChanged",
