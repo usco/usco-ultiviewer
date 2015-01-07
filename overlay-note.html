@@ -3,12 +3,12 @@
 <polymer-element name="overlay-note"  attributes="number note toggled">
   <template>
       <span on-tap="{{focusOn}}">{{number}}</span>
-      <!--<template if="{{toggled}}">-->
+      <!--
         <div class="annotationContent" id="noteContent" >
           <h1 contenteditable="true" on-keyup="{{titleChanged}}" id="noteTitle">{{note.title}} </h1>
           <div contenteditable="true" on-keyup="{{textChanged}}" id="noteText" style="white-space: pre-wrap">{{note.text}}</div>
         </div>
-      <!--</template>-->
+      -->
   </template>
   <script>
     Polymer("overlay-note",{
@@ -25,11 +25,11 @@
         //https://groups.google.com/forum/#!msg/polymer-dev/Sp0rJmitpNQ/RIX1xpOKOGAJ
         //console.log("toggledChanged", this.toggled);
         if(this.toggled){
-          this.$.noteContent.style.opacity = 1;
-          this.$.noteContent.style.visibility="visible";
+          //this.$.noteContent.style.opacity = 1;
+          //this.$.noteContent.style.visibility="visible";
         }else{
-          this.$.noteContent.style.opacity = 0;
-          this.$.noteContent.style.visibility="hidden";
+          //this.$.noteContent.style.opacity = 0;
+          //this.$.noteContent.style.visibility="hidden";
         }
       },
       //event callbacks
@@ -62,7 +62,8 @@
       focusOn:function(){
         if(!this.toggled) this.toggled = true;
         this.asyncFire('overlay-tapped', {data:this} );
-        this.zoomInOnObject( this.poi, {zoomTime:1000} );
+        //this.zoomInOnObject( this.poi, {zoomTime:1000} );
+        this.selectedObject = note;
       },
       toggle:function(){
         this.toggled = !this.toggled;

@@ -110,6 +110,12 @@ Polymer('ulti-viewer', Polymer.mixin({
   _partWaiters: {},
   _annotationMeshes: [],//list of all annotation 3d meshes
   
+  //TODO: do seperation between selected MESHES/3D objects and selected "data" objects/entitities
+  //reminder: meshes are just REPRESENTATIONS of "entities"
+  //entities can be: Parts (or should that be part instances?) , annotations
+  
+  selectedEntity: null,
+  
   created: function()
   {
     this.resources = [];
@@ -651,6 +657,8 @@ Polymer('ulti-viewer', Polymer.mixin({
         }
         
         annotationHelper._orig = annotation._orig;
+        //add pointer back to original data
+        annotationHelper.userData.data = annotation._orig;
         //store annotation object/mesh
         self._annotationMeshes.push( annotationHelper );
       }
@@ -771,7 +779,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     }
   },
   
-  //interactions
+  //annotations
   annotationDone:function(e,detail,sender){
     var annotation = detail;
     //console.log("annotation raw", annotation);
@@ -795,10 +803,16 @@ Polymer('ulti-viewer', Polymer.mixin({
         delete annotation[key];
       }
     }
+    
+    //add generic fields
+    annotation.notes = "";
+    annotation.title = "";
+    
     console.log("annotation done", annotation);
     this.annotations.push( annotation );
   },
   
+  //interactions
   duplicateObject:function(){
     console.log("duplicating selection")
     if(!this.selectedObject) return;

@@ -6,43 +6,49 @@
         <ui-base>
           <div style="height:100%;width:100%">
             &nbsp 
-            <core-tooltip label="Color" position="top"> 
-              <input type="color"  step="0.1" value="{{selectedObject.material.color | colorConvert}}"/> 
-            </core-tooltip>
+            <template if="{{! selectedObject.userData.data}}">
+              <core-tooltip label="Color" position="top"> 
+                <input type="color"  step="0.1" value="{{selectedObject.material.color | colorConvert}}"/> 
+              </core-tooltip>
+              |
+              <core-tooltip label="Position" position="top"> 
+                p: <input type="number" step="0.1" value="{{selectedObject.position.x | toFixed(2)}}" />
+                <input type="number" step="0.1" value="{{selectedObject.position.y | toFixed(2)}}"/>
+                <input type="number" step="0.1" value="{{selectedObject.position.z | toFixed(2)}}"/>
+              </core-tooltip>
+              |
+              <core-tooltip label="Rotation" position="top">  
+                r: <input type="number" step="0.1" value="{{selectedObject.rotation.x | angleConvert | toFixed(2)}}"/>
+                <input type="number" step="0.1" value="{{selectedObject.rotation.y | angleConvert | toFixed(2)}}"/>
+                <input type="number" step="0.1" value="{{selectedObject.rotation.z | angleConvert | toFixed(2)}}"/>
+              </core-tooltip>
+              |
+              <core-tooltip label="Scale" position="top">  
+                s: <input type="number" step="0.1" value="{{selectedObject.scale.x | toFixed(2)}}"/>
+                <input type="number" step="0.1" value="{{selectedObject.scale.y | toFixed(2)}}"/>
+                <input type="number" step="0.1" value="{{selectedObject.scale.z | toFixed(2)}}"/>
+              </core-tooltip>
+              |
+              <core-tooltip label="Dimensions" position="top">  
+                d: <input type="number" step="0.1" min="0" value="{{meshSize.l | scaleConvert('l') | toFixed(2)}}"/>
+                <input type="number" step="0.1" min="0" value="{{meshSize.w | scaleConvert('w') | toFixed(2)}}"/>
+                <input type="number" step="0.1" min="0" value="{{meshSize.h | scaleConvert('h') | toFixed(2)}}"/>
+              </core-tooltip>
+              |
+              <span style="font-size:0.8em">
+                <template if="{{selectedObject.geometry}}">
+                   faces:{{selectedObject.geometry.attributes.position.length/3}} &nbsp
+                   vertices:{{selectedObject.geometry.attributes.position.length}}
+                </template>
+              </span>
             |
-            <core-tooltip label="Position" position="top"> 
-              p: <input type="number" step="0.1" value="{{selectedObject.position.x | toFixed(2)}}" />
-              <input type="number" step="0.1" value="{{selectedObject.position.y | toFixed(2)}}"/>
-              <input type="number" step="0.1" value="{{selectedObject.position.z | toFixed(2)}}"/>
-            </core-tooltip>
-            |
-            <core-tooltip label="Rotation" position="top">  
-              r: <input type="number" step="0.1" value="{{selectedObject.rotation.x | angleConvert | toFixed(2)}}"/>
-              <input type="number" step="0.1" value="{{selectedObject.rotation.y | angleConvert | toFixed(2)}}"/>
-              <input type="number" step="0.1" value="{{selectedObject.rotation.z | angleConvert | toFixed(2)}}"/>
-            </core-tooltip>
-            |
-            <core-tooltip label="Scale" position="top">  
-              s: <input type="number" step="0.1" value="{{selectedObject.scale.x | toFixed(2)}}"/>
-              <input type="number" step="0.1" value="{{selectedObject.scale.y | toFixed(2)}}"/>
-              <input type="number" step="0.1" value="{{selectedObject.scale.z | toFixed(2)}}"/>
-            </core-tooltip>
-            |
-            <core-tooltip label="Dimensions" position="top">  
-              d: <input type="number" step="0.1" min="0" value="{{meshSize.l | scaleConvert('l') | toFixed(2)}}"/>
-              <input type="number" step="0.1" min="0" value="{{meshSize.w | scaleConvert('w') | toFixed(2)}}"/>
-              <input type="number" step="0.1" min="0" value="{{meshSize.h | scaleConvert('h') | toFixed(2)}}"/>
-            </core-tooltip>
-            |
-            <span style="font-size:0.8em">
-              <template if="{{selectedObject.geometry}}">
-                 faces:{{selectedObject.geometry.attributes.position.length/3}} &nbsp
-                 vertices:{{selectedObject.geometry.attributes.position.length}}
-              </template>
-            </span>
-            |
+            </template>
             <span style="font-size:0.8em">
               {{displayName}}
+              <template if="{{selectedObject.userData.data}}">
+                Title:<input type="text" value="{{selectedObject.userData.data.title}}" on-keydown="{{blockInput}}"></input>
+                Notes:<input type="text" value="{{selectedObject.userData.data.notes}}" on-keydown="{{blockInput}}"></input>
+              </template>
             </span>
           </div>
         </ui-base>  
@@ -67,6 +73,11 @@ Polymer("properties-ui",{
     "selectedObject.scale.x":"selectedObjectChanged",
     "selectedObject.scale.y":"selectedObjectChanged",
     "selectedObject.scale.z":"selectedObjectChanged",
+  },
+  blockInput:function( event ){
+    console.log("asking to block input");
+    event.stopPropagation();
+    return false;
   },
   //helpers
   getAbsoluteSize:function(){
