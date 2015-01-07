@@ -38,9 +38,16 @@
         }
       },
       //this method will get added to the viewer
-      thingamagig:function(){
-        console.log("method thingamagig is from example-plugin element!");
-      }
+      //api
+      toRotateMode:function(){
+        this.activeTool = this.activeTool === "rotate" ? null: "rotate";
+      }, 
+      toTranslateMode:function(){
+        this.activeTool = this.activeTool === "translate" ? null: "translate";
+      }, 
+      toScaleMode:function(){
+        this.activeTool = this.activeTool === "scale" ? null: "scale";
+      }, 
     });
     </script>
 </polymer>

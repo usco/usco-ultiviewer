@@ -140,7 +140,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     this.objDimensionsHelper = new ObjectDimensionsHelper({textBgColor:"#ffd200"});
     this.addToScene( this.objDimensionsHelper, "helpers", {autoResize:false, autoCenter:false, persistent:true, select:false } );
     
-    this.transformControls = new THREE.TransformControls(this.$.cam.object,this.$.perspectiveView);
+    this.transformControls = new THREE.TransformControls(this.$.cam.object, this.$.perspectiveView);
     this.addToScene( this.transformControls, "helpers", {autoResize:false, autoCenter:false, persistent:true, select:false } );
     this.transformControls.enabled = false;
     
@@ -160,17 +160,18 @@ Polymer('ulti-viewer', Polymer.mixin({
       this.$.perspectiveView.focus();
     },null,10);
     
-    //fetch any parameters passed to viewer via url
-    this.getUrlParams();
     
-    //mixin tests
-    this.initDragAndDrop();
-    this.initFullScreen();
-    this.attachNoScroll();
-    
+    //for fetching any parameters passed to viewer via url
+    this.addEventListener("urlparams-found", this.urlParamsFoundHandler, false);
     this.addEventListener("url-dropped", this.urlDroppedHandler, false);
     this.addEventListener("text-dropped", this.textDroppedHandler, false);
     this.addEventListener("files-dropped", this.filesDroppedHandler, false);
+    
+    //mixin tests
+    this.parseUrlParams();
+    this.initDragAndDrop();
+    this.initFullScreen();
+    this.attachNoScroll();
     
   },
   detached:function()
@@ -338,6 +339,17 @@ Polymer('ulti-viewer', Polymer.mixin({
       this._zoomInOnObject.execute( this.selectedObject, {position:event.detail.pickingInfos[0].point} );
     }
   },
+  urlParamsFoundHandler:function( event ){
+    var urlParams = event.detail.params;
+    //console.log("URLparams", urlParams);
+    if("modelUrl" in urlParams)
+    {
+      for( var i=0;i<urlParams["modelUrl"].length;i++)
+      {
+        this.loadMesh(urlParams["modelUrl"][i],{display:true});
+      }
+    }
+  },
   urlDroppedHandler:function( event ){
     //console.log("urlDroppedHandler",event);
     this.loadMesh( event.detail.data );
@@ -352,6 +364,7 @@ Polymer('ulti-viewer', Polymer.mixin({
         this.loadMesh( f );
     }
   },
+  
   onReqDismissResource:function(event, detail, sender) {
     var resource = sender.templateInstance.model.resource;
     //console.log("resource",resource);
@@ -362,11 +375,12 @@ Polymer('ulti-viewer', Polymer.mixin({
       how to handle event binding ?
       perhaps better to use pub/sub ?
     */
-    console.log("object picked", e);
+    
     //FIXME: experimental: try to select the ROOT helper if possible
     var pickingDatas = e.detail.pickingInfos;
     if(!pickingDatas) return;
     if(pickingDatas.length == 0) return;
+    console.log("object picked", e);
     
     var object = pickingDatas[0].object; 
     
@@ -377,7 +391,7 @@ Polymer('ulti-viewer', Polymer.mixin({
         }
         if( node.parent)
         {
-          return walkUp( node.parent);
+          return walkUp( node.parent );
         }
       }
       return null;
@@ -452,32 +466,38 @@ Polymer('ulti-viewer', Polymer.mixin({
     //console.log("selectedObjectChanged", this.selectedObject);
     var newSelection = this.selectedObject;
     
-    //FIXME: hack
-    if( oldSelection && oldSelection.highlight ){
-      oldSelection.highlight(false);
-    }
-    if( newSelection && newSelection.highlight ){
-      newSelection.highlight(true);
+    
+    if( oldSelection ){
+    
+       //FIXME: hack
+       if( oldSelection.highlight ){
+          oldSelection.highlight( false );
+       }
+       
+       //this.clearVisualFocusOnSelection();
+      if( oldSelection.helpers && ! (oldSelection instanceof AnnotationHelper) )
+      {
+        this.objDimensionsHelper.detach( oldSelection );
+        this.transformControls.detach( oldSelection );
+      }
     }
     
-    //this.clearVisualFocusOnSelection();
-    if( oldSelection && oldSelection.helpers && ! (oldSelection instanceof AnnotationHelper) )
-    {
-      this.objDimensionsHelper.detach( oldSelection );
-      this.transformControls.detach( oldSelection );
-    }
     
-    //FIXME: do this differently ?
-    if(this.toolCategory === "annotations" &&  this.activeTool) return;
-    
-    //FIXME: keep the red outline ?
-    //this.outlineObject( newSelection, oldSelection );
-    if(this.selectionZoom) this._zoomInOnObject.execute( newSelection );
-    if(newSelection)
-    {
+    if( newSelection ){
+      //FIXME: hack
+      if( newSelection.highlight ){
+        newSelection.highlight( true );
+      }
+      
+      //FIXME: do this differently ?
+      if(this.toolCategory === "annotations" &&  this.activeTool) return;
+      //this.outlineObject( newSelection, oldSelection );
+      if(this.selectionZoom) this._zoomInOnObject.execute( newSelection );
+      
       if(this.transformControls.enabled && !(newSelection instanceof AnnotationHelper)){
         this.transformControls.attach( newSelection );
       }
+      
       if(this.showDimensions)
       {
         if(! (newSelection instanceof AnnotationHelper) )
@@ -488,22 +508,28 @@ Polymer('ulti-viewer', Polymer.mixin({
       }
       //this.visualFocusOnSelection(newSelection);
     }
-    
   },
   //important data structure change watchers, not sure this should be here either
   annotationsChanged:function(oldAnnotations, newAnnotations){
+  
+    //FIXME: needed because of some strange behaviour not fillign old/new params correctly
     var removedAnnotations = [];
     if(oldAnnotations){
       if(oldAnnotations.length == 1)
       {
-        if("removed" in oldAnnotations[0]){
+        var curData = oldAnnotations[0];
+        var newAnnotations = [];
+        if("removed" in curData ){
           //console.log("array observer");
-          newAnnotations = [ this.annotations[oldAnnotations[0].index ] ];
-          removedAnnotations = oldAnnotations[0].removed;
+          if("addedCount" in curData && curData.addedCount > 0 )
+          {
+            newAnnotations = [ this.annotations[ curData.index ] ];
+          }
+          removedAnnotations = curData.removed;
         }
       }
     }
-    console.log("annotationschanged", oldAnnotations, newAnnotations, this.annotations);
+    //console.log("annotationschanged", "old", oldAnnotations, "new", newAnnotations, "this",this.annotations);
     /*for(var i=0;i<removedAnnotations.length;i++)
     {
     }*/
@@ -522,7 +548,6 @@ Polymer('ulti-viewer', Polymer.mixin({
       var annotation = {};
       //fixme: hack:
       annotation._orig = annotationData;
-      
       
       for (var key in annotationData)
       {
@@ -553,7 +578,6 @@ Polymer('ulti-viewer', Polymer.mixin({
         partsToWaitFor.push( self._partWaiters[ partId ].promise );
         argNames.push( key );
         
-        //var partIndex = self.parts.indexOf( partId );
         //resolve all waiters where 
         if( partId in self.parts)
         {
@@ -597,7 +621,6 @@ Polymer('ulti-viewer', Polymer.mixin({
               thickness:annotation.value, point:annotation.position,
               normal: annotation.normal});
               
-            annotationHelper.position.sub( annotation.object.position );
             annotation.object.add( annotationHelper );
           break;
           
@@ -607,7 +630,6 @@ Polymer('ulti-viewer', Polymer.mixin({
               diameter:annotation.value, orientation:annotation.orientation,
               center:annotation.center});
               
-            annotationHelper.position.sub( annotation.object.position );
             annotation.object.add( annotationHelper );
           break;
           case "angle":
@@ -618,15 +640,13 @@ Polymer('ulti-viewer', Polymer.mixin({
               midObject:annotation.midObject,
               endObject:annotation.endObject});
               
-            annotationHelper.position.sub( annotation.startObject.position );
             annotation.startObject.add( annotationHelper );
           break;
           case "note":
             var annotationHelper = new NoteHelper({arrowColor:0x000000,
               textBgColor:"#ffd200",
               point:annotation.position, object:annotation.object})
-              
-            annotationHelper.position.sub( annotation.object.position );
+           
             annotation.object.add( annotationHelper );
         }
         
@@ -654,7 +674,6 @@ Polymer('ulti-viewer', Polymer.mixin({
   toolCategoryChanged:function(oldCateg,newCateg){
     //console.log("toolCategoryChanged",oldCateg,newCateg, this.toolCategory);
   },
-  
   xRayTest:function(){
     var scene = this.threeJs.getScene("main");
     scene = this.selectedObject;
@@ -669,8 +688,6 @@ Polymer('ulti-viewer', Polymer.mixin({
     });
     
   },
-  //helpers
- 
   //various
   updateOverlays: function(){
     var p, v, percX, percY, left, top;
@@ -758,7 +775,8 @@ Polymer('ulti-viewer', Polymer.mixin({
   annotationDone:function(e,detail,sender){
     var annotation = detail;
     //console.log("annotation raw", annotation);
-    //add annotationData to storage
+    //add annotationData to storage, convert data formats to generic json
+    //TODO: clean this up
     for(key in annotation)
     {
       if(annotation[key] instanceof THREE.Vector3)
@@ -780,6 +798,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     console.log("annotation done", annotation);
     this.annotations.push( annotation );
   },
+  
   duplicateObject:function(){
     console.log("duplicating selection")
     if(!this.selectedObject) return;
@@ -822,45 +841,10 @@ Polymer('ulti-viewer', Polymer.mixin({
   }, 
   
   //helpers
-  getUrlParams:function( ){
-    //see http://stackoverflow.com/questions/1034621/get-current-url-in-web-browser
-    var match,
-        pl     = /\+/g,  // Regex for replacing addition symbol with a space
-        search = /([^&=]+)=?([^&]*)/g,
-        decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
-        query  = window.location.search.substring(1);
-
-    urlParams = {};
-    while (match = search.exec(query))
-    {
-       var key = decode(match[1]);
-       var value = decode(match[2]);
-       if( key in urlParams){
-        urlParams[key] = [urlParams[key]].concat([value]);
-       }else
-       {
-        urlParams[key] = value
-       }
-    }
-    //console.log("URL", urlParams);
-    if("modelUrl" in urlParams)
-    {
-      if( Object.prototype.toString.call( urlParams["modelUrl"] ) === '[object Array]' )
-      {
-        for( var i=0;i<urlParams["modelUrl"].length;i++)
-        {
-          this.loadMesh(urlParams["modelUrl"][i],{display:true});
-        }
-      }
-      else
-      {
-        this.loadMesh(urlParams["modelUrl"],{display:true});
-      }
-    }
-  },
+ 
   //filters
   toFixed:function(o, precision){
     if(!o) return "";
     return o.toFixed(precision);
   },
-}, Window.dragAndDropMixin, Window.fullScreenMixin, Window.noScrollMixin));
+}, Window.dragAndDropMixin, Window.fullScreenMixin, Window.noScrollMixin, Window.urlParamsMixin));
