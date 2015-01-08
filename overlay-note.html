@@ -1,6 +1,6 @@
 
 
-<polymer-element name="overlay-note"  attributes="number note toggled">
+<polymer-element name="overlay-note"  attributes="number note toggled selectedEntity">
   <template>
       <span on-tap="{{focusOn}}">{{number}}</span>
       <!--
@@ -63,7 +63,9 @@
         if(!this.toggled) this.toggled = true;
         this.asyncFire('overlay-tapped', {data:this} );
         //this.zoomInOnObject( this.poi, {zoomTime:1000} );
-        this.selectedObject = note;
+        //this.selectedObject = this.note;
+        console.log("here");
+        this.selectedEntity = this.note;
       },
       toggle:function(){
         this.toggled = !this.toggled;

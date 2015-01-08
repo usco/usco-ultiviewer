@@ -101,14 +101,11 @@ Polymer('ulti-viewer', Polymer.mixin({
   activeTool : null,
   toolCategory: null,
   
-  annotations : [],
-  activeAnnotation:null,
   hierarchy   : null,
   bom         : null,
   
   parts: {},
-  _partWaiters: {},
-  _annotationMeshes: [],//list of all annotation 3d meshes
+  partWaiters: {},
   
   //TODO: do seperation between selected MESHES/3D objects and selected "data" objects/entitities
   //reminder: meshes are just REPRESENTATIONS of "entities"
@@ -125,9 +122,6 @@ Polymer('ulti-viewer', Polymer.mixin({
       minObjectSize: 20,//minimum size (in arbitrarty/opengl units) before requiring re-scaling (upwards)
       maxObjectSize: 200//maximum size (in arbitrarty/opengl units) before requiring re-scaling (downwards)
     }
-    
-    //note: annotation positions are relative to their parent
-    this.annotations  = [];
     
     //helpers
     this._zoomInOnObject = new ZoomInOnObject();
@@ -225,10 +219,10 @@ Polymer('ulti-viewer', Polymer.mixin({
       //mesh.receiveShadow = true;
       var partId = mesh.userData.part.id;
       self.parts[ partId] = mesh ;
-      if(self._partWaiters[ partId ])
+      if(self.partWaiters[ partId ])
       {
-        //console.log("resolving mesh for ", partId);
-        self._partWaiters[ partId ].resolve( mesh );
+        console.log("resolving mesh for ", partId);
+        self.partWaiters[ partId ].resolve( mesh );
       }
       
       //FIXME: not sure about these, they are used for selection levels
@@ -413,7 +407,6 @@ Polymer('ulti-viewer', Polymer.mixin({
     }
     
     this.$.annotations.onPicked( e );
-    var selection = this.$.annotations.getSelection();
     
     pickingDatas = e.detail.pickingInfos;
     if(pickingDatas.length == 0 || !this.selectedObject) return;
@@ -451,7 +444,6 @@ Polymer('ulti-viewer', Polymer.mixin({
       console.log(newHovered._originalNode );
       newHovered.highlight( newHovered._originalNode );
     }
-    
   },
   selectedObjectsChanged:function()
   {
@@ -461,9 +453,14 @@ Polymer('ulti-viewer', Polymer.mixin({
       if(this.selectedObjects.length>0)
       {
         this.selectedObject = this.selectedObjects[0];
+        //
+        //FIXME: unify data structures between parts & annotations
+        if(this.selectedObject.userData.data) this.selectedEntity = this.selectedObject.userData.data;
+        if(this.selectedObject.userData.part) this.selectedEntity = this.selectedObject.userData.part;
       }
       else{
         this.selectedObject = null;
+        this.selectedEntity = null;
       }
     }
   },
@@ -471,7 +468,6 @@ Polymer('ulti-viewer', Polymer.mixin({
   {
     //console.log("selectedObjectChanged", this.selectedObject);
     var newSelection = this.selectedObject;
-    
     
     if( oldSelection ){
     
@@ -515,167 +511,10 @@ Polymer('ulti-viewer', Polymer.mixin({
       //this.visualFocusOnSelection(newSelection);
     }
   },
+  selectedEntityChanged:function( oldEntity, newEntity ){
+    console.log("selectedEntity changed", oldEntity, newEntity );
+  },
   //important data structure change watchers, not sure this should be here either
-  annotationsChanged:function(oldAnnotations, newAnnotations){
-  
-    //FIXME: needed because of some strange behaviour not fillign old/new params correctly
-    var removedAnnotations = [];
-    if(oldAnnotations){
-      if(oldAnnotations.length == 1)
-      {
-        var curData = oldAnnotations[0];
-        var newAnnotations = [];
-        if("removed" in curData ){
-          //console.log("array observer");
-          if("addedCount" in curData && curData.addedCount > 0 )
-          {
-            newAnnotations = [ this.annotations[ curData.index ] ];
-          }
-          removedAnnotations = curData.removed;
-        }
-      }
-    }
-    //console.log("annotationschanged", "old", oldAnnotations, "new", newAnnotations, "this",this.annotations);
-    /*for(var i=0;i<removedAnnotations.length;i++)
-    {
-    }*/
-    //console.log("parts", this.parts);
-    var self = this;
-    var Q = require("q");
-    
-    for(var i=0;i<newAnnotations.length;i++)
-    {
-      addAnnotation( newAnnotations[i] );
-    }
-    
-    function addAnnotation( annotationData ){
-      var annotationHelper = null;
-      
-      var annotation = {};
-      //fixme: hack:
-      annotation._orig = annotationData;
-      
-      for (var key in annotationData)
-      {
-        if(["position","normal","orientation","center","start","mid","end"].indexOf( key ) > -1 )
-        {
-          annotation[key] = new THREE.Vector3().fromArray( annotationData[key] );
-        }
-        else if(["object","startObject","midObject","endObject"].indexOf( key ) > -1 ){
-          if(!annotation._instances) annotation._instances = {};
-          annotation._instances[key] = annotationData[key];//push( annotationData[key] );
-        }
-        else{
-          annotation[key] = annotationData[key];
-        }
-      }
-      //console.log("annotation",annotation);
-      
-      var partsToWaitFor = [];
-      var argNames = [];
-      for( var key in annotation._instances  )//var i=0;i<annotation._instances.length;i++)
-      {
-        var partId = annotation._instances[key];
-        
-        if(!self._partWaiters[ partId ] )
-        {
-          self._partWaiters[ partId ] = Q.defer();
-        }
-        partsToWaitFor.push( self._partWaiters[ partId ].promise );
-        argNames.push( key );
-        
-        //resolve all waiters where 
-        if( partId in self.parts)
-        {
-          self._partWaiters[ partId ].resolve( self.parts[ partId ] );
-        }
-      }
-      //only add annotation once ALL its dependency parts have been loaded
-      Q.all( partsToWaitFor).then(function(res)
-      {
-        for(var i=0;i<argNames.length;i++)
-        {
-          var key = argNames[i];
-          annotation[key] = res[i];
-        }
-        finalizeAnnotation();
-      });
-      
-      function finalizeAnnotation(){
-        var annotationHelper = null;
-        switch(annotation.type)
-        {
-          case "distance":
-            var annotationHelper = new DistanceHelper({arrowColor:0x000000,
-              textBgColor:"#ffd200",
-              start:annotation.start, end:annotation.end,
-              startObject:annotation.startObject,
-              endObject:annotation.endObject
-              });
-            //annotationHelper.position.sub( annotation.startObject.position );
-            //annotation.startObject.add( annotationHelper );
-            //TODO: uughh do not like this
-            //this.threeJs.updatables.push( annotationHelper ); 
-            //annotationHelper.set( {start:annotationHelper.start, end:annotationHelper.end} );
-            annotationHelper.updatable = true;
-            self.addToScene( annotationHelper, "main", {autoResize:false, autoCenter:false, persistent:false, select:false } );
-            
-          break;
-          case "thickness":
-            var annotationHelper = new ThicknessHelper({arrowColor:0x000000,
-              textBgColor:"#ffd200",
-              thickness:annotation.value, point:annotation.position,
-              normal: annotation.normal});
-              
-            annotation.object.add( annotationHelper );
-          break;
-          
-          case "diameter":
-            var annotationHelper = new DiameterHelper({arrowColor:0x000000,
-              textBgColor:"#ffd200",
-              diameter:annotation.value, orientation:annotation.orientation,
-              center:annotation.center});
-              
-            annotation.object.add( annotationHelper );
-          break;
-          case "angle":
-            var annotationHelper = new AngularDimHelper({arrowColor:0x000000,
-              textBgColor:"#ffd200",
-              start:annotation.start, mid: annotation.mid, end:annotation.end,
-              startObject:annotation.startObject,
-              midObject:annotation.midObject,
-              endObject:annotation.endObject});
-              
-            annotation.startObject.add( annotationHelper );
-          break;
-          case "note":
-            var annotationHelper = new NoteHelper({arrowColor:0x000000,
-              textBgColor:"#ffd200",
-              point:annotation.position, object:annotation.object})
-           
-            annotation.object.add( annotationHelper );
-        }
-        
-        annotationHelper._orig = annotation._orig;
-        //add pointer back to original data
-        annotationHelper.userData.data = annotation._orig;
-        //store annotation object/mesh
-        self._annotationMeshes.push( annotationHelper );
-      }
-    }
-  },
-  showAnnotationsChanged:function(oldShowAnnotations, newShowAnnotations){
-    var _annotationMeshes = this._annotationMeshes;
-    for(var i=0;i<_annotationMeshes.length;i++)
-    {
-      if(newShowAnnotations){
-      _annotationMeshes[i].show();
-      }else
-      {
-        _annotationMeshes[i].hide();
-      }
-    }
-  },
   activeToolChanged:function(oldTool,newTool){
     //console.log("activeToolChanged",oldTool,newTool, this.activeTool);
   },
@@ -716,15 +555,6 @@ Polymer('ulti-viewer', Polymer.mixin({
       
       var overlayEl = overlay;
       var position = new THREE.Vector3().fromArray( annotation.position );
-     
-      //position.sub( target.position );
-      
-      //this.matrixWorld.multiplyMatrices( this.parent.matrixWorld, this.matrix );
-      //position.add( 
-      //annotationHelper.position.sub( annotation.object.position );
-      //annotation.object.add( annotationHelper );
-      
-      
       /*if(!annotation.poi){
 
         var poi = new THREE.Object3D();
@@ -741,12 +571,6 @@ Polymer('ulti-viewer', Polymer.mixin({
         target.add(poi);
         poi.position.copy( bla );
         annotation.poi = poi;
-      }*/
-      
-      /*if(!overlay.poi)
-      {
-        overlay.poi = annotation.poi;
-        overlay.zoomInOnObject = this.zoomInOnObject.bind(this)
       }*/
       
       var self = this;
@@ -779,39 +603,6 @@ Polymer('ulti-viewer', Polymer.mixin({
     }
   },
   
-  //annotations
-  annotationDone:function(e,detail,sender){
-    var annotation = detail;
-    //console.log("annotation raw", annotation);
-    //add annotationData to storage, convert data formats to generic json
-    //TODO: clean this up
-    for(key in annotation)
-    {
-      if(annotation[key] instanceof THREE.Vector3)
-      {
-        annotation[key] = annotation[key].toArray();
-      }
-      if(annotation[key] instanceof THREE.Object3D)
-      {
-        annotation.partId = annotation[key].userData.part.id;
-        annotation[key] = annotation[key].userData.part.id;
-        //delete annotation[key];
-      }
-      if(key === "point")
-      {
-        annotation["position"] = annotation[key];
-        delete annotation[key];
-      }
-    }
-    
-    //add generic fields
-    annotation.notes = "";
-    annotation.title = "";
-    
-    console.log("annotation done", annotation);
-    this.annotations.push( annotation );
-  },
-  
   //interactions
   duplicateObject:function(){
     console.log("duplicating selection")
@@ -825,23 +616,16 @@ Polymer('ulti-viewer', Polymer.mixin({
   
   deleteObject:function(){
     console.log("deleting selection")
-    if(!this.selectedObject) return;
-    //this.removeFromScene( this.selectedObject, "main" );
-    
-    if(this.selectedObject instanceof AnnotationHelper )
-    {
-      //FIXME how to handle this better
-      var annotation = this.selectedObject._orig;
-      
-      console.log("please remove annotation", annotation);
-      var index = this.annotations.indexOf( annotation );
-      this.annotations.splice(index, 1);
-    }
+    if(!this.selectedObject) return; 
+    this.fire( "delete-entity", {entity:this.selectedEntity} );
+    //FIXME: temporary workaround/hack as you cannot dispatch events to children    
+    this.$.annotations.deleteEntityHandler(null, {entity:this.selectedEntity},null );
     
     //FIXME : is this needed ? should the change watcher of annotations/objects
     //deal with it: so far, YES, since annotations do NOT know about their representations
     this.selectedObject.parent.remove( this.selectedObject ) ;
     this.selectedObject = null;
+    this.selectedEntity = null;
   },
   
   toRotateMode:function(){
@@ -853,7 +637,6 @@ Polymer('ulti-viewer', Polymer.mixin({
   toScaleMode:function(){
     this.activeTool = this.activeTool === "scale" ? null: "scale";
   }, 
-  
   //helpers
  
   //filters

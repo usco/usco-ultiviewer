@@ -52,6 +52,7 @@
 <link rel="import" href="components/three-js-helpers/objectEffects/object-effects.html">
 
 <!--various-->
+
 <link rel="import" href="ui-elements/progress-bar.html">
 <link rel="import" href="ui-elements/infos-ui.html">
 <link rel="import" href="ui-elements/fullscreen-toggler2.html">
@@ -64,7 +65,7 @@
 <link rel="import" href="ui-elements/history-ui.html">
 
 
-<polymer-element name="ulti-viewer" attributes="showAxis showIndicators" tabindex="0" >
+<polymer-element name="ulti-viewer" attributes="showAxis showIndicators" tabindex="0">
     <template>
       <link rel="stylesheet" type="text/css" href="ulti-viewer.css">
       <!--controls overlay-->
@@ -107,21 +108,42 @@
       </core-selector>
       <history-ui id="history"> </history-ui>
       
-      <!-- measurements system test -->
-      <usco-annotations id="annotations" selectedObject="{{selectedObject}}" 
-      activeType="{{activeTool}}" on-annotation-done="{{annotationDone}}">
+      <!-- annotations system test -->
+      <usco-annotations id="annotations" selectedObject="{{selectedObject}}" showAnnotations="{{showAnnotations}}" 
+      activeType="{{activeTool}}" annotations="{{annotations}}" parts="{{parts}}" partWaiters="{{partWaiters}}">
       </usco-annotations>
       
       <!-- anotation overlay test -->
       <template if="{{selectedObject && showAnnotations}}">
         <template repeat="{{annotation,i in annotations}}">
           <template if="{{selectedObject.userData.part.id == annotation.partId && annotation.type==='note'}}">
-            <overlay-note number="{{i}}" note="{{annotation}}"> </overlay-note>
+            <overlay-note number="{{i}}" note="{{annotation}}" selectedEntity="{{selectedEntity}}"> </overlay-note>
            </template>
         </template>
       </template>
       
-      <button value="toot" on-tap="{{xRayTest}}" style="position:absolute; right:100px; top:200px;z-index:200"> X-rayView test <button>
+      
+      <template if="{{selectedObject}}">
+        <div style="position: absolute;
+right: 0px;
+top: 45px;
+z-index: 14;
+height: 300px;
+width: 240px;
+background: #ffd200;
+margin-top: 2px;
+font-size: 0.8em; ">
+        <div style="margin:10px">
+          Name:<br>
+            {{selectedObject.userData.data.title}}
+          <br>
+          Notes:<br>
+            {{selectedObject.userData.data.notes}}
+          </div>
+        </div>
+      </template>
+      <!--
+      <button value="toot" on-tap="{{xRayTest}}" style="position:absolute; right:100px; top:200px;z-index:200"> X-rayView test <button>-->
       
       <!--viewer itself-->
       <three-js id="threeJs" 
