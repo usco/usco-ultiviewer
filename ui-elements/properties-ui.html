@@ -1,13 +1,13 @@
 <link rel="import" href="../components/polymer/polymer.html">
 <link rel="import" href="../components/paper-input/paper-input.html">
 
-<polymer-element name="properties-ui" attributes="selectedObject selectedObjects">
+<polymer-element name="properties-ui" attributes="selectedObject selectedObjects selectedEntity">
   <template>
-      <template if="{{selectedObject}}">
+      <template if="{{selectedObject || selectedEntity }}">
         <ui-base>
           <div style="height:100%;width:100%">
             &nbsp 
-            <template if="{{! selectedObject.userData.data}}">
+            <template if="{{! _entityIsAnnotation  }}">
               <core-tooltip label="Color" position="top"> 
                 <input type="color"  step="0.1" value="{{selectedObject.material.color | colorConvert}}"/> 
               </core-tooltip>
@@ -46,11 +46,14 @@
             </template>
             <span style="font-size:0.8em">
               {{displayName}}
-              <template if="{{selectedObject.userData.data}}" style="font-size:1em">
-                Title:&nbsp <paper-input value="{{selectedObject.userData.data.title}}" label="Title" floatingLabel
+              <template if="{{ _entityIsAnnotation }}" style="font-size:1.5em">
+                &nbsp <paper-input value="{{selectedEntity.title}}" label="Title" floatingLabel
                 style="position:relative;bottom:15px;color: #3c627a;" on-keydown="{{blockInput}}"
                 ></paper-input>
-                Notes:&nbsp <paper-input value="{{selectedObject.userData.data.notes}}" label="Notes" floatingLabel
+                &nbsp <paper-input value="{{selectedEntity.notes}}" label="Notes" floatingLabel
+                style="position:relative;bottom:15px;color: #3c627a;" on-keydown="{{blockInput}}"
+                ></paper-input>
+                &nbsp <paper-input value="{{selectedEntity.varName | camelCase}}" label="Variable" floatingLabel
                 style="position:relative;bottom:15px;color: #3c627a;" on-keydown="{{blockInput}}"
                 ></paper-input>
                 <!--Title:<input type="text" value="{{selectedObject.userData.data.title}}" ></input>
@@ -66,9 +69,21 @@ Polymer("properties-ui",{
   displayName : "",
   degreeAngles:true,
   meshSize: {w:0,l:0,h:0},
+  
+  selectedEntity:null,
+  selectedObject:null,
+  
+  _entityIsAnnotation :false,
+  
   //TODO: add calculation of geometric data within a hierarchy
   selectedObjectChanged:function(){
+    if(this._entityIsAnnotation){
+      if(this.selectedEntity && this.selectedEntity.type=="note"){
+        this.displayName = "Note"; return;
+      }
+    }
     if(!this.selectedObject) {this.displayName = ""; return}
+    
     if( this.selectedObject.userData.part ){
       this.displayName = this.selectedObject.userData.part.name;
     }else{
@@ -76,17 +91,26 @@ Polymer("properties-ui",{
     }
     this.meshSize = this.getAbsoluteSize();
   },
+  selectedEntityChanged:function(){
+    console.log("fegzeg");
+    this._entityIsAnnotation = (this.selectedEntity && "notes" in this.selectedEntity && this.selectedEntity.notes!==null) ;
+    
+    if(this._entityIsAnnotation){
+      if(this.selectedEntity.type=="note"){
+        this.displayName = "Note"; return;
+      }
+    }
+  },
   observe:{
     "selectedObject.scale.x":"selectedObjectChanged",
     "selectedObject.scale.y":"selectedObjectChanged",
     "selectedObject.scale.z":"selectedObjectChanged",
   },
+  //helpers
   blockInput:function( event ){
-    console.log("asking to block input");
     event.stopPropagation();
     return false;
   },
-  //helpers
   getAbsoluteSize:function(){
     //console.log("getting absolute size");
     var size = {w:0,l:0,h:0};
@@ -173,6 +197,22 @@ Polymer("properties-ui",{
     toModel: function(value) {
       return new THREE.Color(value);
     }
+  },
+  //turns a string into a camelcase string (for variable names)
+  camelCase:{ 
+    toDOM: function(value) {
+      if(!value) return "";
+      return value.toLowerCase().replace(/-(.)/g, function(match, group1) {
+          return group1.toUpperCase();
+      });
+    },
+    toModel: function(value) {
+      if(!value) return "";
+      return value.toLowerCase().replace(/-(.)/g, function(match, group1) {
+          return group1.toUpperCase();
+      });
+    }
+   
   }
 
 });

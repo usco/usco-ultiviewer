@@ -92,7 +92,7 @@
       
       <io-ui id="inputOutput" selectedObject="{{selectedObject}}" activeScene="{{$.activeScene.object}}" resources="{{resources}}" viewer="{{$.threeJs}}" ></io-ui>
       
-      <properties-ui id="objProps" selectedObject="{{selectedObject}}"> </properties-ui>
+      <properties-ui id="objProps" selectedObject="{{selectedObject}}" selectedEntity="{{selectedEntity}}"> </properties-ui>
       <grid-ui id="gridProps" grid="{{$.grid}}"> </grid-ui>
       
       <settings-ui id="options" autoRotate="{{autoRotate}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}"
@@ -114,22 +114,20 @@
       </usco-annotations>
       
       <!-- anotation overlay test -->
-      <template if="{{selectedObject && showAnnotations}}">
+      <template if="{{showAnnotations}}">
         <template repeat="{{annotation,i in annotations}}">
-          <template if="{{selectedObject.userData.part.id == annotation.partId && annotation.type==='note'}}">
             <overlay-note number="{{i}}" note="{{annotation}}" selectedEntity="{{selectedEntity}}"> </overlay-note>
            </template>
-        </template>
       </template>
       
-      
+      <!--
       <template if="{{selectedObject}}">
         <div style="position: absolute;
 right: 0px;
 top: 45px;
 z-index: 14;
-height: 300px;
-width: 240px;
+height: 100%;
+width: 180px;
 background: #ffd200;
 margin-top: 2px;
 font-size: 0.8em; ">
@@ -141,7 +139,7 @@ font-size: 0.8em; ">
             {{selectedObject.userData.data.notes}}
           </div>
         </div>
-      </template>
+      </template>-->
       <!--
       <button value="toot" on-tap="{{xRayTest}}" style="position:absolute; right:100px; top:200px;z-index:200"> X-rayView test <button>-->
       

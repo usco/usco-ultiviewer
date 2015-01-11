@@ -513,6 +513,11 @@ Polymer('ulti-viewer', Polymer.mixin({
   },
   selectedEntityChanged:function( oldEntity, newEntity ){
     console.log("selectedEntity changed", oldEntity, newEntity );
+    //FIXME:hack
+    if( newEntity && "notes" in newEntity && newEntity.type == "note" ) this.selectedObject =null;
+    if( newEntity ){
+      newEntity._selected = true;
+    }
   },
   //important data structure change watchers, not sure this should be here either
   activeToolChanged:function(oldTool,newTool){
@@ -539,7 +544,6 @@ Polymer('ulti-viewer', Polymer.mixin({
   updateOverlays: function(){
     var p, v, percX, percY, left, top;
     var camera = this.$.cam.object;
-    var target = this.selectedObject;
     var projector = new THREE.Projector();
 
     var overlays = this.shadowRoot.querySelectorAll("overlay-note");
@@ -550,9 +554,19 @@ Polymer('ulti-viewer', Polymer.mixin({
       var number = overlay.number;
       var annotation = this.annotations[number];
       
-      if( annotation.type !== "note") continue;
-      if( target.userData.part.id !== annotation.partId ) continue;
+      //console.log("annotation",annotation,this.selectedEntity);
+      var target = this.parts[ annotation.partId] ;//this.selectedEntity;
       
+      if( annotation.type !== "note") {
+        overlay.style.visibility = "hidden";
+        continue;
+      }
+          //this.$.noteContent.style.opacity = 0;
+          //this.$.noteContent.style.visibility="hidden";
+      
+      if( !target) return;
+      //if( target.object !== annotation.partId ) continue;
+      overlay.style.visibility = "visible";
       var overlayEl = overlay;
       var position = new THREE.Vector3().fromArray( annotation.position );
       /*if(!annotation.poi){
@@ -616,11 +630,11 @@ Polymer('ulti-viewer', Polymer.mixin({
   
   deleteObject:function(){
     console.log("deleting selection")
-    if(!this.selectedObject) return; 
     this.fire( "delete-entity", {entity:this.selectedEntity} );
     //FIXME: temporary workaround/hack as you cannot dispatch events to children    
     this.$.annotations.deleteEntityHandler(null, {entity:this.selectedEntity},null );
     
+    if(!this.selectedObject) return; 
     //FIXME : is this needed ? should the change watcher of annotations/objects
     //deal with it: so far, YES, since annotations do NOT know about their representations
     this.selectedObject.parent.remove( this.selectedObject ) ;
