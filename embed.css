@@ -165,7 +165,7 @@ ulti-viewer::shadow #options{
   position:absolute;top:5px;right:60px;z-index:15;
 }    
 
-ulti-viewer::shadow #measures{
+ulti-viewer::shadow #annotations{
   position:absolute;top:5px;right:300px;z-index:15; /*100px*/
 }
 

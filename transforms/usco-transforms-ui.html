@@ -1,6 +1,8 @@
 <link rel="import" href="../components/polymer/polymer.html">
 
-<polymer-element name="transforms-ui" attributes="activeTool controls selectedObject ">
+<link rel="import" href="usco-transforms-base.html">
+
+<polymer-element name="usco-transforms-ui" attributes="activeTool controls selectedObject" extends="usco-transforms-base">
   <template>
     <section>
       <core-selector selected="{{activeTool}}" valueattr="value" on-core-activate="{{controlActivated}}">
@@ -43,6 +45,11 @@
             <paper-item>Center z</paper-item>
          </tooltip-dropdown-button>
          
+         <!--FIXME , this DOES NOT BELONG HERE -->
+         <tooltip-shadow-button label="attach" value="attach" icon="" 
+         style="position: absolute;left: 200px; top: 0px;">
+         </tooltip-shadow-button>
+         
          <!--
          <ui-base value="mirror" style="position: absolute;left: 120px; top: 0px;">
           <core-tooltip label="mirror" position="bottom">  
@@ -74,20 +81,11 @@
             </paper-menu-button>
           </core-tooltip>
          </ui-base>-->
-         
-         
-         
-         
-         
        </core-selector>
     </section> 
   </template>
 <script>
-Polymer("transforms-ui",{
-  activeTool:null,
-  _prevTool:null,
-  _tools: ["translate","rotate","scale","mirror","align"],
-  _controlableTools : ["translate","rotate","scale"],
+Polymer("usco-transforms-ui",{
   effectPreviewModel : null,
   
   controlActivated:function(e, detail){
@@ -102,39 +100,10 @@ Polymer("transforms-ui",{
       this._prevTool = nValue;
     }
   },
-  //attribute change callbacks
-  activeToolChanged:function(oldTool, newTool){
-    //console.log("this.activeTool", this.activeTool, oldTool, newTool);
-    this._prevTool = oldTool;
-    
-    var controlableTools = this._controlableTools;
-    
-    if(this.activeTool === "" || controlableTools.indexOf(this.activeTool) === -1){
-      this.controls.detach(this.selectedObject );
-      this.controls.enabled = false;
-    }
-    else{ 
-      if(this.selectedObject && !(this.selectedObject instanceof AnnotationHelper) ){
-        this.controls.enabled = true;
-        this.controls.attach(this.selectedObject ); 
-      }
-    }
-    
-    if(controlableTools.indexOf(this.activeTool) > -1 && this.selectedObject){
-      this.controls.setMode(this.activeTool);
-    }
-  },
-  selectedObjectChanged:function(){
-    var controlableTools = this._controlableTools;
-    if(this.activeTool && this.activeTool !== "" && controlableTools.indexOf(this.activeTool) !== -1){
-      if(this.selectedObject && !(this.selectedObject instanceof AnnotationHelper) ){
-        this.controls.enabled = true;
-        this.controls.attach(this.selectedObject ); 
-      }
-    }
-  },
+  
   //api
   mirrorAlong:function(axis){
+    //TODO: MOVE OUT this is not client side specific 
     //console.log("mirroring");
     var mS = (new THREE.Matrix4()).identity();
     //set -1 to the corresponding axis

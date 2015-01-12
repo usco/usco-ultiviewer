@@ -1,6 +1,6 @@
 <link rel="import" href="../components/polymer/polymer.html">
 
-<polymer-element name="measures-ui" attributes="activeTool">
+<polymer-element name="usco-annotations-ui" attributes="activeTool" extends="usco-annotations">
   <template>
      <core-selector selected="{{activeTool}}" valueattr="value" on-core-activate="{{controlActivated}}">
          <tooltip-shadow-button label="distance" value="distance" icon="settings-ethernet" >
@@ -62,7 +62,7 @@
      </ui-base>
   </template>-->
 <script>
-Polymer("measures-ui",{
+Polymer("usco-annotations-ui",{
   activeTool:null,
   _tools: ["distance","thickness","angle","diameter","note"],
   _prevTool:null,

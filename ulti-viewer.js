@@ -140,10 +140,6 @@ Polymer('ulti-viewer', Polymer.mixin({
     this.objDimensionsHelper = new ObjectDimensionsHelper({textBgColor:"#ffd200"});
     this.addToScene( this.objDimensionsHelper, "helpers", {autoResize:false, autoCenter:false, persistent:true, select:false } );
     
-    this.transformControls = new THREE.TransformControls(this.$.cam.object, this.$.perspectiveView);
-    this.addToScene( this.transformControls, "helpers", {autoResize:false, autoCenter:false, persistent:true, select:false } );
-    this.transformControls.enabled = false;
-    
     this.camViewControls = new CamViewControls({size:9, cornerWidth:1.5,
       //planesColor:"#17a9f5",edgesColor:"#17a9f5",cornersColor:"#17a9f5",
       highlightColor:"#ffd200",
@@ -160,6 +156,11 @@ Polymer('ulti-viewer', Polymer.mixin({
       this.$.perspectiveView.focus();
     },null,10);
     
+    
+    //initialise stuff 
+    this.$.transforms.init( this.$.cam.object, this.$.perspectiveView );
+    var controls = this.$.transforms.controls;
+    this.addToScene( controls, "helpers", {autoResize:false, autoCenter:false, persistent:true, select:false } );
     
     //for fetching any parameters passed to viewer via url
     this.addEventListener("urlparams-found", this.urlParamsFoundHandler, false);
@@ -470,20 +471,16 @@ Polymer('ulti-viewer', Polymer.mixin({
     var newSelection = this.selectedObject;
     
     if( oldSelection ){
-    
        //FIXME: hack
        if( oldSelection.highlight ){
           oldSelection.highlight( false );
        }
-       
        //this.clearVisualFocusOnSelection();
       if( oldSelection.helpers && ! (oldSelection instanceof AnnotationHelper) )
       {
         this.objDimensionsHelper.detach( oldSelection );
-        this.transformControls.detach( oldSelection );
       }
     }
-    
     
     if( newSelection ){
       //FIXME: hack
@@ -496,9 +493,6 @@ Polymer('ulti-viewer', Polymer.mixin({
       //this.outlineObject( newSelection, oldSelection );
       if(this.selectionZoom) this._zoomInOnObject.execute( newSelection );
       
-      if(this.transformControls.enabled && !(newSelection instanceof AnnotationHelper)){
-        this.transformControls.attach( newSelection );
-      }
       
       if(this.showDimensions)
       {

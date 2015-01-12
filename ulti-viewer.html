@@ -9,8 +9,7 @@
 <link rel="import" href="components/three-js-helpers/shadow-plane.html">
 <link rel="import" href="components/three-js-helpers/mirror-plane.html">
 <link rel="import" href="components/three-js-helpers/image-plane.html">
-<link rel="import" href="components/three-js-helpers/dimensions/dimension-helpers.html">
-
+<link rel="import" href="components/three-js-helpers/annotations/dimension-helpers.html">
 <link rel="import" href="components/three-js-helpers/camview-helper.html">
 
 
@@ -40,12 +39,11 @@
 <link rel="import" href="io/io-ui.html">
 
 <!--transforms-->
-<script src="transforms/TransformControls.js"></script>
-<link rel="import" href="transforms/transforms-ui.html">
+<link rel="import" href="transforms/usco-transforms-ui.html">
 
 <!--annotations-->
-<link rel="import" href="components/three-js-helpers/dimensions/usco-annotations.html">
-<link rel="import" href="annotations/measures-ui2.html">
+<link rel="import" href="components/three-js-helpers/annotations/usco-annotations.html">
+<link rel="import" href="annotations/usco-annotations-ui2.html">
 <link rel="import" href="overlay-note.html">
 
 <!--object focus/zoom etc effects-->
@@ -100,25 +98,31 @@
       <infos-ui    id="infos" > </infos-ui>
       <fullscreen-toggler fullScreen="{{fullScreen}}"> </fullscreen-toggler>
       
-      <core-selector valueattr="value" selected="{{toolCategory}}">
-        <transforms-ui id="transforms" value="transforms" controls="{{transformControls}}" 
+      
+      <!--<core-selector valueattr="value" selected="{{toolCategory}}">-->
+        <!--transforms systems -->
+        <usco-transforms-ui id="transforms" value="transforms" controls="{{transformControls}}" 
         selectedObject="{{selectedObject}}" activeTool="{{activeTool}}"> 
-        </transforms-ui>
-        <measures-ui id="measures" value="annotations" activeTool="{{activeTool}}"> </measures-ui>
-      </core-selector>
+        </usco-transforms-ui>
+        
+        <!-- annotations system -->
+        <usco-annotations-ui id="annotations" value="annotations" activeTool="{{activeTool}}"
+        selectedObject="{{selectedObject}}" showAnnotations="{{showAnnotations}}" 
+        activeType="{{activeTool}}" annotations="{{annotations}}" parts="{{parts}}" partWaiters="{{partWaiters}}"
+        > </usco-annotations-ui>
+        <!--<usco-annotations-ui id="annotations" value="annotations" activeTool="{{activeTool}}"> </usco-annotations-ui>-->
+        
+      <!--</core-selector>-->
       <history-ui id="history"> </history-ui>
       
-      <!-- annotations system test -->
-      <usco-annotations id="annotations" selectedObject="{{selectedObject}}" showAnnotations="{{showAnnotations}}" 
-      activeType="{{activeTool}}" annotations="{{annotations}}" parts="{{parts}}" partWaiters="{{partWaiters}}">
-      </usco-annotations>
       
-      <!-- anotation overlay test -->
+      <!-- anotation overlays (test) -->
       <template if="{{showAnnotations}}">
         <template repeat="{{annotation,i in annotations}}">
             <overlay-note number="{{i}}" note="{{annotation}}" selectedEntity="{{selectedEntity}}"> </overlay-note>
            </template>
       </template>
+      
       
       <!--
       <template if="{{selectedObject}}">
