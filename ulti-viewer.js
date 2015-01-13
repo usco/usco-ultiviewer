@@ -297,14 +297,16 @@ Polymer('ulti-viewer', Polymer.mixin({
       shape.userData.resource = resource;
       shape.name = resource.name;
       
-      /*var geometry = shape.geometry;
+      //FIXME ; should this be handled by the asset manager or the parsers ? 
+      //ie , this won't work for loaded hierarchies etc
+      var geometry = shape.geometry;
       if(geometry)
       {
-        geometry.computeBoundingBox();
-        geometry.computeBoundingSphere();
+        //geometry.computeBoundingBox();
+        //geometry.computeBoundingSphere();
         geometry.computeVertexNormals();//needed at least for .ply files
         geometry.computeFaceNormals();
-      }*/
+      }
       return shape;
     }
     
