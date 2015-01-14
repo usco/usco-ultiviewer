@@ -1,5 +1,7 @@
 <link rel="import" href="../components/polymer/polymer.html">
 <link rel="import" href="../components/paper-input/paper-input.html">
+<link rel="import" href="../components/paper-input/paper-input-decorator.html">
+<link rel="import" href="../components/paper-input/paper-autogrow-textarea.html">
 
 <polymer-element name="properties-ui" attributes="selectedObject selectedObjects selectedEntity">
   <template>
@@ -46,18 +48,29 @@
             </template>
             <span style="font-size:0.8em">
               {{displayName}}
-              <template if="{{ _entityIsAnnotation }}" style="font-size:1.5em">
+              <template if="{{ _entityIsAnnotation }}">
+                <span style="font-size:1.2em">
                 &nbsp <paper-input value="{{selectedEntity.title}}" label="Title" floatingLabel
                 style="position:relative;bottom:15px;color: #3c627a;" on-keydown="{{blockInput}}"
                 ></paper-input>
-                &nbsp <paper-input value="{{selectedEntity.notes}}" label="Notes" floatingLabel
+                &nbsp <paper-input value="{{selectedEntity.notes}}" label="Notes" floatingLabel multiline
                 style="position:relative;bottom:15px;color: #3c627a;" on-keydown="{{blockInput}}"
                 ></paper-input>
+                
+                <!--<paper-input-decorator label="Notes" floatingLabel 
+                on-keydown="{{blockInput}}" style="position:relative;bottom:15px;color: #3c627a;">
+                  <paper-autogrow-textarea>
+                    <textarea></textarea>
+                  </paper-autogrow-textarea>
+                </paper-input-decorator>-->
+                
+                
                 &nbsp <paper-input value="{{selectedEntity.varName | camelCase}}" label="Variable" floatingLabel
                 style="position:relative;bottom:15px;color: #3c627a;" on-keydown="{{blockInput}}"
                 ></paper-input>
                 <!--Title:<input type="text" value="{{selectedObject.userData.data.title}}" ></input>
                 Notes:&nbsp <input type="text" value="{{selectedObject.userData.data.notes}}" on-keydown="{{blockInput}}"></input>-->
+                </span>
               </template>
             </span>
           </div>
