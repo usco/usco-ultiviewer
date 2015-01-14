@@ -1,6 +1,6 @@
 {
   "name": "usco-ultiviewer",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "private": true,
   "dependencies": {
     "webcomponentsjs": "Polymer/webcomponentsjs#~0.5.1",
@@ -8,8 +8,8 @@
     "polymer-gestures": "kaosat-dev/polymer-gestures#~0.5.1",
     "core-localstorage": "Polymer/core-localstorage",
     "core-selection": "Polymer/core-selection",
-    "three-js": "usco/three-js",
-    "three-js-helpers": "usco/three-js-helpers",
+    "three-js": "usco/three-js#0.0.1",
+    "three-js-helpers": "usco/three-js-helpers#0.0.1",
     "tween-js": "usco/tween-js",
     "usco-asset-manager": "usco/usco-asset-manager#master",
     "usco-client-deps": "usco/usco-client-deps#master",
