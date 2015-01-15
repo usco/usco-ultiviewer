@@ -64,6 +64,7 @@
 
 <!--Design centric stuff, bom etc-->
 <link rel="import" href="design/design-card.html">
+<link rel="import" href="design/design-chip.html">
 
 <polymer-element name="ulti-viewer" attributes="showAxis showIndicators" tabindex="0">
     <template>
@@ -91,7 +92,7 @@
       </div>-->
       
       <design-card design="{{design}}"> </design-card>
-      
+      <design-chip design="{{design}}"> </design-chip>
       
       <io-ui id="inputOutput" selectedObject="{{selectedObject}}" activeScene="{{$.activeScene.object}}" resources="{{resources}}" viewer="{{$.threeJs}}" ></io-ui>
       

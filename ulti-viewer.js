@@ -137,14 +137,15 @@ Polymer('ulti-viewer', Polymer.mixin({
       private: true,
       authors:[
         {
-        "name":"aGuy",
-        "url": "???",
-        "email":"aGuy@bar.baz"
-       },{
           "name":"otherGirl",
         "url": "www.mysite.com",
         "email":"gg@bar.baz"
-        }
+        },
+        {
+        "name":"otherGuy",
+        "url": "???",
+        "email":"aGuy@bar.baz"
+       }
       ],
        "tags": ["youmagine", "superduperdesign"],
       "licenses":[
