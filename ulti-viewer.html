@@ -62,6 +62,8 @@
 <link rel="import" href="ui-elements/grid-ui.html">
 <link rel="import" href="ui-elements/history-ui.html">
 
+<!--Design centric stuff, bom etc-->
+<link rel="import" href="design/design-card.html">
 
 <polymer-element name="ulti-viewer" attributes="showAxis showIndicators" tabindex="0">
     <template>
@@ -87,6 +89,9 @@
           </ul>
         </template>
       </div>-->
+      
+      <design-card design="{{design}}"> </design-card>
+      
       
       <io-ui id="inputOutput" selectedObject="{{selectedObject}}" activeScene="{{$.activeScene.object}}" resources="{{resources}}" viewer="{{$.threeJs}}" ></io-ui>
       
@@ -193,6 +198,7 @@ font-size: 0.8em; ">
             <three-pointLight color="0xffffff" intensity=0.8 pos=[50, 75, 100]> </three-pointLight>
             <three-hemisphereLight color="0xffffEE" gndColor="0xffffEE" pos="[0, 1200, 1500]" intensity=0.6></three-hemisphereLight>
           </three-js-scene>
+          
           
           <three-js-viewport name="navi" id="naviView" class="naviView" 
           scenes="naviScene" pickable=false

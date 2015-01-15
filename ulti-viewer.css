@@ -3,7 +3,8 @@
     -webkit-transition: opacity 0.5s ease-in;
     position: absolute;
 		overflow:hidden;
-		background-color:#fff;
+		/*background-color:#f5f5f5;
+		background: #f5f5f5;*/
 		
 		/*make things unselectable, cross browser*/
 		-webkit-touch-callout: none;
@@ -73,7 +74,6 @@
   height: 100%;
   left: 0px;
   top: 0px;
-  background-color:white;
   outline: none;
   
   -webkit-user-select: none;
@@ -86,7 +86,9 @@
   height: 100%;
   left: 0;
   z-index:10;
+ 
 }
+
 
 .resourceLoader{
   position:absolute;left:0px;z-index:11;
