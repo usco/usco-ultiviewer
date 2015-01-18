@@ -156,8 +156,10 @@ Polymer('ulti-viewer', Polymer.mixin({
       "meta":{
         "state":"design",
         "color": "#0ca9e3"
-      }
-    }
+      },
+      //_editable:true //extra settable flags, runtime
+    };
+    //bom, assemblies etc, are all files in the root path of design's url
   },
   ready:function(){
     this.threeJs      = this.$.threeJs;
