@@ -1,4 +1,6 @@
 <script src="TransformControls.js"></script>
+<script src="operations.js"></script>
+
 
 <polymer-element name="usco-transforms-base" attributes="selectedObject activeTool enabled">
   <script>
@@ -9,10 +11,25 @@
       _tools: ["translate","rotate","scale","mirror","align"],
       _controlableTools : ["translate","rotate","scale"],
     
-    
+      observe:{
+        'selectedObject.position.x':'objectPosChanged',
+        'selectedObject.position.y':'objectPosChanged',
+        'selectedObject.position.z':'objectPosChanged',
+        
+        'selectedObject.rotation.x':'objectRotChanged',
+        'selectedObject.rotation.y':'objectRotChanged',
+        'selectedObject.rotation.z':'objectRotChanged',
+        
+        'selectedObject.scale.x'   :'objectScaleChanged',
+        'selectedObject.scale.y'   :'objectScaleChanged',
+        'selectedObject.scale.z'   :'objectScaleChanged'
+      },  
       //methodsToInject: ["thingamagig"],
       attached:function(){
         this.super();
+        
+        this._origPos = null;
+        //this.objectPosChanged = 
       },
       //internal helpers
       init:function( camera, domElement ){
@@ -21,8 +38,36 @@
         //this.addToScene( this.controls, "helpers", {autoResize:false, autoCenter:false, persistent:true, select:false } );
         this.controls.enabled = false;
       },
-      
       //attribute change callbacks
+      objectPosChanged:function( oldPos, newPos, data ){
+        //console.log("bla", data);
+        if(! this._origPos){
+          var pos = new THREE.Vector3().fromArray( [ data[0][0], data[0][1], data[0][2] ] );
+          this._origPos = pos;
+        }
+        this.job("objectPosChanged", function(){
+          var pos = new THREE.Vector3().fromArray( [ data[0][0], data[0][1], data[0][2] ] );
+          console.log("oldPos, newPos",this._origPos, pos);
+          var offset = pos.clone().sub( this._origPos );
+          console.log("offset",offset);
+          if(offset.length() > 0 )
+          {
+            var operation = new Translation( offset , this.selectedObject );
+            var event = new CustomEvent('newOperation',{detail: {msg: operation}});
+          
+            this.dispatchEvent(event);
+          }
+          this._origPos = null;
+          
+        }, 100)
+      },
+      
+      objectRotChanged:function( oldRot, newRot ){
+        console.log("oldRot, newRot",oldRot, newRot);
+      },
+      objectScaleChanged:function( oldScale, newScale ){
+        console.log("oldScale, newScale",oldScale, newScale);
+      },
       activeToolChanged:function(oldTool, newTool){
         //console.log("this.activeTool", this.activeTool, oldTool, newTool);
         this._prevTool = oldTool;

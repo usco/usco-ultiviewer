@@ -174,6 +174,17 @@ Polymer('ulti-viewer', Polymer.mixin({
     this.initFullScreen();
     this.attachNoScroll();
     
+    
+    this.historyManager = this.$.history;
+    //if we recieve a "newOperation" event, add it to history  
+    var self = this;
+    this.addEventListener('newOperation', function(e) {
+      console.log("newOperation",e.type, e.detail.msg); 
+      self.historyManager.addCommand( e.detail.msg );
+      
+      //if(self.generateCodeOnTheFly) self.generateCodeFromHistory();
+    });
+    
   },
   detached:function()
   {
@@ -231,7 +242,15 @@ Polymer('ulti-viewer', Polymer.mixin({
       mesh.selectTrickleUp = false;
       
     }
-    if( display ) return resourcePromise.then( this.addToScene.bind(this), onDisplayError ).then(afterAdded);
+    if( display ){
+      
+      //fire import event ??
+      /*resourcePromise.then( function(){
+        var operation = new Import(importedPart, resource);
+        self.fire('newOperation', {msg: operation});
+      });*/
+      return resourcePromise.then( this.addToScene.bind(this), onDisplayError ).then(afterAdded);
+    }
     
     return resourcePromise;
     //resourcePromise.then(resource.onLoaded.bind(resource), loadFailed, resource.onDownloadProgress.bind(resource) );
@@ -625,17 +644,26 @@ Polymer('ulti-viewer', Polymer.mixin({
   },
   
   deleteObject:function(){
-    console.log("deleting selection")
-    this.fire( "delete-entity", {entity:this.selectedEntity} );
-    //FIXME: temporary workaround/hack as you cannot dispatch events to children    
-    this.$.annotations.deleteEntityHandler(null, {entity:this.selectedEntity},null );
+    console.log("deleting selection");
+    var selectedObject = this.selectedObject;
+    var selectedEntity = this.selectedEntity;
     
-    if(!this.selectedObject) return; 
+    this.fire( "delete-entity", {entity:selectedEntity} );
+    //FIXME: temporary workaround/hack as you cannot dispatch events to children    
+    this.$.annotations.deleteEntityHandler(null, {entity:selectedEntity},null );
+    
+    //fire operation
+    var operation = new Deletion(selectedObject, selectedObject.parent);
+    this.fire('newOperation', {msg: operation});
+    
+    if(!selectedObject) return; 
     //FIXME : is this needed ? should the change watcher of annotations/objects
     //deal with it: so far, YES, since annotations do NOT know about their representations
-    this.selectedObject.parent.remove( this.selectedObject ) ;
+    selectedObject.parent.remove( selectedObject ) ;
+    
     this.selectedObject = null;
     this.selectedEntity = null;
+    
   },
   
   toRotateMode:function(){

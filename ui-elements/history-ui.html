@@ -6,20 +6,33 @@
   <template>
     <section>
          <!--TODO: dropdown-->
-         <tooltip-shadow-button label="undo" icon="undo" disabled?="{{undos.length===0}}"
+         <tooltip-shadow-button label="undo" icon="undo" disabled?="{{ undos.length === 0}}"
          style="position: absolute;left: 200px; top: 0px;"
          on-tap="{{undo}}"> 
+         
+          <paper-dropdown>
+            <template repeat="{{undo in undos}}">
+              {{undo.type}}<br>
+            </template>
+          </paper-dropdown>
+         
          </tooltip-shadow-button>
          
-         <tooltip-shadow-button label="redo" icon="redo" disabled?="{{redos.length===0}}"
+         <tooltip-shadow-button label="redo" icon="redo" disabled?="{{ redos.length === 0 }}"
          style="position: absolute;left: 240px; top: 0px;"
          on-tap="{{redo}}"> 
+         
+          <paper-dropdown>
+            <template repeat="{{redo in redos}}">
+              {{redo.type}}<br>
+            </template>
+          </paper-dropdown>
+         
          </tooltip-shadow-button>
     </section> 
   </template>
 <script>
 Polymer("history-ui",{
-
 });
 </script>
 </polymer-element>

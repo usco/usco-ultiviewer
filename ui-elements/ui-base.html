@@ -98,7 +98,7 @@ Polymer("ui-base",{
       <core-tooltip label="{{label}}" position="bottom"> 
          <core-icon icon="expand-more" id="dropDownArrow"></core-icon>
          <x-trigger icon="{{icon}}" >
-          <paper-dropdown class="open-below" halign="right">
+          <paper-dropdown class="open-below" halign="right" transition="">
             <div class="menu"> 
               <content></content>
       <!--<shadow></shadow> FIXME: only works in chrome : broken polyfill?-->
