@@ -1,0 +1,128 @@
+
+<polymer-element name="design-card" attributes="design" on-tap="{{tapped}}">
+  <template >
+    <style>
+    :host{
+      display:inline-block;
+      opacity:0;
+      width:230px;
+      height:160px;
+      text-align:center;
+      font-weight:700;
+      border: 2px solid #414141;
+      /*margin: 10px 5px;*/
+
+      -webkit-touch-callout: none;
+		  -webkit-user-select: none;
+		  -khtml-user-select: none;
+		  -moz-user-select: none;
+		  -ms-user-select: none;
+		  user-select: none;
+
+    }
+    :host:hover{
+      cursor:pointer;
+      -webkit-transition: border 0.1s ease-in;
+      border: 2px solid #17a9f5;
+    }
+    :host:hover footer{ 
+          -webkit-transition: color 0.1s ease-in;
+      color :rgb(255, 204, 0);
+      background:rgba(65, 65, 65, 1);
+
+    }
+    article{
+      position:relative;
+      -webkit-transition: opacity 0.1s ease-in;
+    }
+    footer{
+        background:rgba(65, 65, 65, 0.5);
+        color:white;
+        height:2em;
+        position: absolute;
+        top: 115px;
+        left: 0px;
+        width: 100%;
+        text-align:left;
+        text-indent: 10px;
+      }
+    
+    section > img{
+      width:100%;
+      height:100%;
+    }
+    
+    section > three-js{
+      width:100%;
+      height:120px;
+    }
+
+    </style>
+    <article>
+      <section id="main">
+        <img _src="{{design.imgPath}}">
+        </img>
+        <!--
+        <three-js on-sceneready="{{viewerSceneReady}}">
+          <three-js-combinedCamera tracking x="100" y="100" z="200" orientation="top" cameraUp=[0,0,1] ></three-js-combinedCamera>
+          <three-js-orbitControls cameraUp=[0,0,1] autoRotateSpeed="10" autoRotate="{{autorotate}}"> </three-js-orbitControls>
+
+          <three-js-scene name="mainScene" active>
+            <three-js-object hierarchyRoot>
+              <three-js-cube> </three-js-cube>
+              <three-js-cube x="-45" color="pink" w="24"> </three-js-cube>
+            </three-js-object>
+
+            <three-js-object helpersRoot>
+              <three-axis-helper show="{{showAxes}}"> </three-axis-helper>
+              <three-js-light kind="dir" color="0xffEEEE" intensity="0.2" castShadow y=50 z=300 > </three-js-light> 
+               <three-js-light kind="ambient" color="0x161515" intensity="0.8"> </three-js-light>
+               <three-js-light kind="hemi" color="0xffffff" secColor="0xffffff" intensity="0.5" y="1200" z="5000"> </three-js-light>
+            </three-js-object>
+          </three-js-scene>
+
+     </three-js>
+        -->
+        
+      </section>    
+      <footer>
+       <div>{{design.name | toUpperCase}}<div>
+       <div style="font-size: 10px;"> {{design.lastEdited}}</div>
+       <core-toolbar style="position: absolute;
+top: 0px;
+right: 0px;">
+          <core-item icon="fa-app:trash-o"></core-item>
+				  <core-item icon="fa-app:code-fork"></core-item>
+			  </core-toolbar>
+      </footer>
+    </article>
+  </template>
+  <script>
+    Polymer("design-card",{
+      design:{name:"foobb",lastEdited:"19/07/2013",path:"/foo/bar",imgPath:"download.jpg"},
+      enteredView:function()
+      {
+        this.style.opacity = 1;
+      },
+      leftView:function()
+      {
+        this.style.opacity = 0;
+      },
+      toUpperCase:function(val)
+      {
+        return val.toUpperCase();
+      },
+      isRemoteStore:function(path)
+      {
+      },
+      tapped:function(event)
+      {
+        console.log("design tapped");
+      },
+      viewerSceneReady:function()
+      {
+        console.log("viewer scene ready");
+      }
+    });
+  </script>
+</polymer-element>

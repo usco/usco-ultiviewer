@@ -1,0 +1,75 @@
+<link rel="import" href="../components/polymer/polymer.html">
+
+<polymer-element name="design-dashboard">
+  <template>
+    <link rel="stylesheet" type="text/css" href="design-dashboard.css">
+    <core-toolbar>
+      <core-icon-button icon="fa-app:ellipsis-v"></core-icon-button>
+      <div flex style="color:rgb(255, 204, 0)">Designs</div>
+      <core-toolbar responsive>
+        <span><input id="searchField" type="text" on-keyup="{{search}}" placeholder="  type here to search" /> </span>
+        <span id="results" style="position:absolute;top:40px;left:50%;z-index: 9999999;color:black;background:white">
+        <template repeat="{{result in searchResults}}">
+          <div style="cursor:pointer" on-tap="{{blah}}">{{result}}</div>
+        </template>
+        </span>
+        <core-icon-button icon="fa-app:search" on-tap="{{search}}"></core-icon-button>
+        <core-icon-button icon="fa-app:trash-o"></core-icon-button>
+      </core-toolbar>
+    </core-toolbar>
+    <section >
+      <!--<core-list data="{{filteredDesigns}}" height="150">
+        <template repeat>
+        </template>
+      </core-list>-->
+      <template repeat="{{design in filteredDesigns}}">
+        <design-card design="{{design}}"> </design-card>
+      </template>
+    </section>
+  </template>
+  <script>
+    Polymer("design-dashboard",{
+      designs : [],
+      filteredDesigns: [],
+      searchItem: "",
+      //standard lifecycle callbacks
+      created:function()
+      {
+        this.super();
+        this.filteredDesigns = this.designs;
+      },
+      search:function()
+      {
+        var toSearch = this.$.searchField.value;
+        this.searchItem = toSearch;
+        var results = [];
+        for(var i=0;i<this.designs.length;i++)
+        {
+          var current = this.designs[i].name;
+          var searchC = toSearch.toLowerCase() 
+          var found = current.slice(0, searchC.length) == searchC;//startswith
+          if(found)  results.push( this.designs[i] );
+        }
+        this.filteredDesigns = results;
+      },
+      blah:function(event)
+      {
+        this.$.searchField.value = this.searchResults.pop();
+        this.filteredDesigns = [];
+      }
+    });
+  </script>
+</polymer-element>
+
+<polymer-element name="search-results" on-tap="{{tapped}}">
+  <template>
+    <template repeat="{{result in results}}">
+      {{result}}
+    </template>
+  </template>
+  <script>
+    Polymer("search-results",{
+      results : [],
+    });
+  </script>
+</polymer-element>
