@@ -442,6 +442,9 @@ Polymer('ulti-viewer', Polymer.mixin({
     //FIXME: weird issue with rescaled models and worldToLocal
   },
   //attribute change handlers
+  showGridChanged:function(){
+    console.log("show grid changed");
+  },
   autoRotateChanged:function()
   {
     var controls = this.$.camCtrl;
@@ -663,6 +666,8 @@ Polymer('ulti-viewer', Polymer.mixin({
     
     this.selectedObject = null;
     this.selectedEntity = null;
+    
+    //TODO : how to handle deletion's selection removal and undo-redo?
     
   },
   

@@ -8,7 +8,7 @@
          <!--TODO: dropdown-->
          <tooltip-shadow-button label="undo" icon="undo" disabled?="{{ undos.length === 0}}"
          style="position: absolute;left: 200px; top: 0px;"
-         on-tap="{{undo}}"> 
+         on-tap="{{undo}}" on-holdpulse="{{undo}}"> 
          
           <paper-dropdown>
             <template repeat="{{undo in undos}}">
@@ -20,7 +20,7 @@
          
          <tooltip-shadow-button label="redo" icon="redo" disabled?="{{ redos.length === 0 }}"
          style="position: absolute;left: 240px; top: 0px;"
-         on-tap="{{redo}}"> 
+         on-tap="{{redo}}" on-holdpulse="{{redo}}"> 
          
           <paper-dropdown>
             <template repeat="{{redo in redos}}">

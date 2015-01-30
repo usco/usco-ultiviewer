@@ -372,6 +372,8 @@ Rotation.prototype.clone = function()
 Rotation.prototype.undo = function()
 {
     //this.target.position.sub(this.value);
+      //FIXME: temp hack
+      this.target._undoRedoFlag = true;  
     this.target.rotation.x -= this.value.x;
     this.target.rotation.y -= this.value.y;
     this.target.rotation.z -= this.value.z;
@@ -379,6 +381,8 @@ Rotation.prototype.undo = function()
 
 Rotation.prototype.redo = function()
 {
+      //FIXME: temp hack
+      this.target._undoRedoFlag = true;  
     this.target.rotation.x += this.value.x;
     this.target.rotation.y += this.value.y;
     this.target.rotation.z += this.value.z;
@@ -405,6 +409,8 @@ Scaling.prototype.clone = function()
 
 Scaling.prototype.undo = function()
 {
+      //FIXME: temp hack
+      this.target._undoRedoFlag = true;  
   this.target.scale.x -= this.value.x;
   this.target.scale.y -= this.value.y;
   this.target.scale.z -= this.value.z;
@@ -412,6 +418,8 @@ Scaling.prototype.undo = function()
 
 Scaling.prototype.redo = function()
 {
+      //FIXME: temp hack
+      this.target._undoRedoFlag = true;  
   this.target.scale.x += this.value.x;
   this.target.scale.y += this.value.y;
   this.target.scale.z += this.value.z;
@@ -512,12 +520,17 @@ Translation.prototype.execute = function(value)
 
 Translation.prototype.undo = function()
 {
+    //FIXME: temp hack
+    this.target._undoRedoFlag = true;
     this.target.position.sub( this.value );
+    //this.target._undoRedoFlag = false;
 }
 
 Translation.prototype.redo = function()
 {
+    this.target._undoRedoFlag = true;  
     this.target.position.add( this.value );
+    //this.target._undoRedoFlag = false;
 }
 
 module.exports = Translation;

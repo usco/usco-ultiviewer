@@ -39,17 +39,35 @@
         this.controls.enabled = false;
       },
       //attribute change callbacks
+      _mainAttrChangedHelper:function( oldVal, newVal, data ){
+      
+      
+      },
+      
       objectPosChanged:function( oldPos, newPos, data ){
-        //console.log("bla", data);
+        //console.log("oldPos", oldPos, newPos,"idx",idx,data);
+        //TODO: multiple axes changes ??
+        
+        if(!this.selectedObject) return;
+        //FIXME: horrible hack!: this is done to prevent retriggering events when the undo 
+        //redo operations change an object
+        if(this.selectedObject._undoRedoFlag === true){
+          this.selectedObject._undoRedoFlag = false;
+          return;
+        }
         if(! this._origPos){
-          var pos = new THREE.Vector3().fromArray( [ data[0][0], data[0][1], data[0][2] ] );
+          var idx = data[1] . length-1 ;
+          var arr = [ data[0][0], data[0][1], data[0][2] ] ;
+          arr[ idx ] = oldPos;
+          var pos = new THREE.Vector3(arr).fromArray( arr );
+          //console.log("gna",oldPos, newPos, pos);
           this._origPos = pos;
         }
         this.job("objectPosChanged", function(){
           var pos = new THREE.Vector3().fromArray( [ data[0][0], data[0][1], data[0][2] ] );
-          console.log("oldPos, newPos",this._origPos, pos);
+          //console.log("oldPos, newPos",this._origPos, pos);
           var offset = pos.clone().sub( this._origPos );
-          console.log("offset",offset);
+          //console.log("offset",offset);
           if(offset.length() > 0 )
           {
             var operation = new Translation( offset , this.selectedObject );
@@ -62,14 +80,86 @@
         }, 100)
       },
       
-      objectRotChanged:function( oldRot, newRot ){
-        console.log("oldRot, newRot",oldRot, newRot);
+      objectRotChanged:function( oldRot, newRot, data ){
+        console.log("oldRot, newRot",oldRot, newRot, data[1]);
+        
+        
+        if(!this.selectedObject) return;
+        //FIXME: horrible hack!: this is done to prevent retriggering events when the undo 
+        //redo operations change an object
+        if(this.selectedObject._undoRedoFlag === true){
+          this.selectedObject._undoRedoFlag = false;
+          return;
+        }
+        
+        
+        
+        if(! this._origRot){
+          var offset = 3;
+          var idx = data[1] . length-1 - offset;
+          var arr = [ data[0][offset], data[0][offset+1], data[0][offset+2] ] ;
+          arr[ idx ] = oldRot;
+          var rot = new THREE.Vector3(arr).fromArray( arr );
+          //console.log("gna",oldPos, newPos, pos);
+          this._origRot = rot;
+        }
+        this.job("objectRotationChanged", function(){
+          var offset = 3;
+          var arr = [ data[0][offset], data[0][offset+1], data[0][offset+2] ] ;
+          var rot = new THREE.Vector3().fromArray( arr );
+          //console.log("oldPos, newPos",this._origPos, pos);
+          var offset = rot.clone().sub( this._origRot );
+          //console.log("offset",offset);
+          if(offset.length() > 0 )
+          {
+            var operation = new Rotation( offset , this.selectedObject );
+            var event = new CustomEvent('newOperation',{detail: {msg: operation}});
+          
+            this.dispatchEvent(event);
+          }
+          this._origRot = null;
+          
+        }, 100)
+        
       },
-      objectScaleChanged:function( oldScale, newScale ){
+      objectScaleChanged:function( oldScale, newScale, data ){
         console.log("oldScale, newScale",oldScale, newScale);
+        
+        if(!this.selectedObject) return;
+        //FIXME: horrible hack!: this is done to prevent retriggering events when the undo 
+        //redo operations change an object
+        if(this.selectedObject._undoRedoFlag === true){
+          this.selectedObject._undoRedoFlag = false;
+          return;
+        }
+        if(! this._origScale){
+          var offset = 6;
+          var idx = data[1] . length-1 - offset;
+          var arr = [ data[0][offset], data[0][offset+1], data[0][offset+2] ] ;
+          arr[ idx ] = oldScale;
+          var scale = new THREE.Vector3(arr).fromArray( arr );
+          //console.log("gna",oldPos, newPos, pos);
+          this._origScale = scale;
+        }
+        this.job("objectScaleChanged", function(){
+          var arr = [ data[0][6], data[0][7], data[0][8] ] ;
+          var scale = new THREE.Vector3().fromArray( arr );
+          //console.log("oldPos, newPos",this._origPos, pos);
+          var offset = scale.clone().sub( this._origScale );
+          //console.log("offset",offset);
+          if(offset.length() > 0 )
+          {
+            var operation = new Scaling( offset , this.selectedObject );
+            var event = new CustomEvent('newOperation',{detail: {msg: operation}});
+          
+            this.dispatchEvent(event);
+          }
+          this._origScale = null;
+          
+        }, 100)
       },
-      activeToolChanged:function(oldTool, newTool){
-        //console.log("this.activeTool", this.activeTool, oldTool, newTool);
+      activeToolChanged:function( oldTool, newTool ){
+        console.log("this.activeTool", this.activeTool, oldTool, newTool);
         this._prevTool = oldTool;
         
         var controlableTools = this._controlableTools;
@@ -85,7 +175,8 @@
           }
         }
         
-        if(controlableTools.indexOf(this.activeTool) > -1 && this.selectedObject){
+        if(controlableTools.indexOf(this.activeTool) > -1 ){ //&& this.selectedObject){
+          //console.log("setting controls mode to " , this.activeTool);
           this.controls.setMode(this.activeTool);
         }
       },
