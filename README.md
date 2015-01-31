@@ -153,7 +153,20 @@ Editing
 - mirror
 - multiple selection
 
+-------------------
+Undo redo/history considerations
+--------------------------------
 
+- need to "regroup" change "events" fired too closely together (ie turn a set of very fine
+grained discrete events into one bigger event): 
+  * particularly for moving /rotating/Scaling objects visually
+
+- using object observation does not resolve this , as it still gives discrete, very small
+changes, which are not that usefull 
+
+- also important: when "watching" changes to object attributes: compound changes need to be used:
+ie , when watching a 3d object's position, you need to consider x,y,z components as a whole, 
+and not isolated changes
 
 Licence
 =======

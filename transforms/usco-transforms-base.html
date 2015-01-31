@@ -5,13 +5,16 @@
 <polymer-element name="usco-transforms-base" attributes="selectedObject activeTool enabled">
   <script>
     Polymer("usco-transforms-base",{
+      selectedObject: null,
       controls : null,
       activeTool:null,
       _prevTool:null,
       _tools: ["translate","rotate","scale","mirror","align"],
       _controlableTools : ["translate","rotate","scale"],
+      
+      _transformsActive: false,
     
-      observe:{
+      /*observe:{
         'selectedObject.position.x':'objectPosChanged',
         'selectedObject.position.y':'objectPosChanged',
         'selectedObject.position.z':'objectPosChanged',
@@ -23,25 +26,198 @@
         'selectedObject.scale.x'   :'objectScaleChanged',
         'selectedObject.scale.y'   :'objectScaleChanged',
         'selectedObject.scale.z'   :'objectScaleChanged'
-      },  
+      },  */
       //methodsToInject: ["thingamagig"],
       attached:function(){
         this.super();
         
         this._origPos = null;
-        //this.objectPosChanged = 
+        var self = this; 
+        
+        var posObserver = new CompoundObserver();
+        posObserver.addPath(this, 'selectedObject.position.x');
+        posObserver.addPath(this, 'selectedObject.position.y');
+        posObserver.addPath(this, 'selectedObject.position.z');
+
+        var posHandler = this._attributeChangeHandler( "position", "pos" );
+
+        posObserver.open( function( newValues, oldValues ) {
+          var oldValueArr = self.selectedObject.position.toArray();
+          var newValueArr = self.selectedObject.position.toArray();
+          for (var i in oldValues) {
+            oldValueArr[i] = oldValues[i];
+            newValueArr[i] = newValues[i];
+          }
+          posHandler( oldValueArr, newValueArr );
+        });
+        
+        var rotObserver = new CompoundObserver();
+        rotObserver.addPath(this, 'selectedObject.rotation.x');
+        rotObserver.addPath(this, 'selectedObject.rotation.y');
+        rotObserver.addPath(this, 'selectedObject.rotation.z');
+
+        var rotHandler = this._attributeChangeHandler( "rotation", "rot" );
+
+        rotObserver.open( function( newValues, oldValues ) {
+          var oldValueArr = self.selectedObject.rotation.toArray();
+          var newValueArr = self.selectedObject.rotation.toArray();
+          for (var i in oldValues) {
+            oldValueArr[i] = oldValues[i];
+            newValueArr[i] = newValues[i];
+          }
+          rotHandler( oldValueArr, newValueArr );
+        });
+        
+        var scaleObserver = new CompoundObserver();
+        scaleObserver.addPath(this, 'selectedObject.scale.x');
+        scaleObserver.addPath(this, 'selectedObject.scale.y');
+        scaleObserver.addPath(this, 'selectedObject.scale.z');
+
+        var scaleHandler = this._attributeChangeHandler( "scale", "scale" );
+        scaleObserver.open( function( newValues, oldValues ) {
+          var oldValueArr = self.selectedObject.scale.toArray();
+          var newValueArr = self.selectedObject.scale.toArray();
+          for (var i in oldValues) {
+            oldValueArr[i] = oldValues[i];
+            newValueArr[i] = newValues[i];
+          }
+          scaleHandler( oldValueArr, newValueArr );
+        });
       },
       //internal helpers
       init:function( camera, domElement ){
         //camera & dom element needed
         this.controls = new THREE.TransformControls( camera, domElement );
+        
+        var self = this;
+        this.controls.addEventListener("mouseDown",function(e){console.log("mouseDown change event");self._transformsActive=true;} );
+        this.controls.addEventListener("mouseUp"  ,function(e){console.log("mouseUp change event");self._transformsActive=false;} );
+        
         //this.addToScene( this.controls, "helpers", {autoResize:false, autoCenter:false, persistent:true, select:false } );
         this.controls.enabled = false;
       },
       //attribute change callbacks
-      _mainAttrChangedHelper:function( oldVal, newVal, data ){
+      _attributeChangeHandler:function( fieldName, shortFieldName ){
+        var self = this;
+        var operationKlass = null;
+        switch(fieldName){
+          case "position":
+            operationKlass = Translation;
+            break;
+          case "rotation":
+            operationKlass = Rotation;
+            break;
+          case "scale":
+            operationKlass = Scaling;
+            break;
+        }
+        
+        return function(oldVal, newVal){
+          if(!self.selectedObject) return;
+          //FIXME: horrible hack!: this is done to prevent retriggering events when the undo 
+          //redo operations change an object
+          if(self.selectedObject._undoRedoFlag === true){
+            self.selectedObject._undoRedoFlag = false;
+            return;
+          }
+          //
+          var origFieldName = "_orig"+shortFieldName;
+          if(! self[origFieldName]){ //_origPos){
+            var attrVal = new THREE.Vector3().fromArray( oldVal );
+            self[origFieldName] = attrVal;
+          }
+          self.job("object"+shortFieldName+"Changed", function(){
+            //we are here because even firing was interupted
+            /*
+            case 1:  transforms are not active (no pointer down)
+              - offset > 0: fire event
+            case 2: transforms are still active (pointer down)
+              wait until controls are released to actually fire the event
+              (and even firing did not resume)
+            */
+            var attrVal = new THREE.Vector3().fromArray( newVal );
+            var offset = attrVal.clone().sub( self[origFieldName] );
+            //console.log("offset",offset);
+            function dispatchOperationEvent( offset, attrVal )
+            {
+              if(offset.length() > 0 )
+              {
+                var operation = new operationKlass( offset , self.selectedObject );
+                var event = new CustomEvent('newOperation',{detail: {msg: operation}});
+                self.dispatchEvent(event);
+              }
+              self[origFieldName] = null;
+            }
+            
+            if(!self._transformsActive)
+            {
+              dispatchOperationEvent( offset, attrVal );
+              return;
+            }else
+            {
+              self.controls.addEventListener("mouseUp"  ,function(e){
+                var attrVal = self.selectedObject[fieldName];  
+                var offset = attrVal.clone().sub( self[origFieldName] );
+                dispatchOperationEvent( offset, attrVal );
+                //TODO: remove event listener
+                return;
+              });
+            }
+          }, 500);
+        }
+      },
       
-      
+      objectPosChanged2:function( oldPos, newPos ){
+        if(!this.selectedObject) return;
+        //FIXME: horrible hack!: this is done to prevent retriggering events when the undo 
+        //redo operations change an object
+        if(this.selectedObject._undoRedoFlag === true){
+          this.selectedObject._undoRedoFlag = false;
+          return;
+        }
+        if(! this._origPos){
+          var pos = new THREE.Vector3().fromArray( oldPos );
+          this._origPos = pos;
+        }
+        this.job("objectPosChanged", function(){
+          //we are here because even firing was interupted
+          /*
+          case 1:  transforms are not active (no pointer down)
+            - offset > 0: fire event
+          case 2: transforms are still active (pointer down)
+            wait until controls are released to actually fire the event
+            (and even firing did not resume)
+          */
+          var pos = new THREE.Vector3().fromArray( newPos );
+          var offset = pos.clone().sub( this._origPos );
+          //console.log("offset",offset);
+          var self = this;
+          function dispatchOperationEvent( offset, pos )
+          {
+            if(offset.length() > 0 )
+            {
+              var operation = new Translation( offset , self.selectedObject );
+              var event = new CustomEvent('newOperation',{detail: {msg: operation}});
+              self.dispatchEvent(event);
+            }
+            self._origPos = null;
+          }
+          
+          if(!this._transformsActive)
+          {
+            dispatchOperationEvent( offset, pos );
+            return;
+          }else
+          {
+            this.controls.addEventListener("mouseUp"  ,function(e){
+              var pos = self.selectedObject.position;  
+              var offset = pos.clone().sub( self._origPos );
+              dispatchOperationEvent( offset, pos );
+              //TODO: remove event listener
+              return;
+            });
+          }
+        }, 500)
       },
       
       objectPosChanged:function( oldPos, newPos, data ){
@@ -218,6 +394,10 @@
       toScaleMode:function(){
         this.activeTool = this.activeTool === "scale" ? null: "scale";
       }, 
+      //helpers
+      _aggregateChanges:function(){
+      
+      },
       
       
     });

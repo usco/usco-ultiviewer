@@ -541,7 +541,7 @@
 		THREE.Object3D.call( this );
 
 		domElement = ( domElement !== undefined ) ? domElement : document;
-		console.log("attaching TransformControls to",domElement);
+		//console.log("attaching TransformControls to",domElement);
 
 		this.gizmo = {};
 		this.gizmo["translate"] = new THREE.TransformGizmoTranslate();

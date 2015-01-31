@@ -178,9 +178,40 @@ Polymer('ulti-viewer', Polymer.mixin({
     this.historyManager = this.$.history;
     //if we recieve a "newOperation" event, add it to history  
     var self = this;
+    
+    /*
+    var lastOp = null;
+    //time based accumulator, to remove extra operations
+    function operationAccumulator( op ){
+      if(!lastOp){
+        lastOp = op; 
+        lastOp._timeStamp = new Date().getTime();
+        return op;
+        }
+        
+      var newTime = new Date().getTime();
+      var difference = newTime - lastOp._timeStamp;
+      lastOp = op; 
+      lastOp._timeStamp = newTime;
+      console.log( "timeStamp",difference );
+      if(lastOp.type === op.type && difference < 30000)
+      {
+        return op;
+      }
+      return lastOp;
+    }*/
+    
     this.addEventListener('newOperation', function(e) {
-      console.log("newOperation",e.type, e.detail.msg); 
-      self.historyManager.addCommand( e.detail.msg );
+      var operation = e.detail.msg;
+      console.log("newOperation",operation.type, operation);
+      
+      self.historyManager.addCommand( operation );
+      
+      /*var validOp = operationAccumulator( operation );
+      if( validOp )
+      {
+        
+      }*/
       
       //if(self.generateCodeOnTheFly) self.generateCodeFromHistory();
     });
@@ -442,9 +473,6 @@ Polymer('ulti-viewer', Polymer.mixin({
     //FIXME: weird issue with rescaled models and worldToLocal
   },
   //attribute change handlers
-  showGridChanged:function(){
-    console.log("show grid changed");
-  },
   autoRotateChanged:function()
   {
     var controls = this.$.camCtrl;
