@@ -212,7 +212,8 @@ border: white;
 
 
 ulti-viewer::shadow #history{
-  position:absolute;top:5px;left:380px;z-index:15;
+  position:absolute;top:5px;left:380px;z-index:15;background:white;
+  display: inline-block
 }
 
 
@@ -221,6 +222,13 @@ ulti-viewer::shadow #inputOutput{
 
 }
 
+ulti-viewer::shadow #toolBar{
+  width:100%;
+  height:45px;
+  position:absolute;
+  left:0px;
+  z-index:14;
+}
 
 /*styling of 3d elements using css*/
 ulti-viewer /deep/ dimensions-helper-group /deep/ distance-helper{

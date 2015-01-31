@@ -6,6 +6,8 @@
   <script>
     Polymer("usco-transforms-base",{
       selectedObject: null,
+      _prevSelectedObject:null,
+     
       controls : null,
       activeTool:null,
       _prevTool:null,
@@ -14,19 +16,6 @@
       
       _transformsActive: false,
     
-      /*observe:{
-        'selectedObject.position.x':'objectPosChanged',
-        'selectedObject.position.y':'objectPosChanged',
-        'selectedObject.position.z':'objectPosChanged',
-        
-        'selectedObject.rotation.x':'objectRotChanged',
-        'selectedObject.rotation.y':'objectRotChanged',
-        'selectedObject.rotation.z':'objectRotChanged',
-        
-        'selectedObject.scale.x'   :'objectScaleChanged',
-        'selectedObject.scale.y'   :'objectScaleChanged',
-        'selectedObject.scale.z'   :'objectScaleChanged'
-      },  */
       //methodsToInject: ["thingamagig"],
       attached:function(){
         this.super();
@@ -34,55 +23,10 @@
         this._origPos = null;
         var self = this; 
         
-        var posObserver = new CompoundObserver();
-        posObserver.addPath(this, 'selectedObject.position.x');
-        posObserver.addPath(this, 'selectedObject.position.y');
-        posObserver.addPath(this, 'selectedObject.position.z');
-
-        var posHandler = this._attributeChangeHandler( "position", "pos" );
-
-        posObserver.open( function( newValues, oldValues ) {
-          var oldValueArr = self.selectedObject.position.toArray();
-          var newValueArr = self.selectedObject.position.toArray();
-          for (var i in oldValues) {
-            oldValueArr[i] = oldValues[i];
-            newValueArr[i] = newValues[i];
-          }
-          posHandler( oldValueArr, newValueArr );
-        });
+        var posObserver = this._attributeChangeHandler( "position", "pos" );
+        var rotObserver = this._attributeChangeHandler( "rotation", "rot" );
+        var scaObserver = this._attributeChangeHandler( "scale"   , "sca" );
         
-        var rotObserver = new CompoundObserver();
-        rotObserver.addPath(this, 'selectedObject.rotation.x');
-        rotObserver.addPath(this, 'selectedObject.rotation.y');
-        rotObserver.addPath(this, 'selectedObject.rotation.z');
-
-        var rotHandler = this._attributeChangeHandler( "rotation", "rot" );
-
-        rotObserver.open( function( newValues, oldValues ) {
-          var oldValueArr = self.selectedObject.rotation.toArray();
-          var newValueArr = self.selectedObject.rotation.toArray();
-          for (var i in oldValues) {
-            oldValueArr[i] = oldValues[i];
-            newValueArr[i] = newValues[i];
-          }
-          rotHandler( oldValueArr, newValueArr );
-        });
-        
-        var scaleObserver = new CompoundObserver();
-        scaleObserver.addPath(this, 'selectedObject.scale.x');
-        scaleObserver.addPath(this, 'selectedObject.scale.y');
-        scaleObserver.addPath(this, 'selectedObject.scale.z');
-
-        var scaleHandler = this._attributeChangeHandler( "scale", "scale" );
-        scaleObserver.open( function( newValues, oldValues ) {
-          var oldValueArr = self.selectedObject.scale.toArray();
-          var newValueArr = self.selectedObject.scale.toArray();
-          for (var i in oldValues) {
-            oldValueArr[i] = oldValues[i];
-            newValueArr[i] = newValues[i];
-          }
-          scaleHandler( oldValueArr, newValueArr );
-        });
       },
       //internal helpers
       init:function( camera, domElement ){
@@ -112,7 +56,12 @@
             break;
         }
         
-        return function(oldVal, newVal){
+        var observer = new CompoundObserver();
+        observer.addPath(this, 'selectedObject.'+fieldName+'.x');
+        observer.addPath(this, 'selectedObject.'+fieldName+'.y');
+        observer.addPath(this, 'selectedObject.'+fieldName+'.z');
+
+        var handler = function(oldVal, newVal){
           if(!self.selectedObject) return;
           //FIXME: horrible hack!: this is done to prevent retriggering events when the undo 
           //redo operations change an object
@@ -126,6 +75,7 @@
             var attrVal = new THREE.Vector3().fromArray( oldVal );
             self[origFieldName] = attrVal;
           }
+          
           self.job("object"+shortFieldName+"Changed", function(){
             //we are here because even firing was interupted
             /*
@@ -135,7 +85,9 @@
               wait until controls are released to actually fire the event
               (and even firing did not resume)
             */
-            var attrVal = new THREE.Vector3().fromArray( newVal );
+            //for whatever reason, previous value is not set: bail out
+            if( ! self[origFieldName] ) return;
+            var attrVal = new THREE.Vector3().fromArray( newVal.slice(0,4) );
             var offset = attrVal.clone().sub( self[origFieldName] );
             //console.log("offset",offset);
             function dispatchOperationEvent( offset, attrVal )
@@ -156,8 +108,20 @@
             }else
             {
               self.controls.addEventListener("mouseUp"  ,function(e){
-                var attrVal = self.selectedObject[fieldName];  
-                var offset = attrVal.clone().sub( self[origFieldName] );
+                if(!self.selectedObject)    return;
+                if(!self[origFieldName] ) return;
+                var attrVal = self.selectedObject[fieldName]; 
+                //FIXME: why do EULER instance have not toVector3() method ?
+                /*if("toVector3" in attrVal){//convert if needed
+                  attrVal = attrVal.toVector3()
+                } */
+                if(attrVal instanceof THREE.Euler ){
+                  var foo = attrVal.toArray();//.toVector3();
+                  foo.splice(3,1)
+                  attrVal = new THREE.Vector3().fromArray( foo ); 
+                }
+                var oldVal  =  self[origFieldName] ;
+                var offset = attrVal.clone().sub( oldVal );
                 dispatchOperationEvent( offset, attrVal );
                 //TODO: remove event listener
                 return;
@@ -165,174 +129,19 @@
             }
           }, 500);
         }
-      },
-      
-      objectPosChanged2:function( oldPos, newPos ){
-        if(!this.selectedObject) return;
-        //FIXME: horrible hack!: this is done to prevent retriggering events when the undo 
-        //redo operations change an object
-        if(this.selectedObject._undoRedoFlag === true){
-          this.selectedObject._undoRedoFlag = false;
-          return;
-        }
-        if(! this._origPos){
-          var pos = new THREE.Vector3().fromArray( oldPos );
-          this._origPos = pos;
-        }
-        this.job("objectPosChanged", function(){
-          //we are here because even firing was interupted
-          /*
-          case 1:  transforms are not active (no pointer down)
-            - offset > 0: fire event
-          case 2: transforms are still active (pointer down)
-            wait until controls are released to actually fire the event
-            (and even firing did not resume)
-          */
-          var pos = new THREE.Vector3().fromArray( newPos );
-          var offset = pos.clone().sub( this._origPos );
-          //console.log("offset",offset);
-          var self = this;
-          function dispatchOperationEvent( offset, pos )
-          {
-            if(offset.length() > 0 )
-            {
-              var operation = new Translation( offset , self.selectedObject );
-              var event = new CustomEvent('newOperation',{detail: {msg: operation}});
-              self.dispatchEvent(event);
-            }
-            self._origPos = null;
+        
+        //var handler = this._attributeChangeHandler( "position", "pos" );
+        observer.open( function( newValues, oldValues ) {
+          if(! self.selectedObject ) return;
+          var oldValueArr = self.selectedObject[fieldName].toArray();
+          var newValueArr = self.selectedObject[fieldName].toArray();
+          for (var i in oldValues) {
+            oldValueArr[i] = oldValues[i];
+            newValueArr[i] = newValues[i];
           }
-          
-          if(!this._transformsActive)
-          {
-            dispatchOperationEvent( offset, pos );
-            return;
-          }else
-          {
-            this.controls.addEventListener("mouseUp"  ,function(e){
-              var pos = self.selectedObject.position;  
-              var offset = pos.clone().sub( self._origPos );
-              dispatchOperationEvent( offset, pos );
-              //TODO: remove event listener
-              return;
-            });
-          }
-        }, 500)
-      },
-      
-      objectPosChanged:function( oldPos, newPos, data ){
-        //console.log("oldPos", oldPos, newPos,"idx",idx,data);
-        //TODO: multiple axes changes ??
-        
-        if(!this.selectedObject) return;
-        //FIXME: horrible hack!: this is done to prevent retriggering events when the undo 
-        //redo operations change an object
-        if(this.selectedObject._undoRedoFlag === true){
-          this.selectedObject._undoRedoFlag = false;
-          return;
-        }
-        if(! this._origPos){
-          var idx = data[1] . length-1 ;
-          var arr = [ data[0][0], data[0][1], data[0][2] ] ;
-          arr[ idx ] = oldPos;
-          var pos = new THREE.Vector3(arr).fromArray( arr );
-          //console.log("gna",oldPos, newPos, pos);
-          this._origPos = pos;
-        }
-        this.job("objectPosChanged", function(){
-          var pos = new THREE.Vector3().fromArray( [ data[0][0], data[0][1], data[0][2] ] );
-          //console.log("oldPos, newPos",this._origPos, pos);
-          var offset = pos.clone().sub( this._origPos );
-          //console.log("offset",offset);
-          if(offset.length() > 0 )
-          {
-            var operation = new Translation( offset , this.selectedObject );
-            var event = new CustomEvent('newOperation',{detail: {msg: operation}});
-          
-            this.dispatchEvent(event);
-          }
-          this._origPos = null;
-          
-        }, 100)
-      },
-      
-      objectRotChanged:function( oldRot, newRot, data ){
-        console.log("oldRot, newRot",oldRot, newRot, data[1]);
-        
-        
-        if(!this.selectedObject) return;
-        //FIXME: horrible hack!: this is done to prevent retriggering events when the undo 
-        //redo operations change an object
-        if(this.selectedObject._undoRedoFlag === true){
-          this.selectedObject._undoRedoFlag = false;
-          return;
-        }
-        
-        
-        
-        if(! this._origRot){
-          var offset = 3;
-          var idx = data[1] . length-1 - offset;
-          var arr = [ data[0][offset], data[0][offset+1], data[0][offset+2] ] ;
-          arr[ idx ] = oldRot;
-          var rot = new THREE.Vector3(arr).fromArray( arr );
-          //console.log("gna",oldPos, newPos, pos);
-          this._origRot = rot;
-        }
-        this.job("objectRotationChanged", function(){
-          var offset = 3;
-          var arr = [ data[0][offset], data[0][offset+1], data[0][offset+2] ] ;
-          var rot = new THREE.Vector3().fromArray( arr );
-          //console.log("oldPos, newPos",this._origPos, pos);
-          var offset = rot.clone().sub( this._origRot );
-          //console.log("offset",offset);
-          if(offset.length() > 0 )
-          {
-            var operation = new Rotation( offset , this.selectedObject );
-            var event = new CustomEvent('newOperation',{detail: {msg: operation}});
-          
-            this.dispatchEvent(event);
-          }
-          this._origRot = null;
-          
-        }, 100)
-        
-      },
-      objectScaleChanged:function( oldScale, newScale, data ){
-        console.log("oldScale, newScale",oldScale, newScale);
-        
-        if(!this.selectedObject) return;
-        //FIXME: horrible hack!: this is done to prevent retriggering events when the undo 
-        //redo operations change an object
-        if(this.selectedObject._undoRedoFlag === true){
-          this.selectedObject._undoRedoFlag = false;
-          return;
-        }
-        if(! this._origScale){
-          var offset = 6;
-          var idx = data[1] . length-1 - offset;
-          var arr = [ data[0][offset], data[0][offset+1], data[0][offset+2] ] ;
-          arr[ idx ] = oldScale;
-          var scale = new THREE.Vector3(arr).fromArray( arr );
-          //console.log("gna",oldPos, newPos, pos);
-          this._origScale = scale;
-        }
-        this.job("objectScaleChanged", function(){
-          var arr = [ data[0][6], data[0][7], data[0][8] ] ;
-          var scale = new THREE.Vector3().fromArray( arr );
-          //console.log("oldPos, newPos",this._origPos, pos);
-          var offset = scale.clone().sub( this._origScale );
-          //console.log("offset",offset);
-          if(offset.length() > 0 )
-          {
-            var operation = new Scaling( offset , this.selectedObject );
-            var event = new CustomEvent('newOperation',{detail: {msg: operation}});
-          
-            this.dispatchEvent(event);
-          }
-          this._origScale = null;
-          
-        }, 100)
+          handler( oldValueArr, newValueArr );
+        });
+        return observer;
       },
       activeToolChanged:function( oldTool, newTool ){
         console.log("this.activeTool", this.activeTool, oldTool, newTool);
