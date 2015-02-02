@@ -49,9 +49,12 @@ Polymer("ui-base",{
   onMouseOver:function(){
     if(!this.disabled) this.$.shadow.setZ(3);
   },
-   onMouseLeave:function(){
+  onMouseLeave:function(){
     if(!this.disabled) this.$.shadow.setZ(0);
   },
+  disabledChanged:function(){
+     if(this.disabled) this.$.shadow.setZ(0);
+  }
 });
 </script>
 </polymer-element>
