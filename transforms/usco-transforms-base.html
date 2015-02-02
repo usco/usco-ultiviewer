@@ -39,6 +39,7 @@
         
         //this.addToScene( this.controls, "helpers", {autoResize:false, autoCenter:false, persistent:true, select:false } );
         this.controls.enabled = false;
+        //this.controls.detach();
       },
       //attribute change callbacks
       _attributeChangeHandler:function( fieldName, shortFieldName ){
@@ -146,24 +147,27 @@
       activeToolChanged:function( oldTool, newTool ){
         console.log("this.activeTool", this.activeTool, oldTool, newTool);
         this._prevTool = oldTool;
-        
         var controlableTools = this._controlableTools;
-        
-        if(this.activeTool === "" || controlableTools.indexOf(this.activeTool) === -1){
-          this.controls.detach(this.selectedObject );
-          this.controls.enabled = false;
-        }
-        else{ 
-          if(this.selectedObject && !(this.selectedObject instanceof AnnotationHelper) ){
-            this.controls.enabled = true;
-            this.controls.attach(this.selectedObject ); 
-          }
-        }
         
         if(controlableTools.indexOf(this.activeTool) > -1 ){ //&& this.selectedObject){
           //console.log("setting controls mode to " , this.activeTool);
           this.controls.setMode(this.activeTool);
         }
+        
+        if(this.activeTool === "" || controlableTools.indexOf(this.activeTool) === -1){
+          this.controls.enabled = false;
+          this.controls.detach( this.selectedObject );
+        }
+        else{ 
+          if(this.selectedObject && !(this.selectedObject instanceof AnnotationHelper) ){
+            this.controls.enabled = true;
+            this.controls.attach( this.selectedObject ); 
+          }
+        }
+      
+        //FIXME/ do this better: this just ensures that controls are not visible if there
+        //is no selection
+        this.selectedObjectChanged();
       },
       
       selectedObjectChanged:function( oldSelection, newSelection ){
@@ -181,15 +185,27 @@
         }
         
         var controlableTools = this._controlableTools;
+        var conditionsMet = ( this.activeTool && this.activeTool !== "" && 
+          controlableTools.indexOf(this.activeTool) !== -1 && 
+          this.selectedObject && !(this.selectedObject instanceof AnnotationHelper) );
+        
+        this.controls.enabled = conditionsMet;
+        
+        if( conditionsMet ){
+          this.controls.attach( this.selectedObject ); 
+        }else{
+          this.controls.detach();
+        }
+        
+        
+        
+        /*  
         if(this.activeTool && this.activeTool !== "" && controlableTools.indexOf(this.activeTool) !== -1){
           if(this.selectedObject && !(this.selectedObject instanceof AnnotationHelper) ){
             this.controls.enabled = true;
+            console.log("attaching");
             this.controls.attach(this.selectedObject ); 
           }
-        }
-        
-        /*if(this.controls.enabled && !(newSelection instanceof AnnotationHelper)){
-          this.controls.attach( newSelection );
         }*/
       },
       //this method will get added to the viewer
