@@ -168,6 +168,8 @@ changes, which are not that usefull
 ie , when watching a 3d object's position, you need to consider x,y,z components as a whole, 
 and not isolated changes
 
+- persistance: perhaps even (simple) undo redo operations could be stored/reloaded?
+
 Licence
 =======
 AGPL
