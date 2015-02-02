@@ -301,6 +301,42 @@ module.exports = Intersection;
 },{"./command":3}],9:[function(require,module,exports){
 Command = require('./command');
 
+//FIXME: find a better name, this operation is when a mesh/shape/whatever gets added/Created
+
+MeshAddition = function ( value, target)
+{
+  Command.call( this );
+  this.type = "MeshAddition";
+  this.value = value;
+  this.target = target;
+}
+MeshAddition.prototype = Object.create( Command.prototype );
+MeshAddition.prototype.constructor=MeshAddition;
+MeshAddition.prototype.clone = function()
+{
+  return new MeshAddition( this.value, this.target);
+}
+
+MeshAddition.prototype.undo = function()
+{
+  this._oldParent = this.value.parent;
+  this.value.parent.remove(this.value);
+  //hack
+  //this.value.renderable.visible = false;
+}
+
+MeshAddition.prototype.redo = function()
+{
+  this._oldParent.add(this.value);
+  //hack
+  //this.value.renderable.visible = true;
+}
+
+module.exports = MeshAddition;
+
+},{"./command":3}],10:[function(require,module,exports){
+Command = require('./command');
+
 Mirror = function ( target, axis)
 {
   Command.call( this );
@@ -327,7 +363,7 @@ Mirror.prototype.redo = function()
 
 module.exports = Mirror;
 
-},{"./command":3}],10:[function(require,module,exports){
+},{"./command":3}],11:[function(require,module,exports){
 
 Command = require('./command');
 
@@ -335,6 +371,7 @@ Creation = require('./creation');
 Deletion = require('./deletion');
 Clone = require('./clone');
 Import = require('./import');
+MeshAddition = require('./meshAddition');
 AttributeChange = require('./attributeChange');
 
 Translation = require('./translation');
@@ -352,7 +389,7 @@ Intersection = require('./intersection');
 
 
 
-},{"./attributeChange":1,"./clone":2,"./command":3,"./creation":4,"./deletion":5,"./extrusion":6,"./import":7,"./intersection":8,"./mirror":9,"./rotation":11,"./scaling":12,"./subtraction2":13,"./translation":14,"./union":15}],11:[function(require,module,exports){
+},{"./attributeChange":1,"./clone":2,"./command":3,"./creation":4,"./deletion":5,"./extrusion":6,"./import":7,"./intersection":8,"./meshAddition":9,"./mirror":10,"./rotation":12,"./scaling":13,"./subtraction2":14,"./translation":15,"./union":16}],12:[function(require,module,exports){
 Command = require('./command');
 
 Rotation = function ( value, target)
@@ -390,7 +427,7 @@ Rotation.prototype.redo = function()
 
 module.exports = Rotation;
 
-},{"./command":3}],12:[function(require,module,exports){
+},{"./command":3}],13:[function(require,module,exports){
 Command = require('./command');
 
 Scaling = function ( value, target)
@@ -427,7 +464,7 @@ Scaling.prototype.redo = function()
 
 module.exports = Scaling;
 
-},{"./command":3}],13:[function(require,module,exports){
+},{"./command":3}],14:[function(require,module,exports){
 Command = require('./command');
 
 //FIXME: HAAACK !
@@ -496,7 +533,7 @@ Subtraction2.prototype.redo = function()
 
 module.exports = Subtraction2;
 
-},{"./command":3}],14:[function(require,module,exports){
+},{"./command":3}],15:[function(require,module,exports){
 Command = require('./command');
 
 Translation = function ( value, target)
@@ -535,7 +572,7 @@ Translation.prototype.redo = function()
 
 module.exports = Translation;
 
-},{"./command":3}],15:[function(require,module,exports){
+},{"./command":3}],16:[function(require,module,exports){
 Command = require('./command');
 
 //FIXME: HAAACK !, should perhaps be closer to esprima node
@@ -592,5 +629,5 @@ Union.prototype.redo = function()
 
 module.exports = Union;
 
-},{"./command":3}]},{},[10])(10)
+},{"./command":3}]},{},[11])(11)
 });

@@ -113,6 +113,10 @@ Polymer('ulti-viewer', Polymer.mixin({
   
   selectedEntity: null,
   
+  observe:{
+    'selectedObject.parent':'selectedObjectParentChanged'
+  },
+  
   created: function()
   {
     this.resources = [];
@@ -204,9 +208,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     this.addEventListener('newOperation', function(e) {
       var operation = e.detail.msg;
       console.log("newOperation",operation.type, operation);
-      
       self.historyManager.addCommand( operation );
-      
       /*var validOp = operationAccumulator( operation );
       if( validOp )
       {
@@ -215,7 +217,6 @@ Polymer('ulti-viewer', Polymer.mixin({
       
       //if(self.generateCodeOnTheFly) self.generateCodeFromHistory();
     });
-    
   },
   detached:function()
   {
@@ -269,8 +270,15 @@ Polymer('ulti-viewer', Polymer.mixin({
       }
       
       //FIXME: not sure about these, they are used for selection levels
-      mesh.selectable = true;
+      mesh.selectable      = true;
       mesh.selectTrickleUp = false;
+      mesh.transformable   = true;
+      
+      //FIXME: not sure where this should be best: used to dispatch "scene insertion"/creation operation
+      var operation = new MeshAddition( mesh );
+      //var event = new CustomEvent('newOperation',{detail: {msg: operation}});
+      //self.dispatchEvent(event);
+      self.historyManager.addCommand( operation );
       
     }
     if( display ){
@@ -282,6 +290,7 @@ Polymer('ulti-viewer', Polymer.mixin({
       });*/
       return resourcePromise.then( this.addToScene.bind(this), onDisplayError ).then(afterAdded);
     }
+    
     
     return resourcePromise;
     //resourcePromise.then(resource.onLoaded.bind(resource), loadFailed, resource.onDownloadProgress.bind(resource) );
@@ -417,7 +426,6 @@ Polymer('ulti-viewer', Polymer.mixin({
         this.loadMesh( f );
     }
   },
-  
   onReqDismissResource:function(event, detail, sender) {
     var resource = sender.templateInstance.model.resource;
     //console.log("resource",resource);
@@ -517,9 +525,9 @@ Polymer('ulti-viewer', Polymer.mixin({
       }
     }
   },
-  selectedObjectChanged:function(oldSelection)
+  selectedObjectChanged:function(oldSelection, newSelection)
   {
-    //console.log("selectedObjectChanged", this.selectedObject);
+    console.log("selectedObjectChanged", this.selectedObject, oldSelection, newSelection);
     var newSelection = this.selectedObject;
     
     if( oldSelection ){
@@ -563,6 +571,17 @@ Polymer('ulti-viewer', Polymer.mixin({
     if( newEntity && "notes" in newEntity && newEntity.type == "note" ) this.selectedObject =null;
     if( newEntity ){
       newEntity._selected = true;
+    }
+  },
+  
+  //FIXME : weird hack to solve issues with undo redo operations that add/remove items
+  //from the scene : a removed item is 'invisible', so selectedObject should become null
+  selectedObjectParentChanged:function(){
+    if(!this.selectedObject) return
+    //console.log("dfsdfdsf", this.selectedObject.parent);
+    if(!this.selectedObject.parent){
+      this.selectedObject = null;
+      this.selectedEntity = null;
     }
   },
   //important data structure change watchers, not sure this should be here either
