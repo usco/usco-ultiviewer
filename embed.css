@@ -15,11 +15,20 @@ ulti-viewer /deep/ #naviView{
 	-ms-user-select: none;
 	user-select: none;
 	
+	/*background-color: #F0F;*/
+	background-color:#f5f5f5;
+	opacity: 0;
 	/*pointer-events: none;*/
 	
-	background:white; opacity:0; filter:Alpha(opacity=0);
+	/*background:white; opacity:0; filter:Alpha(opacity=0);*/
 }
 
+ulti-viewer /deep/ #perspectiveView{
+  background-color:#f5f5f5;
+  /*background-color: rgba(255, 0, 0, 1);*/
+  /*background-color: #F00;*/
+  opacity: 0;
+}
 /*
 Colors:
 blue:#4ebcf6
@@ -177,8 +186,9 @@ ulti-viewer::shadow #objProps{
   position:absolute;bottom:0px;left:0px;z-index:15;
   height: 25px;
   width: 100%;
-  background:white;
+  background-color:#f5f5f5; /*background:white;*/
   font-size: 0.8em;
+  
 }
 
 ulti-viewer::shadow #objProps /deep/ input[type="number"]{

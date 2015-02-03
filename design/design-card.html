@@ -1,0 +1,181 @@
+<link rel="import" href="../components/polymer/polymer.html">
+
+
+<polymer-element name="design-card" attributes="design">
+  <template>
+    <style>
+      /*
+      colors
+      paper-white: #f5f5f5
+      yellow-orange: #FFC200
+      yellow-orange-strong: 
+      light blue: #0ca9e3;
+      */
+      :host{
+        z-index:15;
+        position:absolute;
+        right:10px;
+        top:80px;
+        height:300px;
+       /*background: #f5f5f5;#18294D;#f5f5f5;#18294D*/
+        padding:10px;
+        padding-top: 5px;
+        
+        font-size:0.8em;
+      }
+      header{
+        font-weight:bold;
+      }
+      section{
+        margin-top:5px;
+      }
+      
+      .author{
+        color:#18294D;
+      }
+      .name{
+        font-size:0.8em;
+      }
+      .email{
+        font-size:0.8em;
+      }
+      
+      .url{
+        font-size:0.8em;
+      }
+      
+      .tag{
+        font-size:0.8em; color:#FFC200;
+        font-weight: bold;
+      }
+      .version{
+        font-size:0.5em; color:#FFC200;
+        font-weight: bold;
+      }
+      
+      .licenses{
+        font-size:0.8em;
+      }
+      
+      .mainBlock{
+        padding:15px;
+      
+      }
+      
+      .card {
+        background:white;
+      
+      }
+      
+      .card-title{
+        font-size: 1.5em;
+        font-weight: bold;
+        color:#60c4f8;
+      }
+      
+      .card-left {
+        width: 200px;
+      }
+
+      .card-right {
+        padding: 24px;
+        padding-top: 5px;
+        width:300px;
+      }
+      
+      .card-icon {
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        margin-right: 16px;
+      }
+
+      /*FIXME: replace this with flex based placement*/
+      .editing{
+        position: absolute;
+        right: 0px;
+        bottom: 0px;
+      }
+      
+      .social{
+        width:25px;
+        position: absolute;
+        top: -4px;
+        left: 4px;
+      }
+      
+      paper-icon-button{
+        padding:2px;
+      
+      }
+
+      
+    </style>
+    
+    <paper-shadow z="2" animated id="shadow">
+    <div class="card" layout horizontal >
+      <div class="card-left" style="background:{{design.meta.color}};" hero-id="{{design.name}}-art" hero></div>
+        <div class="card-right" flex>
+          <div layout horizontal center>
+            <div>
+              <div class="card-icon" style="background:{{design.meta.color}};"></div>
+            </div>
+            <div flex>
+                <div class="card-title">{{design.name}} <span class="version">({{design.version}})</span> </div>
+                <section>
+                  <div class="author">
+                    <span class="name">by: </span>
+                      <template repeat="{{author in design.authors}}">
+                         <span class="name">{{author.name}}</span>
+                         <!--<span class="email">( {{author.email}} )</span>
+                         <span class="url">{{author.url}}</span>-->
+                      </template>
+                  </div>
+                </section>
+            </div>
+            <div class="licenses">
+                <template repeat="{{license in design.licenses}}">
+                   <div>{{license}}</div>
+                </template>
+            </div>
+          </div>
+          <div layout  center class="mainBlock"> 
+              <section>
+                <header> Description </header>
+                <div>{{design.description}}</div>
+              </section>
+              
+              <section>
+                <header> Status </header>
+                {{design.meta.state}}
+              </section>
+              
+              <section>
+                <header> Tags </header>
+                <div>
+                   <template repeat="{{tag in design.tags}}">
+                       <span class="tag">{{tag}}</span>
+                    </template>
+                </div>
+              </section>
+              
+              
+              <div class="editing">
+                <template if="{{design._editable}}">
+                  <paper-icon-button icon="editor:mode-edit" disabled="{{editing}}"></paper-icon-button>
+                </template>
+              </div>
+              
+            </div>
+          </div>
+        </div>
+    </div>
+    </paper-shadow>
+    
+  </template>
+  <script>
+  Polymer("design-card",{
+
+  });
+</script>
+</polymer-element>

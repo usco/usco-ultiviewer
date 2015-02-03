@@ -101,8 +101,9 @@ Polymer('ulti-viewer', Polymer.mixin({
   activeTool : null,
   toolCategory: null,
   
-  hierarchy   : null,
-  bom         : null,
+  design      : {},
+  bom         : {},
+  hierarchy   : {},
   
   parts: {},
   partWaiters: {},
@@ -129,6 +130,40 @@ Polymer('ulti-viewer', Polymer.mixin({
     
     //helpers
     this._zoomInOnObject = new ZoomInOnObject();
+    
+    //TODO: remove this, just temporary
+    this.bom = {};
+    this.design = {
+      name:"RobotoMaging",
+      description:"such a great design",
+      version: "0.0.2",
+      url:"youmagine.com/designs/authorName/RobotoMaging",
+      private: true,
+      authors:[
+        {
+          "name":"otherGirl",
+        "url": "www.mysite.com",
+        "email":"gg@bar.baz"
+        },
+        {
+        "name":"otherGuy",
+        "url": "???",
+        "email":"aGuy@bar.baz"
+       }
+      ],
+       "tags": ["youmagine", "superduperdesign"],
+      "licenses":[
+        "GPLV3",
+        "MIT",
+        "CC-BY"
+      ],
+      "meta":{
+        "state":"design",
+        "color": "#0ca9e3"
+      },
+      //_editable:true //extra settable flags, runtime
+    };
+    //bom, assemblies etc, are all files in the root path of design's url
   },
   ready:function(){
     this.threeJs      = this.$.threeJs;
@@ -238,8 +273,8 @@ Polymer('ulti-viewer', Polymer.mixin({
   //public api
   loadMesh:function( uriOrData, options )
   {
-    var options = options || {};
-    var display = options.display === undefined ? true: options.display;
+    var options     = options || {};
+    var display     = options.display === undefined ? true: options.display;
     var keepRawData = options.keepRawData === undefined ? true: options.keepRawData;
     
     if(!uriOrData){ console.warn("no uri or data to load"); return};
@@ -423,7 +458,14 @@ Polymer('ulti-viewer', Polymer.mixin({
   filesDroppedHandler:function( event ){
     //console.log("filesDroppedHandler",event);
     for (var i = 0, f; f = event.detail.data[i]; i++) {
-        this.loadMesh( f );
+        console.log("file dropped", f);
+        this.loadMesh( f, {display: true} );
+        /*
+        var promise = 
+        promise.then(function( result ){
+        
+          console.log("got some results", result ); 
+        });*/
     }
   },
   onReqDismissResource:function(event, detail, sender) {
