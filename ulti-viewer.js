@@ -102,7 +102,7 @@ Polymer('ulti-viewer', Polymer.mixin({
   toolCategory: null,
   
   design      : {},
-  bom         : {},
+  bom         : [],
   hierarchy   : {},
   
   parts: {},
@@ -132,35 +132,8 @@ Polymer('ulti-viewer', Polymer.mixin({
     this._zoomInOnObject = new ZoomInOnObject();
     
     //TODO: remove this, just temporary
-    this.bom = {};
+    this.bom = [];
     this.design = {
-      name:"RobotoMaging",
-      description:"such a great design",
-      version: "0.0.2",
-      url:"youmagine.com/designs/authorName/RobotoMaging",
-      private: true,
-      authors:[
-        {
-          "name":"otherGirl",
-        "url": "www.mysite.com",
-        "email":"gg@bar.baz"
-        },
-        {
-        "name":"otherGuy",
-        "url": "???",
-        "email":"aGuy@bar.baz"
-       }
-      ],
-       "tags": ["youmagine", "superduperdesign"],
-      "licenses":[
-        "GPLV3",
-        "MIT",
-        "CC-BY"
-      ],
-      "meta":{
-        "state":"design",
-        "color": "#0ca9e3"
-      },
       //_editable:true //extra settable flags, runtime
     };
     //bom, assemblies etc, are all files in the root path of design's url
@@ -293,9 +266,13 @@ Polymer('ulti-viewer', Polymer.mixin({
     
     //FIXME: temporary hack for annotations etc
     var self = this;
+    
     function afterAdded( mesh ){ 
       mesh.castShadow = true;
       //mesh.receiveShadow = true;
+      
+      //we notify any and all 'waiters' that the part is ready
+      //Q deferreds 
       var partId = mesh.userData.part.id;
       self.parts[ partId] = mesh ;
       if(self.partWaiters[ partId ])
@@ -303,6 +280,9 @@ Polymer('ulti-viewer', Polymer.mixin({
         console.log("resolving mesh for ", partId);
         self.partWaiters[ partId ].resolve( mesh );
       }
+      
+      self._registerInstanceInBom( mesh.userData.part.bomId, mesh );
+      
       
       //FIXME: not sure about these, they are used for selection levels
       mesh.selectable      = true;
@@ -390,6 +370,8 @@ Polymer('ulti-viewer', Polymer.mixin({
       shape.userData.part.id = hashCode(resource.uri)
       shape.userData.resource = resource;
       shape.name = resource.name;
+      
+      shape.userData.part.bomId = self._registerImplementationInFakeBOM( resource.uri, "somePartName"+resource.name.split(".").shift() );
       
       //FIXME ; should this be handled by the asset manager or the parsers ? 
       //ie , this won't work for loaded hierarchies etc
@@ -733,6 +715,11 @@ Polymer('ulti-viewer', Polymer.mixin({
     cloned.material = this.selectedObject.material.clone();
     
     this.addToScene( cloned, "main",{autoResize:false, autoCenter:false } );
+    
+    //FIXME REFACTOR: add to bom
+    console.log("clone userData", cloned.userData );
+    self._unRegisterInstanceFromBom( cloned.userData.part.bomId , selectedObject );
+    
   },
   
   deleteObject:function(){
@@ -747,6 +734,9 @@ Polymer('ulti-viewer', Polymer.mixin({
     //fire operation
     var operation = new Deletion(selectedObject, selectedObject.parent);
     this.fire('newOperation', {msg: operation});
+    
+    //FIXME: refactor REMOVAL FROM BOM
+    this._unRegisterInstanceFromBom( selectedObject.userData.part.bomId , selectedObject );
     
     if(!selectedObject) return; 
     //FIXME : is this needed ? should the change watcher of annotations/objects
@@ -770,6 +760,67 @@ Polymer('ulti-viewer', Polymer.mixin({
     this.activeTool = this.activeTool === "scale" ? null: "scale";
   }, 
   //helpers
+  //FIXME: obviously, replace this with something real
+  /*
+    Register an IMPLEMENTATIOn in the bom: an implementation is for example a mesh/ mesh file
+    (stl , amf) etc: why an implementation ? because an entity/part can be created in different
+    software, different formats etc, it still remains the same entity*/
+  _registerImplementationInFakeBOM:function( meshUri, partName ){
+    console.log("registering", meshUri, "as implementation of ", partName); 
+    if(!partName) throw new Error("no part name specified");
+    
+    var partIndex = -1;
+    var bomEntry = null;
+    
+    for(var i=0;i<this.bom.length;i++)
+    {
+      var entry = this.bom[i];
+      partIndex = i;
+      if(entry.title === partName)
+      {
+        bomEntry = entry;
+        break;
+      }
+    }
+    
+    if(!bomEntry){
+      bomEntry = {
+        id:partIndex + 1 , 
+        title:partName,
+        description:"",
+        version:"0.0.1",
+        amount: 1,
+        unit:"EA",
+        url:"",
+        implementations:[meshUri],
+        _instances:[]
+       };
+      this.bom.push( bomEntry );
+    }
+    console.log("BOM",this.bom);
+    return partIndex+1;
+  },
+  _registerInstanceInBom:function( partId, instance )
+  {
+    var bomEntry = this.bom[ partId ];
+    if(!bomEntry) throw new Error("bad partId specified");
+    
+    console.log("registering", instance, "as instance of ", bomEntry.title ); 
+    bomEntry._instances.push( instance);
+    //FIXME can't we use the length of instances ? or should we allow for human settable variation
+    bomEntry.amount += 1;
+  },
+  _unRegisterInstanceFromBom:function( partId, instance ){
+    var bomEntry = this.bom[ partId ];
+    if(!bomEntry) throw new Error("bad partId specified");
+    
+    var index = bomEntry._instances.indexOf( instance );
+    if( index == -1 ) return;
+    
+    bomEntry._instances.splice( index, 1 );
+    //FIXME can't we use the length of instances ? or should we allow for human settable variation
+    bomEntry.amount -= 1;
+  },
  
   //filters
   toFixed:function(o, precision){

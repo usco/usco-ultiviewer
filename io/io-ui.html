@@ -27,13 +27,40 @@ Polymer("io-ui",{
   //event handlers
   saveSceneHandler:function( event ){
     console.log("saving the scene");
-    /*console.log("activeScene",this.activeScene);
-    console.log("resources",this.resources);*/
-    var sceneOutput = this.sceneSerializer.serialize( this.activeScene );
-    console.log(sceneOutput);
+    console.log("activeScene",this.activeScene);
+    
+    var assembly = 
+      [
+        {
+        "id":"0",
+        "children":[]
+        }
+      ]
+    
+    
+    this.activeScene.traverse(function( node ){
+      var isPartInstance = node.userData.part !== undefined ? true : false;
+      if(isPartInstance){
+        console.log("node is a part instance", node, node.userData.part.id);
+        //entityId??? partId???
+        var instance = {"partId":node.userData.part.id,p:null,r:null,s:null};
+        instance.p = node.position.toArray();
+        instance.r = node.rotation.toArray();
+        instance.s = node.scale.toArray();
+        
+        assembly[0]["children"].push( instance );
+      }
+    });
+    
+    console.log(assembly);
+    var sceneOutput = assembly;
+    /*console.log("resources",this.resources);
+    //var sceneOutput = this.sceneSerializer.serialize( this.activeScene );
+    console.log(sceneOutput);*/
     var sceneTextOutput =  JSON.stringify( sceneOutput );
+    console.log( sceneTextOutput );
     var blob = new Blob([sceneTextOutput], {type: "application/json;charset=utf-8"});
-    //saveAs(blob, "testScene.json");
+    saveAs(blob, "testScene.json");
   },
   loadSceneHandler:function( event ){
     console.log("loading the scene");
@@ -42,8 +69,14 @@ Polymer("io-ui",{
     //"http://localhost:8080/demo-data/testScene.json"
     
     //FIXME: remove this, this is just for testing
-    var rawJson = '{"metadata":{"formatVersion":"0.0.1","type":"scene","generatedBy":"SceneSerializer","objects":2,"geometries":2,"materials":2,"textures":0},"urlBaseType":"relativeToScene","objects":{"UM2CableChain_ChainSegment.STL":{"geometry":"Geometry_233","material":"Material_160","position":[0,0,7.000000476837158],"rotation":[0,0,0],"scale":[1,1,1],"visible":true},"UM2CableChain_BedEnd.STL":{"geometry":"Geometry_254","material":"Material_189","position":[0,0,8.000000953674316],"rotation":[0,0,0],"scale":[1,1,1],"visible":true}},"geometries":{},"materials":{"Material_160":{"type":"MeshPhongMaterial","parameters":{"color":1550837,"ambient":16777215,"emissive":0,"specular":16777215,"shininess":5,"bumpScale":1,"reflectivity":1,"transparent":false,"opacity":1,"wireframe":false,"wireframeLinewidth":1}},"Material_189":{"type":"MeshPhongMaterial","parameters":{"color":1550837,"ambient":16777215,"emissive":0,"specular":16777215,"shininess":5,"bumpScale":1,"reflectivity":1,"transparent":false,"opacity":1,"wireframe":false,"wireframeLinewidth":1}}},"textures":{},"defaults":{"camera":""}}';
-    this.sceneParser.parse( rawJson );
+    var rawJson = '[{"id":"0","children":[{"partId":-679498544,"p":[0,0,7.000000476837158],"r":[0,0,0,"XYZ"],"s":[1,1,1]},{"partId":1664839928,"p":[0,0,8.000000953674316],"r":[0,0,0,"XYZ"],"s":[1,1,1]}]}]';
+    var parsed = JSON.parse( rawJson );
+    console.log("parsed", parsed);
+    
+    //FIXME: hack, for now assume only one assembly
+    var assembly = parsed[0];
+    
+    //this.sceneParser.parse( rawJson );
   },
   //attribute change handlers
   activeSceneChanged:function(){
