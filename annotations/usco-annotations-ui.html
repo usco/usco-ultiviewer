@@ -66,6 +66,11 @@ Polymer("usco-annotations-ui",{
   activeTool:null,
   _tools: ["distance","thickness","angle","diameter","note"],
   _prevTool:null,
+  
+  //FIXME: not sure:
+  //persistable options
+  showAnnotations:true,
+  //event handlers
   controlActivated:function(e, detail){
     //this is used to toggle a specific control on/off
     //FIXME: there must be a cleaner way to to this...
@@ -82,6 +87,13 @@ Polymer("usco-annotations-ui",{
   activeToolChanged:function(oldTool, newTool){
     //console.log("this.mode", this.activeTool, oldTool, newTool);
     this._prevTool = oldTool;
+
+    var tools = this._tools;
+    //IF activetool is an annotation tool , forcefully show annotations
+    if(tools.indexOf(this.activeTool) > -1 ){ 
+      this.showAnnotations = true;
+    }
+    
   },
 });
 </script>

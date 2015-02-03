@@ -105,7 +105,6 @@ Polymer("properties-ui",{
     this.meshSize = this.getAbsoluteSize();
   },
   selectedEntityChanged:function(){
-    console.log("fegzeg");
     this._entityIsAnnotation = (this.selectedEntity && "notes" in this.selectedEntity && this.selectedEntity.notes!==null) ;
     
     if(this._entityIsAnnotation){

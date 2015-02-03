@@ -16,7 +16,6 @@
       
       _transformsActive: false,
     
-      //methodsToInject: ["thingamagig"],
       attached:function(){
         this.super();
         
@@ -42,7 +41,75 @@
         //this.controls.detach();
       },
       //attribute change callbacks
-      _attributeChangeHandler:function( fieldName, shortFieldName ){
+      activeToolChanged:function( oldTool, newTool ){
+        console.log("this.activeTool", this.activeTool, oldTool, newTool);
+        this._prevTool = oldTool;
+        var controlableTools = this._controlableTools;
+        
+        if(controlableTools.indexOf(this.activeTool) > -1 ){ //&& this.selectedObject){
+          //console.log("setting controls mode to " , this.activeTool);
+          this.controls.setMode(this.activeTool);
+        }
+        
+        if(this.activeTool === "" || controlableTools.indexOf(this.activeTool) === -1){
+          this.controls.enabled = false;
+          this.controls.detach( this.selectedObject );
+        }
+        else{ 
+          if(this.selectedObject && this.selectedObject.transformable ){
+            this.controls.enabled = true;
+            this.controls.attach( this.selectedObject ); 
+          }
+        }
+      
+        //FIXME/ do this better: this just ensures that controls are not visible if there
+        //is no selection
+        this.selectedObjectChanged();
+      },
+      
+      selectedObjectChanged:function( oldSelection, newSelection ){
+         /*transformcontrols get
+          ATTACHED when:
+           - toolCategory is NOT annotations AND a tool IS active
+           - transforms ARE ENABLED AND selection is NOT an annotation
+          
+          DETACHED when:
+            - controls had something attached ...
+          */
+        
+        if( oldSelection && oldSelection.transformable )
+        {
+          this.controls.detach( oldSelection );
+        }
+        
+        var controlableTools = this._controlableTools;
+        var conditionsMet = ( this.activeTool && this.activeTool !== "" && 
+          controlableTools.indexOf(this.activeTool) !== -1 && 
+          this.selectedObject && this.selectedObject.transformable &&
+          this.selectedObject.visible);
+        
+        this.controls.enabled = conditionsMet;
+        
+        if( conditionsMet ){
+          this.controls.attach( this.selectedObject ); 
+        }else{
+          this.controls.detach();
+        }
+        
+      },
+      //this method will get added to the viewer
+      //api
+      toRotateMode:function(){
+        this.activeTool = this.activeTool === "rotate" ? null: "rotate";
+      }, 
+      toTranslateMode:function(){
+        this.activeTool = this.activeTool === "translate" ? null: "translate";
+      }, 
+      toScaleMode:function(){
+        this.activeTool = this.activeTool === "scale" ? null: "scale";
+      }, 
+      //helpers
+     _attributeChangeHandler:function( fieldName, shortFieldName ){
         var self = this;
         var operationKlass = null;
         switch(fieldName){
@@ -143,77 +210,6 @@
           handler( oldValueArr, newValueArr );
         });
         return observer;
-      },
-      activeToolChanged:function( oldTool, newTool ){
-        console.log("this.activeTool", this.activeTool, oldTool, newTool);
-        this._prevTool = oldTool;
-        var controlableTools = this._controlableTools;
-        
-        if(controlableTools.indexOf(this.activeTool) > -1 ){ //&& this.selectedObject){
-          //console.log("setting controls mode to " , this.activeTool);
-          this.controls.setMode(this.activeTool);
-        }
-        
-        if(this.activeTool === "" || controlableTools.indexOf(this.activeTool) === -1){
-          this.controls.enabled = false;
-          this.controls.detach( this.selectedObject );
-        }
-        else{ 
-          if(this.selectedObject && this.selectedObject.transformable ){
-            this.controls.enabled = true;
-            this.controls.attach( this.selectedObject ); 
-          }
-        }
-      
-        //FIXME/ do this better: this just ensures that controls are not visible if there
-        //is no selection
-        this.selectedObjectChanged();
-      },
-      
-      selectedObjectChanged:function( oldSelection, newSelection ){
-         /*transformcontrols get
-          ATTACHED when:
-           - toolCategory is NOT annotations AND a tool IS active
-           - transforms ARE ENABLED AND selection is NOT an annotation
-          
-          DETACHED when:
-            - controls had something attached ...
-          */
-        
-        if( oldSelection && oldSelection.transformable )
-        {
-          this.controls.detach( oldSelection );
-        }
-        
-        var controlableTools = this._controlableTools;
-        var conditionsMet = ( this.activeTool && this.activeTool !== "" && 
-          controlableTools.indexOf(this.activeTool) !== -1 && 
-          this.selectedObject && this.selectedObject.transformable &&
-          this.selectedObject.visible);
-        
-        this.controls.enabled = conditionsMet;
-        
-        if( conditionsMet ){
-          this.controls.attach( this.selectedObject ); 
-        }else{
-          this.controls.detach();
-        }
-        
-      },
-      //this method will get added to the viewer
-      //api
-      toRotateMode:function(){
-        this.activeTool = this.activeTool === "rotate" ? null: "rotate";
-      }, 
-      toTranslateMode:function(){
-        this.activeTool = this.activeTool === "translate" ? null: "translate";
-      }, 
-      toScaleMode:function(){
-        this.activeTool = this.activeTool === "scale" ? null: "scale";
-      }, 
-      //helpers
-      _aggregateChanges:function(){
-      
       },
       
       
