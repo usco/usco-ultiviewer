@@ -4,7 +4,7 @@
 <script src="scene-parser.js"></script>
 <script src="FileSaver.min.js"></script>
 
-<polymer-element name="io-ui" attributes="selectedObject resources activeScene viewer">
+<polymer-element name="io-ui" attributes="selectedObject resources activeScene viewer partWaiters parts">
   <template>
     <section>
        <tooltip-shadow-button label="save scene" value="saveScene" icon="save" on-tap="{{saveSceneHandler}}" >
@@ -27,6 +27,9 @@ Polymer("io-ui",{
   //event handlers
   saveSceneHandler:function( event ){
     console.log("saving the scene");
+    console.log("Resources", this.resources);
+    console.log("PartWaiters", this.partWaiters);
+    console.log("Parts", this.parts);
     console.log("activeScene",this.activeScene);
     
     var assembly = 
@@ -60,7 +63,7 @@ Polymer("io-ui",{
     var sceneTextOutput =  JSON.stringify( sceneOutput );
     console.log( sceneTextOutput );
     var blob = new Blob([sceneTextOutput], {type: "application/json;charset=utf-8"});
-    saveAs(blob, "testScene.json");
+    //saveAs(blob, "testScene.json");
   },
   loadSceneHandler:function( event ){
     console.log("loading the scene");
@@ -69,12 +72,41 @@ Polymer("io-ui",{
     //"http://localhost:8080/demo-data/testScene.json"
     
     //FIXME: remove this, this is just for testing
-    var rawJson = '[{"id":"0","children":[{"partId":-679498544,"p":[0,0,7.000000476837158],"r":[0,0,0,"XYZ"],"s":[1,1,1]},{"partId":1664839928,"p":[0,0,8.000000953674316],"r":[0,0,0,"XYZ"],"s":[1,1,1]}]}]';
+    var rawJson = '[{"id":"0","children":[{"partId":1664839928,"p":[73.88035485269066,64.3886215615267,8.000000953674316],"r":[1.2334503220488713,0,0,"XYZ"],"s":[1,1,1]}]}]';
     var parsed = JSON.parse( rawJson );
     console.log("parsed", parsed);
     
+    
+    
     //FIXME: hack, for now assume only one assembly
     var assembly = parsed[0];
+    for(var i= 0; i<assembly.children.length;i++)
+    {
+      var current = assembly.children[i];
+      var partId = current.partId;
+      
+      var self = this;
+      var partEntry = this.partWaiters[ partId ];
+      if(! partEntry ) continue;//FIXME: how do we do this ??
+      
+      partEntry.promise.then( function( mesh ) {
+        mesh.position.set(0,0,0);
+        mesh.rotation.set(0,0,0);
+        mesh.scale.set(1,1,1);
+
+        mesh.updateMatrix();
+      
+        if( current.p ) mesh.position.copy( new THREE.Vector3().fromArray( current.p ) );
+        if( current.r ) mesh.rotation.fromArray( current.r );
+        if( current.s ) mesh.scale.fromArray( current.s );
+        
+        console.log("mesh ready", mesh );
+        self.viewer.addToScene( mesh, "main" );
+        
+        mesh.updateMatrix();
+        mesh.updateMatrixWorld();
+      });
+    }
     
     //this.sceneParser.parse( rawJson );
   },
@@ -84,6 +116,11 @@ Polymer("io-ui",{
   },
   selectedObjectChanged:function(){
     //console.log("selectedObject",this.selectedObject);
+  },
+  //helpers
+  //FIXME: needs to be external, already defined twice
+  hashCode: function(s){
+    return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);              
   }
 });
 </script>

@@ -271,10 +271,11 @@ Polymer('ulti-viewer', Polymer.mixin({
       mesh.castShadow = true;
       //mesh.receiveShadow = true;
       
+      //FIXME: this is wrong, we are not waiting for a part, but for a mesh (implementation)
       //we notify any and all 'waiters' that the part is ready
       //Q deferreds 
       var partId = mesh.userData.part.id;
-      self.parts[ partId] = mesh ;
+      self.parts[ partId ] = mesh ;
       if(self.partWaiters[ partId ])
       {
         console.log("resolving mesh for ", partId);
@@ -718,7 +719,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     
     //FIXME REFACTOR: add to bom
     console.log("clone userData", cloned.userData );
-    self._unRegisterInstanceFromBom( cloned.userData.part.bomId , selectedObject );
+    //self._unRegisterInstanceFromBom( cloned.userData.part.bomId , selectedObject );
     
   },
   
@@ -736,7 +737,9 @@ Polymer('ulti-viewer', Polymer.mixin({
     this.fire('newOperation', {msg: operation});
     
     //FIXME: refactor REMOVAL FROM BOM
-    this._unRegisterInstanceFromBom( selectedObject.userData.part.bomId , selectedObject );
+    try{
+      this._unRegisterInstanceFromBom( selectedObject.userData.part.bomId , selectedObject );
+    }catch(error){} //FIXME: only works for items in bom
     
     if(!selectedObject) return; 
     //FIXME : is this needed ? should the change watcher of annotations/objects
