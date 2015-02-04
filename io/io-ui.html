@@ -72,7 +72,7 @@ Polymer("io-ui",{
     //"http://localhost:8080/demo-data/testScene.json"
     
     //FIXME: remove this, this is just for testing
-    var rawJson = '[{"id":"0","children":[{"partId":1664839928,"p":[73.88035485269066,64.3886215615267,8.000000953674316],"r":[1.2334503220488713,0,0,"XYZ"],"s":[1,1,1]}]}]';
+    var rawJson = '[{"id":"0","children":[{"partId":1377254961,"p":[29.969436900412823,28.529750606822443,7.000000476837158],"r":[0,0,0,"XYZ"],"s":[1,1,1]},{"partId":-978329831,"p":[-16.90067109589331,-24.340438789910863,8.000000953674316],"r":[0,0,0,"XYZ"],"s":[1,1,1]}]}]';
     var parsed = JSON.parse( rawJson );
     console.log("parsed", parsed);
     
@@ -80,32 +80,41 @@ Polymer("io-ui",{
     
     //FIXME: hack, for now assume only one assembly
     var assembly = parsed[0];
+    var self = this;
+    
     for(var i= 0; i<assembly.children.length;i++)
     {
-      var current = assembly.children[i];
-      var partId = current.partId;
-      
-      var self = this;
-      var partEntry = this.partWaiters[ partId ];
-      if(! partEntry ) continue;//FIXME: how do we do this ??
-      
-      partEntry.promise.then( function( mesh ) {
-        mesh.position.set(0,0,0);
-        mesh.rotation.set(0,0,0);
-        mesh.scale.set(1,1,1);
+      function outer(ii){
+        var current = assembly.children[ii];
+        var partId = current.partId;
+        
+        
+        var partEntry = self.partWaiters[ partId ];
+        if(!partEntry ) throw new Error( "unable to load part :"+ partId );
+        
+        partEntry.promise.then( function( mesh ) {
+          mesh.position.set(0,0,0);
+          mesh.rotation.set(0,0,0);
+          mesh.scale.set(1,1,1);
 
-        mesh.updateMatrix();
+          mesh.updateMatrix();
+        
+          if( current.p ) mesh.position.copy( new THREE.Vector3().fromArray( current.p ) );
+          if( current.r ) mesh.rotation.fromArray( current.r );
+          if( current.s ) mesh.scale.fromArray( current.s );
+          
+          console.log("mesh ready", mesh, self.viewer.threeJs );
+          
+          var scene = self.viewer.scenes["main"];
+          scene.add( mesh );
+          //self.viewer.addToScene( mesh, "main" );
+          
+          //mesh.updateMatrix();
+          //mesh.updateMatrixWorld();
+        });
+      }
       
-        if( current.p ) mesh.position.copy( new THREE.Vector3().fromArray( current.p ) );
-        if( current.r ) mesh.rotation.fromArray( current.r );
-        if( current.s ) mesh.scale.fromArray( current.s );
-        
-        console.log("mesh ready", mesh );
-        self.viewer.addToScene( mesh, "main" );
-        
-        mesh.updateMatrix();
-        mesh.updateMatrixWorld();
-      });
+      outer( i );
     }
     
     //this.sceneParser.parse( rawJson );

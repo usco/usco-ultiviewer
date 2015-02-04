@@ -372,7 +372,9 @@ Polymer('ulti-viewer', Polymer.mixin({
       shape.userData.resource = resource;
       shape.name = resource.name;
       
-      shape.userData.part.bomId = self._registerImplementationInFakeBOM( resource.uri, "somePartName"+resource.name.split(".").shift() );
+      console.log("part stuff", shape.userData.part.id, resource);
+      
+      shape.userData.part.bomId = self._registerImplementationInFakeBOM( resource.uri, resource.name.split(".").shift() );
       
       //FIXME ; should this be handled by the asset manager or the parsers ? 
       //ie , this won't work for loaded hierarchies etc
@@ -552,7 +554,7 @@ Polymer('ulti-viewer', Polymer.mixin({
   },
   selectedObjectChanged:function(oldSelection, newSelection)
   {
-    console.log("selectedObjectChanged", this.selectedObject, oldSelection, newSelection);
+    //console.log("selectedObjectChanged", this.selectedObject, oldSelection, newSelection);
     var newSelection = this.selectedObject;
     
     if( oldSelection ){
@@ -716,6 +718,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     cloned.material = this.selectedObject.material.clone();
     
     this.addToScene( cloned, "main",{autoResize:false, autoCenter:false } );
+    this._meshInjectPostProcess( cloned );
     
     //FIXME REFACTOR: add to bom
     console.log("clone userData", cloned.userData );
@@ -786,13 +789,15 @@ Polymer('ulti-viewer', Polymer.mixin({
       }
     }
     
+    
     if(!bomEntry){
+      partIndex += 1; 
       bomEntry = {
-        id:partIndex + 1 , 
+        id:partIndex , 
         title:partName,
         description:"",
         version:"0.0.1",
-        amount: 1,
+        amount: 0,
         unit:"EA",
         url:"",
         implementations:[meshUri],
@@ -801,7 +806,7 @@ Polymer('ulti-viewer', Polymer.mixin({
       this.bom.push( bomEntry );
     }
     console.log("BOM",this.bom);
-    return partIndex+1;
+    return partIndex;
   },
   _registerInstanceInBom:function( partId, instance )
   {
@@ -823,6 +828,25 @@ Polymer('ulti-viewer', Polymer.mixin({
     bomEntry._instances.splice( index, 1 );
     //FIXME can't we use the length of instances ? or should we allow for human settable variation
     bomEntry.amount -= 1;
+  },
+  
+  //mesh insertion post process
+  //FIXME: do this better , but where ?
+  _meshInjectPostProcess:function( mesh ){
+    var self = this;
+    
+    self._registerInstanceInBom( mesh.userData.part.bomId, mesh );
+    
+    //FIXME: not sure about these, they are used for selection levels
+    mesh.selectable      = true;
+    mesh.selectTrickleUp = false;
+    mesh.transformable   = true;
+    
+    //FIXME: not sure where this should be best: used to dispatch "scene insertion"/creation operation
+    var operation = new MeshAddition( mesh );
+    //var event = new CustomEvent('newOperation',{detail: {msg: operation}});
+    //self.dispatchEvent(event);
+    self.historyManager.addCommand( operation );
   },
  
   //filters

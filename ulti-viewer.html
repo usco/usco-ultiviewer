@@ -66,6 +66,8 @@
 <link rel="import" href="design/design-card.html">
 <link rel="import" href="design/design-chip.html">
 <link rel="import" href="design/design-dashboard.html">
+<link rel="import" href="bom/simple-bom.html">
+
 
 <polymer-element name="ulti-viewer" attributes="showAxis showIndicators" tabindex="0">
     <template>
@@ -96,6 +98,9 @@
       
       <!-- <design-card design="{{design}}"> </design-card>
       <design-chip design="{{design}}"> </design-chip> -->
+      
+      <simple-bom bom="{{bom}}" selectedObject="{{selectedObject}}"> </simple-bom>
+      
       
       <io-ui id="inputOutput" selectedObject="{{selectedObject}}" activeScene="{{$.activeScene.object}}" resources="{{resources}}" viewer="{{$.threeJs}}" partWaiters="{{partWaiters}}" parts="{{parts}}"></io-ui>
       

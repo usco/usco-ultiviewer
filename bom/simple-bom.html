@@ -1,0 +1,157 @@
+<link rel="import" href="../components/polymer/polymer.html">
+<link rel="import" href="../components/core-selector/core-selector.html">
+
+<polymer-element name="simple-bom" attributes="selectedObject bom">
+  <template>
+    <style>
+      :host{
+        position:absolute;
+        top:80px;
+        right:0px;
+        z-index:15;
+        background:white;
+        font-size:0.8em;
+      }
+      table{
+              font-size:1em;
+      }
+      td{
+        overflow:auto;
+
+        max-width:180px;
+      }
+     
+    .bomEntry.core-selected {
+      background: #f00;
+    }
+    
+    
+    .bomEntryInstance{
+      background: #fff;
+    }
+    .bomEntryInstance.core-selected{
+      background: #f0f;
+    }
+    </style>
+    <section>
+       <!--<table>
+          <core-selector target="{{$.gnak}}" 
+          selected="{{sdfs}}" ></core-selector>
+          
+          <tbody id="gnak">
+            <tr class="bomEntry">
+              <td>
+                One
+              </td>
+            </tr>
+            <tr class="bomEntry">
+              <td>
+                Two
+              </td>
+            </tr>
+            <tr class="bomEntry">
+              <td>
+                Three
+              </td>
+            </tr>
+          </tbody>
+       </table>-->
+    
+       <table>
+        <tr>
+          <template repeat="{{header in headers}}">
+            <th>
+              {{header}}
+            </th>
+          </template>
+        </tr>
+       <core-selector target="{{$.bomEntries}}" 
+        selected="{{selectedBomEntry}}" ></core-selector>
+
+       
+        <tbody id="bomEntries">
+         <template repeat="{{bomEntry in bom}}">
+           
+           <tr class="bomEntry">
+            <template repeat="{{header in headers}}">
+              <template if="{{header !== '_instances' }}">
+                <td>
+                  {{bomEntry[header]}}
+                </td>
+              </template>
+              <template if="{{header === '_instances'}}">
+                <td>
+                   <ul>
+                     <template repeat="{{instance, index in bomEntry._instances}}">
+                      <li class="bomEntryInstance" on-mouseover="{{mouseOverHandler}}" on-tap="{{instanceTapHandler}}"
+                      value="{{index}}"> {{index}} </li>
+                     </template>
+                   <ul>
+                </td>
+              </template>
+            </template>
+           </tr>
+           
+         </template>
+       </tbody>
+       
+      </table>
+    </section> 
+  </template>
+  <script>
+  Polymer("simple-bom",{
+    selectedBomEntry:null,
+    selectedInstanceIndex:null,
+    selectedBomEntryInstance:null,
+    
+    headers:["id","title", "amount", "unit","url", "version", "implementations","_instances"],
+    
+    bomChanged:function(oldBom, newBom){
+      console.log("bom changed", this.bom);
+    },
+    selectedObjectChanged:function(oldSelection, newSelection){
+      var selection = this.selectedObject;
+      if(!selection || !selection.userData.part) {
+        this.selectedBomEntry = -1;
+        return;
+      }
+      
+      var bomId = selection.userData.part.bomId;
+      this.selectedBomEntry = bomId;
+    },
+    selectedBomEntryChanged:function(){
+      this._makeEntryAndInstanceKey();
+      //this.selectedBomEntryInstance = this.selectedBomEntry + " " + this.selectedInstanceIndex;
+    },
+    selectedInstanceIndexChanged:function(){
+      this._makeEntryAndInstanceKey();
+    },
+    selectedBomEntryInstanceChanged:function(){
+      var key = this.selectedBomEntryInstance;
+      console.log("selectedBomEntryInstance", key);
+      var partIndex = key[0];
+      var instIndex = key[1];
+      if( partIndex === null || instIndex === null ) return;
+      
+      if(! this.bom[ partIndex ] ) return;
+      if( this.bom[ partIndex ]._instances.length == 0 ) return;
+      this.selectedObject = this.bom[ partIndex ]._instances[ instIndex ];
+    },
+    //event handlers
+    mouseOverHandler:function( e ){
+    },
+    instanceTapHandler:function( e, detail, sender ){
+      //console.log("bom entry instance tapped", e, detail, sender, sender.value);
+      this.selectedInstanceIndex = sender.value;
+    },
+    //helpers
+    _makeEntryAndInstanceKey:function(){
+      this.selectedBomEntryInstance = [this.selectedBomEntry, this.selectedInstanceIndex];
+    },
+    //FIXME: is this needed ?
+    findPartOfInstance:function( instance ){
+    }
+
+  });
+  </script>
+</polymer-element>  
