@@ -1,40 +1,59 @@
 <link rel="import" href="../components/polymer/polymer.html">
 <link rel="import" href="../components/core-selector/core-selector.html">
 
-<polymer-element name="simple-bom" attributes="selectedObject bom">
+<polymer-element name="simple-bom" attributes="selectedObject selectedObjects bom show">
   <template>
     <style>
       :host{
         position:absolute;
-        top:80px;
-        right:0px;
+        top: 45px;
+        right: 20px;
         z-index:15;
         background:white;
         font-size:0.8em;
       }
       table{
-              font-size:1em;
+        font-size:1em;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        border-collapse: collapse;
+      }
+      th{
+        padding: 5px;
       }
       td{
         overflow:auto;
-
-        max-width:180px;
+        max-width:250px;
+        padding: 5px;
+      }
+      tr{
+        text-align: center;
+        border:none;
       }
      
     .bomEntry.core-selected {
-      background: #f00;
+      background: #ffd200;/*EMPHASIS COLOR*/
+      font-weight:bold;
     }
     
     
     .bomEntryInstance{
       background: #fff;
     }
+    .bomEntryInstance:hover{
+      cursor: pointer;
+    }
     .bomEntryInstance.core-selected{
       background: #f0f;
     }
     </style>
     <section>
-       <!--<table>
+       <!--
+       FIXME: why does template if="{{show}}" break core-selector behaviour ?
+       WE DO NOT want components like the bom view to update when not visible
+       if="{{show}}"
+       
+       
+        <table>
           <core-selector target="{{$.gnak}}" 
           selected="{{sdfs}}" ></core-selector>
           
@@ -57,7 +76,7 @@
           </tbody>
        </table>-->
     
-       <table>
+       <table hidden?="{{!show}}">
         <tr>
           <template repeat="{{header in headers}}">
             <th>
@@ -65,7 +84,7 @@
             </th>
           </template>
         </tr>
-       <core-selector target="{{$.bomEntries}}" 
+        <core-selector target="{{$.bomEntries}}" 
         selected="{{selectedBomEntry}}" ></core-selector>
 
        
@@ -74,7 +93,7 @@
            
            <tr class="bomEntry">
             <template repeat="{{header in headers}}">
-              <template if="{{header !== '_instances' }}">
+              <template if="{{header !== '_instances' && header !== 'implementations' }}">
                 <td>
                   {{bomEntry[header]}}
                 </td>
@@ -89,25 +108,63 @@
                    <ul>
                 </td>
               </template>
+              
+              <template if="{{header === 'implementations'}}">
+                <td>
+                   <ul>
+                     <template repeat="{{source in keys(bomEntry.implementations) }}">
+                      <!--<li class="bomEntryInstance" on-mouseover="{{mouseOverHandler}}" on-tap="{{instanceTapHandler}}"
+                      value="{{index}}"> {{index}} </li>-->
+                      <template if="{{source !== 'default'}}">
+                        <!--ONLY display the implementation key if it is not "default"-->
+                        {{source}}:{{bomEntry.implementations[source]}}
+                      </template>
+                      <template if="{{source === 'default'}}">
+                         <!--ONLY display the implementation key if it is not "default"-->
+                         {{bomEntry.implementations[source]}}
+                      </template>
+                     </template>
+                   <ul>
+                </td>
+              </template>
+              
             </template>
            </tr>
            
          </template>
        </tbody>
-       
       </table>
+      
     </section> 
+    
   </template>
   <script>
   Polymer("simple-bom",{
+    show:true,
+  
     selectedBomEntry:null,
     selectedInstanceIndex:null,
     selectedBomEntryInstance:null,
     
-    headers:["id","title", "amount", "unit","url", "version", "implementations","_instances"],
+    headers:["id","name", "amount", "unit","url", "version", "implementations"],//,"_instances"],
     
+    //attribute change handlers
     bomChanged:function(oldBom, newBom){
       console.log("bom changed", this.bom);
+    },
+    showChanged:function(oldShow, newShow){
+      console.log("show bom screen changed", this.show);
+      
+      if(newShow){
+        console.log("BOM", this.bom);
+        //FIXME attempted workaround for failing core selector after 
+        //this.selectedInstanceIndex = -1;
+        //selected="{{selectedBomEntry}}"        
+        //this.selectedBomEntry = null;
+        //this.$.entrySelector.target=null;
+        //this.$.entrySelector.target = this.$.bomEntries;
+        
+      }
     },
     selectedObjectChanged:function(oldSelection, newSelection){
       var selection = this.selectedObject;
@@ -115,13 +172,37 @@
         this.selectedBomEntry = -1;
         return;
       }
-      
       var bomId = selection.userData.part.bomId;
       this.selectedBomEntry = bomId;
     },
+    selectedObjectsChanged:function(oldSelObjects, newSelObjects){
+      console.log("selectedObjects", this.selectedObjects );
+      if(oldSelObjects){
+        for(var i=0;i<oldSelObjects.length;i++)
+        {
+          var bla = oldSelObjects[i];
+          if(bla.material) bla.material.color.setHex( bla.material._oldColor );
+        }
+      }
+      
+     if(newSelObjects){
+        for(var i=0;i<newSelObjects.length;i++)
+        {
+          var bla = newSelObjects[i];
+          if(bla.material){
+            bla.material._oldColor = bla.material.color.getHex( );
+            bla.material.color.setHex( 0xFF0000 );
+          }
+        }
+      }
+      
+      
+    },
     selectedBomEntryChanged:function(){
+      //reset selectedInstance index
+      this.selectedInstanceIndex = -1;
       this._makeEntryAndInstanceKey();
-      //this.selectedBomEntryInstance = this.selectedBomEntry + " " + this.selectedInstanceIndex;
+      console.log("selectedBomEntry", this.selectedBomEntry);
     },
     selectedInstanceIndexChanged:function(){
       this._makeEntryAndInstanceKey();
@@ -133,24 +214,43 @@
       var instIndex = key[1];
       if( partIndex === null || instIndex === null ) return;
       
+      
       if(! this.bom[ partIndex ] ) return;
       if( this.bom[ partIndex ]._instances.length == 0 ) return;
-      this.selectedObject = this.bom[ partIndex ]._instances[ instIndex ];
+      
+      if( instIndex == -1 ) //-1 means: select all
+      {
+        this.selectedObjects = this.bom[ partIndex ]._instances;
+      }
+      else{
+        var selectionCandidate = this.bom[ partIndex ]._instances[ instIndex ];
+        //if( selectionCandidate !== 
+        this.selectedObject = selectionCandidate;
+      }
     },
     //event handlers
     mouseOverHandler:function( e ){
     },
     instanceTapHandler:function( e, detail, sender ){
-      //console.log("bom entry instance tapped", e, detail, sender, sender.value);
+      console.log("bom entry instance tapped", e, detail, sender, sender.value);
       this.selectedInstanceIndex = sender.value;
     },
     //helpers
     _makeEntryAndInstanceKey:function(){
       this.selectedBomEntryInstance = [this.selectedBomEntry, this.selectedInstanceIndex];
     },
-    //FIXME: is this needed ?
+    //FIXME: are these needed ?
+    _resetSelection:function(){
+      //to reset correct selection after unbinding/hiding
+      // (why is it lost in the first place ?
+      
+    },
     findPartOfInstance:function( instance ){
-    }
+    },
+    //
+    keys: function(input) {
+      return Object.keys(input);
+    }, 
 
   });
   </script>

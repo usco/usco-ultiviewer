@@ -175,12 +175,17 @@ ulti-viewer::shadow #options{
 }    
 
 ulti-viewer::shadow #annotations{
-  position:absolute;top:5px;right:300px;z-index:15; /*100px*/
+  position:absolute;top:5px;right:340px;z-index:15; /*100px*/
 }
 
 ulti-viewer::shadow #transforms{
   position:absolute;top:5px;left:300px;z-index:15;
 }
+
+ulti-viewer::shadow #bomUI{
+  position:absolute;top:5px;right:100px;z-index:15;
+}
+
 
 ulti-viewer::shadow #objProps{
   position:absolute;bottom:0px;left:0px;z-index:15;

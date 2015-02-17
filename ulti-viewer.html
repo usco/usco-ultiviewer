@@ -67,6 +67,8 @@
 <link rel="import" href="design/design-chip.html">
 <link rel="import" href="design/design-dashboard.html">
 <link rel="import" href="bom/simple-bom.html">
+<link rel="import" href="bom/usco-bom-ui.html">
+
 
 
 <polymer-element name="ulti-viewer" attributes="showAxis showIndicators" tabindex="0">
@@ -99,10 +101,10 @@
       <!-- <design-card design="{{design}}"> </design-card>
       <design-chip design="{{design}}"> </design-chip> -->
       
-      <simple-bom bom="{{bom}}" selectedObject="{{selectedObject}}"> </simple-bom>
+      <simple-bom bom="{{bom}}" selectedObject="{{selectedObject}}" selectedObjects="{{selectedObjects}}" show="{{showBOM}}"> </simple-bom>
+      <usco-bom-ui id="bomUI" showBOM="{{showBOM}}"> </usco-bom-ui>
       
-      
-      <io-ui id="inputOutput" selectedObject="{{selectedObject}}" activeScene="{{$.activeScene.object}}" resources="{{resources}}" viewer="{{$.threeJs}}" partWaiters="{{partWaiters}}" parts="{{parts}}"></io-ui>
+      <!--<io-ui id="inputOutput" selectedObject="{{selectedObject}}" activeScene="{{$.activeScene.object}}" resources="{{resources}}" viewer="{{$.threeJs}}" partWaiters="{{partWaiters}}" parts="{{parts}}"></io-ui>-->
       
       <properties-ui id="objProps" selectedObject="{{selectedObject}}" selectedEntity="{{selectedEntity}}"> </properties-ui>
       <grid-ui id="gridProps" grid="{{$.grid}}"> </grid-ui>
@@ -181,9 +183,9 @@ font-size: 0.8em; ">
             <!--<image-plane imgUrl="http://localhost:8080/demo-data/test.png" up=[0,1,0] rot=[0,20,40]> </image-plane>-->
           </three-js-scene>
           <three-js-scene name="helpers" active>
-            <template if="{{showAxes}}">
+            <!--<template if="{{showAxes}}">
               <axis-helper up=[0,0,1]> </axis-helper>
-            </template>
+            </template>-->
             <template if="{{showGrid}}">
               <grid-helper id="grid" up=[0,0,1]> </grid-helper>
             </template>
@@ -248,8 +250,11 @@ font-size: 0.8em; ">
       <core-localstorage name="ultiviewer-settings-showControls"value="{{showControls}}"></core-localstorage>
       <core-localstorage name="ultiviewer-settings-selectionZoom"value="{{selectionZoom}}"></core-localstorage>
       
-      <core-localstorage name="ultiviewer-settings-showAnnotations"value="{{showAnnotations}}"></core-localstorage>
+      <core-localstorage name="ultiviewer-settings-showBOM"     value="{{showBOM}}"></core-localstorage>
+      
       <core-localstorage name="ultiviewer-settings-activeTool" value="{{activeTool}}"></core-localstorage>
+      
+      <core-localstorage name="ultiviewer-settings-showAnnotations"value="{{showAnnotations}}"></core-localstorage>
       <core-localstorage name="ultiviewer-data-annotations"     value="{{annotations}}"></core-localstorage>
       
       <!--keboard handling-->

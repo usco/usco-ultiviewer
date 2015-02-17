@@ -36,6 +36,13 @@ Polymer('ulti-viewer', Polymer.mixin({
   */
   showAnnotations: true,
   /**
+   * toggle to show the bill of materials
+   * 
+   * @attribute showBOM
+   * @type boolean
+  */
+  showBOM: false,
+  /**
    * toggle for view auto rotation
    * 
    * @attribute autoRotate
@@ -136,6 +143,36 @@ Polymer('ulti-viewer', Polymer.mixin({
     this.design = {
       //_editable:true //extra settable flags, runtime
     };
+    
+    this.design = {
+  "name":"RobotoMaging",
+  "description":"such a great design",
+  "version": "0.0.2",
+  "url":"youmagine.com/designs/authorName/RobotoMaging",
+  "private": true,
+  "authors":[
+    {
+      "name":"otherGirl",
+    "url": "www.mysite.com",
+    "email":"gg@bar.baz"
+    },
+    {
+    "name":"otherGuy",
+    "url": "???",
+    "email":"aGuy@bar.baz"
+   }
+  ],
+   "tags": ["youmagine", "superduperdesign"],
+  "licenses":[
+    "GPLV3",
+    "MIT",
+    "CC-BY"
+  ],
+  "meta":{
+    "state":"design",
+    "color": "#0ca9e3"
+  },
+}
     //bom, assemblies etc, are all files in the root path of design's url
   },
   ready:function(){
@@ -717,7 +754,8 @@ Polymer('ulti-viewer', Polymer.mixin({
     var cloned = this.selectedObject.clone();
     cloned.material = this.selectedObject.material.clone();
     
-    this.addToScene( cloned, "main",{autoResize:false, autoCenter:false } );
+    this.threeJs.scenes["main"].add( cloned );
+    //this.addToScene( cloned, "main",{autoResize:false, autoCenter:false } );
     this._meshInjectPostProcess( cloned );
     
     //FIXME REFACTOR: add to bom
@@ -782,7 +820,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     {
       var entry = this.bom[i];
       partIndex = i;
-      if(entry.title === partName)
+      if(entry.name === partName)
       {
         bomEntry = entry;
         break;
@@ -794,15 +832,40 @@ Polymer('ulti-viewer', Polymer.mixin({
       partIndex += 1; 
       bomEntry = {
         id:partIndex , 
-        title:partName,
+        name:partName,
         description:"",
         version:"0.0.1",
         amount: 0,
         unit:"EA",
         url:"",
-        implementations:[meshUri],
-        _instances:[]
+        implementations:{"default":meshUri},
+        parameters:"",
+        _instances:[],
+        _instances2:{}
        };
+      
+      
+        /*
+           "implementations": {
+              "src/hand.scad":"assets/thumb_x_x_x.stl",
+              "src/hand.freecad":"assets/thumb_x_x_x_free.stl"
+            },
+           "parameters":"{type:'thumb',orientation:'Right',innerSize:25}"
+         },
+         
+          {
+           "id":17,
+           "title":"Thumb",
+           "version":"2.2.0",
+           "description":"Thumb",
+           "amount": 2,
+           "unit":"EA",
+           "implementations": {
+            "default":"bla.stl"}
+         },*/
+         
+       
+     
       this.bom.push( bomEntry );
     }
     console.log("BOM",this.bom);
@@ -813,7 +876,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     var bomEntry = this.bom[ partId ];
     if(!bomEntry) throw new Error("bad partId specified");
     
-    console.log("registering", instance, "as instance of ", bomEntry.title ); 
+    console.log("registering", instance, "as instance of ", bomEntry.name ); 
     bomEntry._instances.push( instance);
     //FIXME can't we use the length of instances ? or should we allow for human settable variation
     bomEntry.amount += 1;
