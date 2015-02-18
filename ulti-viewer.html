@@ -186,9 +186,7 @@ font-size: 0.8em; ">
             <!--<template if="{{showAxes}}">
               <axis-helper up=[0,0,1]> </axis-helper>
             </template>-->
-            <template if="{{showGrid}}">
-              <grid-helper id="grid" up=[0,0,1]> </grid-helper>
-            </template>
+            <grid-helper id="grid" up=[0,0,1] show="{{showGrid}}"> </grid-helper>
               <!--<template repeat="{{resource in resources}}">
                 <template if="{{!resource.loaded}}">
                   <progress-cubic resource="{{resource}}"> </progress-cubic>

@@ -6,21 +6,21 @@ Polymer('ulti-viewer', Polymer.mixin({
    * @attribute showGrid
    * @type boolean
   */
-  showGrid: true,
+  showGrid: false,
   /**
    * toggle to show axes or not
    * 
    * @attribute showAxes
    * @type boolean
   */
-  showAxes: true,
+  showAxes: false,
   /**
    * toggle to show camera controls or not
    * 
    * @attribute showControls
    * @type boolean
   */
-  showControls: true,
+  showControls: false,
   /**
    * toggle to show dimensions of selected object(s)
    * 
@@ -65,7 +65,7 @@ Polymer('ulti-viewer', Polymer.mixin({
    * @attribute selectionZoom
    * @type boolean
   */
-  selectionZoom:true,
+  selectionZoom:false,
   
   /**
    * orientation of the camera: top, left, right, bottom, diagonal

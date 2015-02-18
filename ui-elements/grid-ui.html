@@ -27,7 +27,6 @@ Polymer("grid-ui",{
     "default":{type:"rectangular",width:200,length:200,height:200},
     "UM1":{type:"rectangular",width:210,length:210,height:205},
     "UM2":{type:"rectangular",width:230,length:225,height:205},
-    "Weirdo":{type:"rectangular",width:53,length:225,height:205},
     "GenericDelta":{type:"circular",diameter:170,height:180} }
   ,
   //attribute change handlers
@@ -41,7 +40,10 @@ Polymer("grid-ui",{
   updateGrid:function(){
     var curPreset = this.presets[ this.selectedPreset ];
     
-    if(!curPreset) return;
+    var invalid = ( (!curPreset) || (!this.grid));
+    console.log("invalid", invalid)
+    if( invalid ) return;
+    
     this.grid.type = curPreset.type ;
     if(curPreset.width) this.grid.width = curPreset.width ;
     if(curPreset.length) this.grid.length = curPreset.length ;
