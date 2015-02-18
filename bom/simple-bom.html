@@ -45,12 +45,21 @@
     .bomEntryInstance.core-selected{
       background: #f0f;
     }
+    
+    #wrapper{
+      max-height: 300px;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    
     </style>
-    <section>
+    <section id="wrapper">
        <!--
        FIXME: why does template if="{{show}}" break core-selector behaviour ?
        WE DO NOT want components like the bom view to update when not visible
        if="{{show}}"
+       
+       TODO:  correct filter & formatting, not the mess of templating we have now
        
        
         <table>
@@ -93,12 +102,12 @@
            
            <tr class="bomEntry">
             <template repeat="{{header in headers}}">
-              <template if="{{header !== '_instances' && header !== 'implementations' }}">
+              <template if="{{header !== '_instances' && header !== 'implementations' && bomEntry.amount>=minAmount}}">
                 <td>
                   {{bomEntry[header]}}
                 </td>
               </template>
-              <template if="{{header === '_instances'}}">
+              <template if="{{header === '_instances' && bomEntry.amount>=minAmount}}">
                 <td>
                    <ul>
                      <template repeat="{{instance, index in bomEntry._instances}}">
@@ -109,7 +118,7 @@
                 </td>
               </template>
               
-              <template if="{{header === 'implementations'}}">
+              <template if="{{header === 'implementations' && bomEntry.amount>=minAmount}}">
                 <td>
                    <ul>
                      <template repeat="{{source in keys(bomEntry.implementations) }}">
@@ -146,7 +155,20 @@
     selectedInstanceIndex:null,
     selectedBomEntryInstance:null,
     
+    /**
+     * headers of data to show
+     * 
+     * @attribute headers
+     * @type array
+    */
     headers:["id","name", "amount", "unit","url", "version", "implementations"],//,"_instances"],
+    /**
+     * hide any entry with count lower than this
+     * 
+     * @attribute minAmount
+     * @type float
+    */
+    minAmount: 1,
     
     //attribute change handlers
     bomChanged:function(oldBom, newBom){
@@ -251,6 +273,10 @@
     keys: function(input) {
       return Object.keys(input);
     }, 
+    
+    formatBOMData:function(){
+    
+    }
 
   });
   </script>
