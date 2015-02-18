@@ -245,7 +245,6 @@ on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}"
     */
     //attribute change handlers
     created:function(){
-      this.keys = {};
       //var units = Qty.getKinds();
       //console.log("UNITS", units);
     },
@@ -297,14 +296,68 @@ on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}"
     },*/
     selectedObjectsChanged:function(oldSelObjects, newSelObjects){
       console.log("selectedObjects", this.selectedObjects );
-     },
+      
+      /*if(newSelObjects.length ===0) {
+        this.selectedBomEntries = [];
+        return;
+      }*/
+      
+      function lookUpBomEntries( selectedObjects, bomEntriesIdx, bom ){
+        var selectionCandidates = [];
+        for(var i=0;i<selectedObjects.length;i++)
+        {
+          var selection = selectedObjects[i];
+          if(!selection || !selection.userData.part) {
+            //this.selectedBomEntry = -1;
+            continue;
+          }
+          var bomId = selection.userData.part.bomId;
+          
+          //only push if not already a part of current candidates
+          if( selectionCandidates.indexOf( bomId ) === -1 )
+          {
+            selectionCandidates.push( bomId );
+          }
+        }
+        
+        return selectionCandidates;
+      }
+      var currentBomEntries = this.selectedBomEntries;
+      var newSelObjects = newSelObjects;
+      if(!currentBomEntries){
+        currentBomEntries = [];
+      }
+      if(!newSelObjects){
+        newSelObjects = [];
+      }
+      
+      
+      var candidates = lookUpBomEntries( newSelObjects, currentBomEntries, this.bom );
+      console.log("candidates",candidates);
+      
+      //if( candidates.length == 0) return;
+      
+      
+      if(candidates.sort().join(',') !== currentBomEntries.sort().join(',')){
+          console.log("different !!");
+          this.selectedBomEntries = candidates;
+      }
+      else{
+        console.log("the same");
+      }
+      
+      
+      //this.selectedBomEntries = candidates;
+      
+      
+    },
       
     
     selectedBomEntriesChanged:function(){
       console.log("selectedBomEntries", this.selectedBomEntries);
       //reset selectedInstances indices
       this.selectedInstanceIndices = [-1];
-      //this._makeEntryAndInstanceKeys();
+      
       function lookUpInstanceRefs( bomEntriesIdx, bomEntryInstancesIdx, bom ){
         var selectionCandidates = [];
         for(var i=0; i<bomEntriesIdx.length;i++)

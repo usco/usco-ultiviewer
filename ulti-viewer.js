@@ -614,6 +614,27 @@ Polymer('ulti-viewer', Polymer.mixin({
         this.selectedEntity = null;
       }
     }
+    
+    //console.log("selectedObjects", this.selectedObjects );
+      if(oldSelections){
+        for(var i=0;i<oldSelections.length;i++)
+        {
+          var selection = oldSelections[i];
+          if(selection.material) selection.material.color.setHex( selection.material._oldColor );
+        }
+      }
+      
+     if(newSelections){
+        for(var i=0;i<newSelections.length;i++)
+        {
+          var selection = newSelections[i];
+          if(selection.material){
+            selection.material._oldColor = selection.material.color.getHex( );
+            selection.material.color.setHex( 0xFF0000 );
+          }
+        }
+      }
+    
     /*
      if(newSelections && newSelections.length > 0 )
     {
