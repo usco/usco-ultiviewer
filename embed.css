@@ -1,3 +1,8 @@
+ulti-viewer {
+  font-family: 'Open Sans', sans-serif;
+
+}
+
 ulti-viewer :unresolved:after{padding:15px;content:'loading...';color:#ccc;}
 
 
