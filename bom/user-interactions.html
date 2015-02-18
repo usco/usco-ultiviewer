@@ -1,9 +1,39 @@
- <paper-action-dialog heading="Title" class="scrolling">
+ <paper-action-dialog heading="Add new item to bill of materials?" class="scrolling">
     <section>
-      
+      The file {{instanceFileName}} is not part of this design yet, do you want to add it?
     </section>
-    <paper-button dismissive>More Info...</paper-button>
-    <paper-button affirmative>Decline</paper-button>
-    <paper-button affirmative autofocus>Accept</paper-button>
+    <paper-button affirmative>Cancel</paper-button>
+    <paper-button affirmative autofocus>OK</paper-button>
+</paper-action-dialog>
 
-  </paper-action-dialog>
+
+<paper-action-dialog heading="Upload file?" class="scrolling">
+    <section>
+      Do you want to upload {{instanceFileName}} as part of this design?
+      
+      Note: if the upload fails, you will be asked to submit the file again, 
+      all of your work will be saved regardless
+    </section>
+    <paper-button affirmative>Cancel</paper-button>
+    <paper-button affirmative autofocus>OK</paper-button>
+</paper-action-dialog>
+
+ <paper-action-dialog heading="Delete Object?" class="scrolling">
+    <section>
+      Deleting this object will also delete all its children, and any annotations
+      you might have added to it , are you sure ?
+    </section>
+    <paper-button affirmative>Cancel</paper-button>
+    <paper-button affirmative autofocus>OK</paper-button>
+</paper-action-dialog>
+
+
+scope.toggleDialog2 = function(e) {
+    if (e.target.localName != 'button') {
+      return;
+    }
+    scope.transition = e.target.getAttribute('transition');
+    document.getElementById('dialog2').toggle();
+  };
+
+

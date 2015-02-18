@@ -121,6 +121,32 @@ Polymer('ulti-viewer', Polymer.mixin({
   
   selectedEntity: null,
   
+  
+  appInfos:{
+    ns:"youmagineJam",
+    name:"Jam!",
+    interactions:[
+      "Left mouse: select/interact",
+      "Right mouse: rotate",
+      "Mouse wheel : zoom in/out",
+      "Double tap : zoom in on object/point"
+    ],
+    version:"0.0.2"
+  },
+  appSettings:{
+    grid:{
+      show:false,
+      size:"",
+    },
+    bom:{
+      show:false,//this belongs in the bom system
+    },
+    annotations:{
+      show:false,
+    }
+  },
+  
+  
   observe:{
     'selectedObject.parent':'selectedObjectParentChanged'
   },
@@ -570,7 +596,7 @@ Polymer('ulti-viewer', Polymer.mixin({
       newHovered.highlight( newHovered._originalNode );
     }
   },
-  selectedObjectsChanged:function()
+  selectedObjectsChanged:function(oldSelections, newSelections)
   {
     //console.log("selectedObjectsChanged", this.selectedObjects);
     if(this.selectedObjects)
@@ -588,6 +614,20 @@ Polymer('ulti-viewer', Polymer.mixin({
         this.selectedEntity = null;
       }
     }
+    /*
+     if(newSelections && newSelections.length > 0 )
+    {
+      this.selectedObject = this.selectedObjects[0];
+      //FIXME: unify data structures between parts & annotations
+      if(this.selectedObject.userData.data) this.selectedEntity = this.selectedObject.userData.data;
+      if(this.selectedObject.userData.part) this.selectedEntity = this.selectedObject.userData.part;
+    }    
+    if(oldSelections && oldSelections.length == 0)
+    {
+       this.selectedObject = null;
+       this.selectedEntity = null;
+    }*/
+    
   },
   selectedObjectChanged:function(oldSelection, newSelection)
   {
@@ -919,6 +959,10 @@ Polymer('ulti-viewer', Polymer.mixin({
   },
   redo:function(){
     this.historyManager.redo();
+  },
+  
+  shiftPressed:function(){
+    console.log("shift pressed")
   },
  
   //filters

@@ -4,7 +4,9 @@
 <!--FIXME: not 100% sure about library here -->
 <script src='../components/js-quantities/src/quantities.js'></script>
 
-<polymer-element name="simple-bom" attributes="selectedObject selectedObjects bom show">
+<polymer-element name="simple-bom" attributes="selectedObject selectedObjects bom show"
+on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}"
+>
   <template>
     <style>
       :host{
@@ -88,7 +90,7 @@
     }
     
     </style>
-    <section id="wrapper">
+    <section id="wrapper" tabindex="0">
        <!--
        FIXME: why does template if="{{show}}" break core-selector behaviour ?
        WE DO NOT want components like the bom view to update when not visible
@@ -121,7 +123,7 @@
        </table>-->
     
        <core-selector target="{{$.bomEntries}}" 
-        selected="{{selectedBomEntry}}"> </core-selector>
+        selected="{{selectedBomEntries}}" multi> </core-selector>
     
        <table hidden?="{{!show}}" class="dataTable">
         <thead>
@@ -192,6 +194,10 @@
     selectedInstanceIndex:null,
     selectedBomEntryInstance:null,
     
+    selectedBomEntries:null,
+    selectedInstanceIndices:null,
+    selectedBomEntryInstances:null,
+    
     /**
      * headers of data to show
      * 
@@ -239,15 +245,15 @@
     */
     //attribute change handlers
     created:function(){
-      var units = Qty.getKinds();
-      console.log("UNITS", units);
+      this.keys = {};
+      //var units = Qty.getKinds();
+      //console.log("UNITS", units);
     },
     bomChanged:function(oldBom, newBom){
-      console.log("bom changed", this.bom);
+      //console.log("bom changed", this.bom);
     },
     showChanged:function(oldShow, newShow){
       console.log("show bom screen changed", this.show);
-      
       if(newShow){
         console.log("BOM", this.bom);
         //FIXME attempted workaround for failing core selector after 
@@ -256,10 +262,9 @@
         //this.selectedBomEntry = null;
         //this.$.entrySelector.target=null;
         //this.$.entrySelector.target = this.$.bomEntries;
-        
       }
     },
-    selectedObjectChanged:function(oldSelection, newSelection){
+    /*selectedObjectChanged:function(oldSelection, newSelection){
       console.log("selectedObject", this.selectedObject );
       var selection = this.selectedObject;
       if(!selection || !selection.userData.part) {
@@ -289,10 +294,43 @@
           }
         }
       }
+    },*/
+    selectedObjectsChanged:function(oldSelObjects, newSelObjects){
+      console.log("selectedObjects", this.selectedObjects );
+     },
       
+    
+    selectedBomEntriesChanged:function(){
+      console.log("selectedBomEntries", this.selectedBomEntries);
+      //reset selectedInstances indices
+      this.selectedInstanceIndices = [-1];
+      //this._makeEntryAndInstanceKeys();
+      function lookUpInstanceRefs( bomEntriesIdx, bomEntryInstancesIdx, bom ){
+        var selectionCandidates = [];
+        for(var i=0; i<bomEntriesIdx.length;i++)
+        {
+          var partIndex = bomEntriesIdx[i];
+          var instIndex = -1;//TODO implement
+          
+          if(! bom[ partIndex ] ) continue;
+          if(  bom[ partIndex ]._instances.length == 0 ) continue;
+          
+          if( instIndex == -1 ) //-1 means: select all
+          {
+            selectionCandidates = selectionCandidates.concat( bom[ partIndex ]._instances );
+          }
+          else{
+            var selectionCandidate = bom[ partIndex ]._instances[ instIndex ];
+            selectionCandidates.push( selectionCandidate )
+          }
+        }
+        return selectionCandidates;
+      }
       
+      this.selectedObjects = lookUpInstanceRefs( this.selectedBomEntries,null, this.bom )
     },
-    selectedBomEntryChanged:function(){
+    
+    /*selectedBomEntryChanged:function(){
       //reset selectedInstance index
       this.selectedInstanceIndex = -1;
       this._makeEntryAndInstanceKey();
@@ -321,7 +359,7 @@
         //if( selectionCandidate !== 
         this.selectedObject = selectionCandidate;
       }
-    },
+    },*/
     //event handlers
     mouseOverHandler:function( e ){
     },
@@ -330,14 +368,33 @@
       this.selectedInstanceIndex = sender.value;
     },
     //helpers
-    _makeEntryAndInstanceKey:function(){
+    /*_makeEntryAndInstanceKey:function(){
       this.selectedBomEntryInstance = [this.selectedBomEntry, this.selectedInstanceIndex];
+    },*/
+    _makeEntryAndInstanceKeys:function(){
+      var instanceIndices = [];
+      if( this.selectedBomEntries.length == 1 )
+      {
+        instanceIndices = this.selectedInstanceIndices;
+      }
+      this.selectedBomEntryInstances = {entries:this.selectedBomEntries, instances:instanceIndices};
     },
+    
+    _processSelectedMesh:function( mesh ){
+      console.log("processing mesh", mesh );
+      var selection = mesh;
+      if(!selection || !selection.userData.part) {
+        this.selectedBomEntry = -1;
+        return;
+      }
+      var bomId = selection.userData.part.bomId;
+      this.selectedBomEntry = bomId;
+    },
+    
     //FIXME: are these needed ?
     _resetSelection:function(){
       //to reset correct selection after unbinding/hiding
       // (why is it lost in the first place ?
-      
     },
     findPartOfInstance:function( instance ){
     },
@@ -345,15 +402,24 @@
     keys: function(input) {
       return Object.keys(input);
     }, 
-    
-    formatBOMData:function(){
-    
-    },
     //FIXME: comes from , re use that
     capitalize: function (string) {
 	    string = string.toLowerCase();
 	    return string.charAt(0).toUpperCase() + string.slice(1);
-    }
+    },
+    /*
+    keyDownHandler:function(event)
+    {//overidable method stand in
+      this.keys[event.keyCode] = true;
+      this.shiftPress = event.shiftKey;
+      console.log("key down")
+    },
+    keyUpHandler:function(event)
+    {//overidable method stand in
+      this.keys[event.keyCode] = false;
+      this.shiftPress = event.shiftKey;
+      console.log("key up")
+    },*/
 
   });
   </script>

@@ -109,7 +109,7 @@
       <properties-ui id="objProps" selectedObject="{{selectedObject}}" selectedEntity="{{selectedEntity}}"> </properties-ui>
       <grid-ui id="gridProps" grid="{{$.grid}}"> </grid-ui>
       
-      <settings-ui id="options" autoRotate="{{autoRotate}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}"
+      <settings-ui id="options" autoRotate="{{autoRotate}}" showGrid="{{appSettings.grid.show}}" showAxes="{{showAxes}}"
       showControls="{{showControls}}" showAnnotations="{{showAnnotations}}" selectionZoom="{{selectionZoom}}"> </settings-ui>      
       <infos-ui    id="infos" > </infos-ui>
       <fullscreen-toggler fullScreen="{{fullScreen}}"> </fullscreen-toggler>
@@ -186,7 +186,7 @@ font-size: 0.8em; ">
             <!--<template if="{{showAxes}}">
               <axis-helper up=[0,0,1]> </axis-helper>
             </template>-->
-            <grid-helper id="grid" up=[0,0,1] show="{{showGrid}}"> </grid-helper>
+            <grid-helper id="grid" up=[0,0,1] show="{{appSettings.grid.show}}"> </grid-helper>
               <!--<template repeat="{{resource in resources}}">
                 <template if="{{!resource.loaded}}">
                   <progress-cubic resource="{{resource}}"> </progress-cubic>
@@ -255,7 +255,11 @@ font-size: 0.8em; ">
       <core-localstorage name="ultiviewer-settings-showAnnotations"value="{{showAnnotations}}"></core-localstorage>
       <core-localstorage name="ultiviewer-data-annotations"     value="{{annotations}}"></core-localstorage>
       
+      <!--FIXME: for testing -->     
+      <core-localstorage name="[[appInfos.ns]]"     value="{{appSettings}}"></core-localstorage>
+      
       <!--keboard handling: FIXME: do this better-->
+      
       <core-a11y-keys  keys="m" on-keys-pressed="{{toTranslateMode}}"></core-a11y-keys>
       <core-a11y-keys  keys="r" on-keys-pressed="{{toRotateMode}}"></core-a11y-keys>
       <core-a11y-keys  keys="s" on-keys-pressed="{{toScaleMode}}"></core-a11y-keys>
