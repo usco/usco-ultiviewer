@@ -1,6 +1,9 @@
 <link rel="import" href="../components/polymer/polymer.html">
 <link rel="import" href="../components/core-selector/core-selector.html">
 
+<!--FIXME: not 100% sure about library here -->
+<script src='../components/js-quantities/src/quantities.js'></script>
+
 <polymer-element name="simple-bom" attributes="selectedObject selectedObjects bom show">
   <template>
     <style>
@@ -12,18 +15,43 @@
         background:white;
         font-size:0.8em;
       }
+      
+      table.dataTable {
+          display: table;
+          width: 100%;
+      }
+      
       table{
-        font-size:1em;
+        font-size:0.9em;
         border: 1px solid rgba(0, 0, 0, 0.15);
         border-collapse: collapse;
       }
+      /*table tbody, table thead
+      {
+          display: block;
+      }
+      
+      table tbody 
+      {
+         overflow-y: auto;
+         overflow-x: hidden;
+         max-height: 300px;
+      }
+      
+      table thead 
+      {
+        width:100%;
+      }*/
+      
       th{
         padding: 5px;
+        min-width:50px;
       }
       td{
         overflow:auto;
         max-width:250px;
         padding: 5px;
+        cursor:pointer;
       }
       tr{
         text-align: center;
@@ -32,9 +60,16 @@
      
     .bomEntry.core-selected {
       background: #ffd200;/*EMPHASIS COLOR*/
+    }
+    
+    .bomEntry.core-selected td{
       font-weight:bold;
     }
     
+    .bomEntry:hover td{
+      /*font-weight:bold;*/
+      background: rgba(255, 210, 0, 0.28);
+    }
     
     .bomEntryInstance{
       background: #fff;
@@ -47,9 +82,9 @@
     }
     
     #wrapper{
-      max-height: 300px;
       overflow-y: auto;
       overflow-x: hidden;
+       max-height: 300px;
     }
     
     </style>
@@ -85,17 +120,19 @@
           </tbody>
        </table>-->
     
-       <table hidden?="{{!show}}">
-        <tr>
-          <template repeat="{{header in headers}}">
-            <th>
-              {{header}}
-            </th>
-          </template>
-        </tr>
-        <core-selector target="{{$.bomEntries}}" 
-        selected="{{selectedBomEntry}}" ></core-selector>
-
+       <core-selector target="{{$.bomEntries}}" 
+        selected="{{selectedBomEntry}}"> </core-selector>
+    
+       <table hidden?="{{!show}}" class="dataTable">
+        <thead>
+          <tr>
+            <template repeat="{{header in headers}}">
+              <th>
+                [[header | capitalize]]
+              </th>
+            </template>
+          </tr>
+        </thead>
        
         <tbody id="bomEntries">
          <template repeat="{{bomEntry in bom}}">
@@ -161,7 +198,15 @@
      * @attribute headers
      * @type array
     */
-    headers:["id","name", "amount", "unit","url", "version", "implementations"],//,"_instances"],
+    headers:["id","name", "amount", "unit", "version", "implementations"],//"url","_instances"],
+    
+    /**
+     * what type to display a given field as, default to text
+     * 
+     * @attribute types
+     * @type object
+    */
+    types:{"amount":"number", "unit":"list"},
     /**
      * hide any entry with count lower than this
      * 
@@ -170,7 +215,33 @@
     */
     minAmount: 1,
     
+    /**
+     * list of all available measurement units FIXME: move this elsewhere
+     * 
+     * @attribute _units
+     * @type array
+    */
+    _units:["mm"],
+    
+    /*
+    simple-bom
+    
+    - selecting a mesh in 3D view should select (in BOM view)
+      * its bom entry (one row)
+      * IF instances are listed, its instance
+    
+    - selecting MULTIPLE MESHES in 3D view should do the same as above, for all selections
+    
+    
+    - selecting a bom entry in BOM view should:
+      * select all instances   
+    
+    */
     //attribute change handlers
+    created:function(){
+      var units = Qty.getKinds();
+      console.log("UNITS", units);
+    },
     bomChanged:function(oldBom, newBom){
       console.log("bom changed", this.bom);
     },
@@ -189,6 +260,7 @@
       }
     },
     selectedObjectChanged:function(oldSelection, newSelection){
+      console.log("selectedObject", this.selectedObject );
       var selection = this.selectedObject;
       if(!selection || !selection.userData.part) {
         this.selectedBomEntry = -1;
@@ -276,6 +348,11 @@
     
     formatBOMData:function(){
     
+    },
+    //FIXME: comes from , re use that
+    capitalize: function (string) {
+	    string = string.toLowerCase();
+	    return string.charAt(0).toUpperCase() + string.slice(1);
     }
 
   });

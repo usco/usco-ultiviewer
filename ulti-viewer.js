@@ -911,6 +911,15 @@ Polymer('ulti-viewer', Polymer.mixin({
     //self.dispatchEvent(event);
     self.historyManager.addCommand( operation );
   },
+  
+  
+  //FIXME: here or where?
+  undo:function(){
+    this.historyManager.undo();
+  },
+  redo:function(){
+    this.historyManager.redo();
+  },
  
   //filters
   toFixed:function(o, precision){

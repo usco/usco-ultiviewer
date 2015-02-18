@@ -255,13 +255,16 @@ font-size: 0.8em; ">
       <core-localstorage name="ultiviewer-settings-showAnnotations"value="{{showAnnotations}}"></core-localstorage>
       <core-localstorage name="ultiviewer-data-annotations"     value="{{annotations}}"></core-localstorage>
       
-      <!--keboard handling-->
-      <core-a11y-keys  keys="t" on-keys-pressed="{{toTranslateMode}}"></core-a11y-keys>
+      <!--keboard handling: FIXME: do this better-->
+      <core-a11y-keys  keys="m" on-keys-pressed="{{toTranslateMode}}"></core-a11y-keys>
       <core-a11y-keys  keys="r" on-keys-pressed="{{toRotateMode}}"></core-a11y-keys>
       <core-a11y-keys  keys="s" on-keys-pressed="{{toScaleMode}}"></core-a11y-keys>
       <core-a11y-keys  keys="ctrl+d" on-keys-pressed="{{duplicateObject}}"></core-a11y-keys>
       <core-a11y-keys  keys="del" on-keys-pressed="{{deleteObject}}"></core-a11y-keys>
       <core-a11y-keys  keys="F11" on-keys-pressed="{{handleFullScreen}}"></core-a11y-keys>
+      
+      <core-a11y-keys  keys="ctrl+z" on-keys-pressed="{{undo}}"></core-a11y-keys>
+      <core-a11y-keys  keys="ctrl+shift+z" on-keys-pressed="{{redo}}"></core-a11y-keys>
       
   </template>
   <script src="ulti-viewer.js"></script>

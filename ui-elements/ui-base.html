@@ -18,8 +18,18 @@
 <link rel="import" href="../components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../components/paper-shadow/paper-shadow.html">
 
+<!--
+<core-tooltip label="Choose serial port">
+                  <paper-menu-button icon="device:usb" id="serialSelector" halign="right" valign="bottom" noTransition>
+                      <template repeat="{{port in scanner.serialPorts}}">
+                        <paper-item icon="device:usb" label="{{port.comName}}" disabled?="{{!scanner.connected}}" on-tap="{{connect}}">
+                        </paper-item>
+                      </template>
+                  </paper-menu-button>
+                </core-tooltip>-->
 
-<polymer-element name="x-trigger" extends="paper-icon-button" relative on-tap="{{toggle}}" noink>
+
+<polymer-element name="x-trigger" extends="paper-icon-button" relative on-tap="{{toggle}}" noink noTransition>
   <template>
     <shadow></shadow>
     <content></content>
@@ -101,7 +111,7 @@ Polymer("ui-base",{
       <core-tooltip label="{{label}}" position="bottom"> 
          <core-icon icon="expand-more" id="dropDownArrow"></core-icon>
          <x-trigger icon="{{icon}}" >
-          <paper-dropdown class="open-below" halign="right" transition="">
+          <paper-dropdown class="open-below" halign="right" transition="" noTransition>
             <div class="menu"> 
               <content></content>
       <!--<shadow></shadow> FIXME: only works in chrome : broken polyfill?-->
