@@ -96,6 +96,10 @@
           this.controls.detach();
         }
         
+        if( oldSelection && newSelection ){
+          this._selectionChanged = true;
+        }
+        
       },
       //this method will get added to the viewer
       //api
@@ -123,7 +127,6 @@
             operationKlass = Scaling;
             break;
         }
-        
         var observer = new CompoundObserver();
         observer.addPath(this, 'selectedObject.'+fieldName+'.x');
         observer.addPath(this, 'selectedObject.'+fieldName+'.y');
@@ -157,7 +160,9 @@
             if( ! self[origFieldName] ) return;
             var attrVal = new THREE.Vector3().fromArray( newVal.slice(0,4) );
             var offset = attrVal.clone().sub( self[origFieldName] );
-            //console.log("offset",offset);
+            
+            console.log("here");
+            
             function dispatchOperationEvent( offset, attrVal )
             {
               if(offset.length() > 0 )
@@ -168,6 +173,7 @@
               }
               self[origFieldName] = null;
             }
+            
             
             if(!self._transformsActive)
             {
@@ -199,8 +205,16 @@
         }
         
         //var handler = this._attributeChangeHandler( "position", "pos" );
+        
         observer.open( function( newValues, oldValues ) {
           if(! self.selectedObject ) return;
+          if( self._selectionChanged)
+          {
+            console.log("other object");
+            self._selectionChanged = false;
+            return;
+          }
+          
           var oldValueArr = self.selectedObject[fieldName].toArray();
           var newValueArr = self.selectedObject[fieldName].toArray();
           for (var i in oldValues) {
