@@ -41,7 +41,6 @@ Polymer("grid-ui",{
     var curPreset = this.presets[ this.selectedPreset ];
     
     var invalid = ( (!curPreset) || (!this.grid));
-    console.log("invalid", invalid)
     if( invalid ) return;
     
     this.grid.type = curPreset.type ;

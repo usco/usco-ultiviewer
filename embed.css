@@ -272,7 +272,7 @@ ulti-viewer /deep/ three-js{
 /*overlay notes styling*/
 
 ulti-viewer /deep/ overlay-note {
-z-index:16;
+z-index:11;
 width:20px;
 height:20px;
 border-radius: 50%;

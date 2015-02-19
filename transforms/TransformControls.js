@@ -746,7 +746,7 @@
 		}
 
 		function onPointerDown( event ) {
-            console.log("pointer down in Transform controls");
+      //console.log("pointer down in Transform controls");
 			if ( scope.object === undefined || _dragging === true ) return;
 
 			event.preventDefault();

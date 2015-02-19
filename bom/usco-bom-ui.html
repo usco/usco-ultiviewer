@@ -1,7 +1,7 @@
 <link rel="import" href="../components/polymer/polymer.html">
 
 
-<polymer-element name="usco-bom-ui" attributes="showBOM activeTool selectedObject" >
+<polymer-element name="usco-bom-ui" attributes="showBOM activeTool" >
   <template>
     <section>
       <core-selector selected="{{activeTool}}" valueattr="value">
@@ -22,9 +22,6 @@ Polymer("usco-bom-ui",{
   },
   showBOMChanged:function(){
     this.activeTool = (this.showBOM) ? "bom" : "";
-  },
-  activeToolChanged:function(){
-    console.log("sqdfsdf", this.activeTool);
   },
 });
 </script>

@@ -62,6 +62,9 @@
 <link rel="import" href="ui-elements/grid-ui.html">
 <link rel="import" href="ui-elements/history-ui.html">
 
+<link rel="import" href="bom/user-interactions.html">
+
+
 <!--Design centric stuff, bom etc-->
 <link rel="import" href="design/design-card.html">
 <link rel="import" href="design/design-chip.html">
@@ -100,6 +103,9 @@
       
       <!-- <design-card design="{{design}}"> </design-card>
       <design-chip design="{{design}}"> </design-chip> -->
+      
+      <dia-log id="dialogs"> </dia-log>
+      
       
       <simple-bom bom="{{bom}}" selectedObject="{{selectedObject}}" selectedObjects="{{selectedObjects}}" show="{{showBOM}}"> </simple-bom>
       <usco-bom-ui id="bomUI" showBOM="{{showBOM}}"> </usco-bom-ui>

@@ -4,7 +4,7 @@
 <!--FIXME: not 100% sure about library here -->
 <script src='../components/js-quantities/src/quantities.js'></script>
 
-<polymer-element name="simple-bom" attributes="selectedObject selectedObjects bom show"
+<polymer-element name="simple-bom" attributes="selectedObject selectedObjects bom show debug"
 on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}"
 >
   <template>
@@ -188,6 +188,7 @@ on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}"
   </template>
   <script>
   Polymer("simple-bom",{
+    debug:false,
     show:true,
   
     selectedBomEntry:null,
@@ -204,7 +205,7 @@ on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}"
      * @attribute headers
      * @type array
     */
-    headers:["id","name", "amount", "unit", "version", "implementations"],//"url","_instances"],
+    headers:["id","name", "amount", "unit", "version", "implementations","_instances"],//"url","_instances"],
     
     /**
      * what type to display a given field as, default to text
@@ -249,12 +250,12 @@ on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}"
       //console.log("UNITS", units);
     },
     bomChanged:function(oldBom, newBom){
-      //console.log("bom changed", this.bom);
+      if( this.debug ) console.log("bom changed", this.bom);
     },
     showChanged:function(oldShow, newShow){
-      console.log("show bom screen changed", this.show);
+      //console.log("show bom screen changed", this.show);
       if(newShow){
-        console.log("BOM", this.bom);
+        //console.log("BOM", this.bom);
         //FIXME attempted workaround for failing core selector after 
         //this.selectedInstanceIndex = -1;
         //selected="{{selectedBomEntry}}"        
@@ -352,7 +353,8 @@ on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}"
     },
     
     _processSelectedMesh:function( mesh ){
-      console.log("processing mesh", mesh );
+      if(this.debug) console.log("processing mesh", mesh );
+      
       var selection = mesh;
       if(!selection || !selection.userData.part) {
         this.selectedBomEntry = -1;

@@ -293,6 +293,8 @@ Polymer('ulti-viewer', Polymer.mixin({
       
       //if(self.generateCodeOnTheFly) self.generateCodeFromHistory();
     });
+    
+    //this.$.dialogs.toggle();
   },
   detached:function()
   {
@@ -512,7 +514,6 @@ Polymer('ulti-viewer', Polymer.mixin({
   filesDroppedHandler:function( event ){
     //console.log("filesDroppedHandler",event);
     for (var i = 0, f; f = event.detail.data[i]; i++) {
-        console.log("file dropped", f);
         this.loadMesh( f, {display: true} );
         /*
         var promise = 
@@ -641,7 +642,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     }
     
     //console.log("selectedObjects", this.selectedObjects );
-      if(oldSelections){
+    /*if(oldSelections){
         for(var i=0;i<oldSelections.length;i++)
         {
           var selection = oldSelections[i];
@@ -658,7 +659,7 @@ Polymer('ulti-viewer', Polymer.mixin({
             selection.material.color.setHex( 0xFF0000 );
           }
         }
-      }
+      }*/
     
     /*
      if(newSelections && newSelections.length > 0 )

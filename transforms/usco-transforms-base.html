@@ -162,8 +162,6 @@
             var attrVal = new THREE.Vector3().fromArray( newVal.slice(0,4) );
             var offset = attrVal.clone().sub( self[origFieldName] );
             
-            console.log("here");
-            
             function dispatchOperationEvent( offset, attrVal )
             {
               if(offset.length() > 0 )

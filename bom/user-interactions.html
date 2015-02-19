@@ -1,39 +1,88 @@
- <paper-action-dialog heading="Add new item to bill of materials?" class="scrolling">
-    <section>
-      The file {{instanceFileName}} is not part of this design yet, do you want to add it?
-    </section>
-    <paper-button affirmative>Cancel</paper-button>
-    <paper-button affirmative autofocus>OK</paper-button>
-</paper-action-dialog>
+<link rel="import" href="../components/polymer/polymer.html">
+<link rel="import" href="../components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../components/paper-dialog/paper-action-dialog.html">
+<link rel="import" href="../components/paper-button/paper-button.html">
 
-
-<paper-action-dialog heading="Upload file?" class="scrolling">
-    <section>
-      Do you want to upload {{instanceFileName}} as part of this design?
+<polymer-element name="dia-log">
+  <template>
+    <style>
       
-      Note: if the upload fails, you will be asked to submit the file again, 
-      all of your work will be saved regardless
-    </section>
-    <paper-button affirmative>Cancel</paper-button>
-    <paper-button affirmative autofocus>OK</paper-button>
-</paper-action-dialog>
+      paper-action-dialog{
+        font-size:0.9em;
+      }
+      
+      paper-action-dialog /deep/ .content{
+        padding:6px;
+      }
+      
+      paper-action-dialog /deep/ #scroller{
+        font-size:0.9em;
+        padding: 6px;
+        padding-top: 0px;
+      }
+      
+      paper-action-dialog /deep/ #actions {
+        padding: 6px;
+      }
+      
+      paper-action-dialog /deep/ paper-button{
+        color:#4ebcf6;
+        border-radius: 0;
+      }
+      paper-action-dialog /deep/ paper-button:hover{
+        color:black;
+        background: #ffd200;
+      }
+      /*heading="Add new item to bill of materials?" */
+    </style>
+     <paper-action-dialog class="scrolling" id="dialog"
+      autoCloseDisabled layered="false">
+        <section class="content">
+          The file {{instanceFileName}} is not part of this design yet, do you want to add it?
+        </section>
+        <paper-button affirmative>Cancel</paper-button>
+        <paper-button affirmative autofocus>OK</paper-button>
+    </paper-action-dialog>
+   
+    <!--
+    <paper-action-dialog heading="Upload file?" class="scrolling">
+        <section>
+          Do you want to upload {{instanceFileName}} as part of this design?
+          
+          Note: if the upload fails, you will be asked to submit the file again, 
+          all of your work will be saved regardless
+        </section>
+        <paper-button affirmative>Cancel</paper-button>
+        <paper-button affirmative autofocus>OK</paper-button>
+    </paper-action-dialog>
 
- <paper-action-dialog heading="Delete Object?" class="scrolling">
-    <section>
-      Deleting this object will also delete all its children, and any annotations
-      you might have added to it , are you sure ?
-    </section>
-    <paper-button affirmative>Cancel</paper-button>
-    <paper-button affirmative autofocus>OK</paper-button>
-</paper-action-dialog>
-
-
-scope.toggleDialog2 = function(e) {
-    if (e.target.localName != 'button') {
-      return;
+     <paper-action-dialog heading="Delete Object?" class="scrolling">
+        <section>
+          Deleting this object will also delete all its children, and any annotations
+          you might have added to it , are you sure ?
+        </section>
+        <paper-button affirmative>Cancel</paper-button>
+        <paper-button affirmative autofocus>OK</paper-button>
+    </paper-action-dialog>-->
+  </template>
+  <script>
+  Polymer("dia-log",{
+  
+    toggle:function(){
+      //scope.transition = e.target.getAttribute('transition');
+      this.$.dialog.toggle();
+    },
+    
+    toggle2:function(data){
+      /*
+      data: {
+        title:"bla",
+        text:""
+      }*/
+    
+      this.$.dialog.toggle();
     }
-    scope.transition = e.target.getAttribute('transition');
-    document.getElementById('dialog2').toggle();
-  };
-
-
+    
+  });
+  </script>
+</polymer-element>  

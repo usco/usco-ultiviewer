@@ -32,12 +32,12 @@
       </style>
   </head>
 <body>
-  <ulti-viewer></ulti-viewer>
+  <ulti-viewer disabled></ulti-viewer>
 
   <script>
       window.addEventListener('polymer-ready', function() {
         var ultiViewer = document.querySelector('ulti-viewer');
-        console.log("ultiViewer",ultiViewer);
+        //console.log("ultiViewer",ultiViewer);
         
         var currentUrl = window.location.origin;
         var modelUrl = "https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/1078/Extruder_Big_Gear_V1.stl";
