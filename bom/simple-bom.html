@@ -263,45 +263,8 @@ on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}"
         //this.$.entrySelector.target = this.$.bomEntries;
       }
     },
-    /*selectedObjectChanged:function(oldSelection, newSelection){
-      console.log("selectedObject", this.selectedObject );
-      var selection = this.selectedObject;
-      if(!selection || !selection.userData.part) {
-        this.selectedBomEntry = -1;
-        return;
-      }
-      var bomId = selection.userData.part.bomId;
-      this.selectedBomEntry = bomId;
-    },
     selectedObjectsChanged:function(oldSelObjects, newSelObjects){
-      console.log("selectedObjects", this.selectedObjects );
-      if(oldSelObjects){
-        for(var i=0;i<oldSelObjects.length;i++)
-        {
-          var bla = oldSelObjects[i];
-          if(bla.material) bla.material.color.setHex( bla.material._oldColor );
-        }
-      }
-      
-     if(newSelObjects){
-        for(var i=0;i<newSelObjects.length;i++)
-        {
-          var bla = newSelObjects[i];
-          if(bla.material){
-            bla.material._oldColor = bla.material.color.getHex( );
-            bla.material.color.setHex( 0xFF0000 );
-          }
-        }
-      }
-    },*/
-    selectedObjectsChanged:function(oldSelObjects, newSelObjects){
-      console.log("selectedObjects", this.selectedObjects );
-      
-      /*if(newSelObjects.length ===0) {
-        this.selectedBomEntries = [];
-        return;
-      }*/
-      
+      //console.log("selectedObjects", this.selectedObjects );
       function lookUpBomEntries( selectedObjects, bomEntriesIdx, bom ){
         var selectionCandidates = [];
         for(var i=0;i<selectedObjects.length;i++)
@@ -333,28 +296,16 @@ on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}"
       
       
       var candidates = lookUpBomEntries( newSelObjects, currentBomEntries, this.bom );
-      console.log("candidates",candidates);
+      //console.log("candidates",candidates);
       
-      //if( candidates.length == 0) return;
-      
-      
-      if(candidates.sort().join(',') !== currentBomEntries.sort().join(',')){
-          console.log("different !!");
+      if(candidates.sort().join(',') !== currentBomEntries.slice(0).sort().join(',')){
+          //console.log("different !!");
           this.selectedBomEntries = candidates;
       }
-      else{
-        console.log("the same");
-      }
-      
-      
-      //this.selectedBomEntries = candidates;
-      
-      
     },
-      
     
     selectedBomEntriesChanged:function(){
-      console.log("selectedBomEntries", this.selectedBomEntries);
+      //console.log("selectedBomEntries", this.selectedBomEntries);
       //reset selectedInstances indices
       this.selectedInstanceIndices = [-1];
       
@@ -383,47 +334,14 @@ on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}"
       this.selectedObjects = lookUpInstanceRefs( this.selectedBomEntries,null, this.bom )
     },
     
-    /*selectedBomEntryChanged:function(){
-      //reset selectedInstance index
-      this.selectedInstanceIndex = -1;
-      this._makeEntryAndInstanceKey();
-      console.log("selectedBomEntry", this.selectedBomEntry);
-    },
-    selectedInstanceIndexChanged:function(){
-      this._makeEntryAndInstanceKey();
-    },
-    selectedBomEntryInstanceChanged:function(){
-      var key = this.selectedBomEntryInstance;
-      console.log("selectedBomEntryInstance", key);
-      var partIndex = key[0];
-      var instIndex = key[1];
-      if( partIndex === null || instIndex === null ) return;
-      
-      
-      if(! this.bom[ partIndex ] ) return;
-      if( this.bom[ partIndex ]._instances.length == 0 ) return;
-      
-      if( instIndex == -1 ) //-1 means: select all
-      {
-        this.selectedObjects = this.bom[ partIndex ]._instances;
-      }
-      else{
-        var selectionCandidate = this.bom[ partIndex ]._instances[ instIndex ];
-        //if( selectionCandidate !== 
-        this.selectedObject = selectionCandidate;
-      }
-    },*/
     //event handlers
     mouseOverHandler:function( e ){
     },
     instanceTapHandler:function( e, detail, sender ){
-      console.log("bom entry instance tapped", e, detail, sender, sender.value);
+      //console.log("bom entry instance tapped", e, detail, sender, sender.value);
       this.selectedInstanceIndex = sender.value;
     },
     //helpers
-    /*_makeEntryAndInstanceKey:function(){
-      this.selectedBomEntryInstance = [this.selectedBomEntry, this.selectedInstanceIndex];
-    },*/
     _makeEntryAndInstanceKeys:function(){
       var instanceIndices = [];
       if( this.selectedBomEntries.length == 1 )
@@ -448,8 +366,6 @@ on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}"
     _resetSelection:function(){
       //to reset correct selection after unbinding/hiding
       // (why is it lost in the first place ?
-    },
-    findPartOfInstance:function( instance ){
     },
     //
     keys: function(input) {

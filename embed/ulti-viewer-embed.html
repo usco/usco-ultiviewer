@@ -6,7 +6,7 @@ shadowBias shadowDarkness shadowCameraVisible" assetpath="../components/three-js
   </template></polymer-element><polymer-element name="three-js-orbitControls" extends="three-js-controls" attributes="cameraUp rotateSpeed panSpeed zoomSpeed autoRotateSpeed autoRotate enabled" assetpath="../components/three-js/"></polymer-element><polymer-element name="three-js-combinedCamera" extends="three-js-camera" attributes="projection orientation ortho defaultPos" assetpath="../components/three-js/"></polymer-element><polymer-element name="three-js-helper" extends="three-js-object" assetpath="../components/three-js/"></polymer-element><polymer-element name="three-stats" attributes="show channel" assetpath="../components/three-js/"><template>
     <style>:host{position:absolute;top:0;z-index:99999}</style>
 		<div id="stats" hidden?="{{!show}}"></div>
-	</template></polymer-element><polymer-element name="three-js" attributes="logLevel fullScreen postProcess selectedObjects highlightedObject" on-three-js-get-renderer="{{getRenderer}}" on-three-js-get-scene="{{getScene}}" on-three-js-get-camera="{{getCamera}}" on-renderableadded="{{renderableAdded}}" tabindex="-1" assetpath="../components/three-js/"><template>
+	</template></polymer-element><polymer-element name="three-js" attributes="logLevel fullScreen postProcess selectedObjects highlightedObject" on-three-js-get-renderer="{{getRenderer}}" on-three-js-get-scene="{{getScene}}" on-three-js-get-camera="{{getCamera}}" on-renderableadded="{{renderableAdded}}" tabindex="-1" on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}" assetpath="../components/three-js/"><template>
   <style type="text/css">:host{display:block;overflow:hidden;background-color:#fff;transition:opacity 700ms;opacity:0;:-webkit-full-screen -moz-full-screen{width:100%!important;height:100%!important;left:0!important;top:0!important}:-webkit-full-screen -moz-full-screen{width:100%;height:100%;left:0;top:0}}:host([resolved]){opacity:1;visibility:visible}:host([unresolved]){opacity:0;visibility:hidden}canvas{position:absolute;top:0;right:0;bottom:0;left:0;z-index:0;cursor:default;-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.unselectable{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}</style>
     <content select="three-js-viewport" id="viewports"></content>
     <content select="three-effect-composer" id="composers"></content>
@@ -750,9 +750,9 @@ width: 14px;"> </core-icon> Grid </span>
     <template repeat="{{result in results}}">
       {{result}}
     </template>
-  </template></polymer-element><polymer-element name="simple-bom" attributes="selectedObject selectedObjects bom show" assetpath="../bom/"><template>
+  </template></polymer-element><polymer-element name="simple-bom" attributes="selectedObject selectedObjects bom show" on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}" assetpath="../bom/"><template>
     <style>:host{position:absolute;top:45px;right:20px;z-index:15;background:#fff;font-size:.8em}table.dataTable{display:table;width:100%}table{font-size:.9em;border:1px solid rgba(0,0,0,.15);border-collapse:collapse}th{padding:5px;min-width:50px}td{overflow:auto;max-width:250px;padding:5px;cursor:pointer}tr{text-align:center;border:none}.bomEntry.core-selected{background:#ffd200}.bomEntry.core-selected td{font-weight:700}.bomEntry:hover td{background:rgba(255,210,0,.28)}.bomEntryInstance{background:#fff}.bomEntryInstance:hover{cursor:pointer}.bomEntryInstance.core-selected{background:#f0f}#wrapper{overflow-y:auto;overflow-x:hidden;max-height:300px}</style>
-    <section id="wrapper">
+    <section id="wrapper" tabindex="0">
        <!--
        FIXME: why does template if="{{show}}" break core-selector behaviour ?
        WE DO NOT want components like the bom view to update when not visible
@@ -784,7 +784,7 @@ width: 14px;"> </core-icon> Grid </span>
           </tbody>
        </table>-->
     
-       <core-selector target="{{$.bomEntries}}" selected="{{selectedBomEntry}}"> </core-selector>
+       <core-selector target="{{$.bomEntries}}" selected="{{selectedBomEntries}}" multi=""> </core-selector>
     
        <table hidden?="{{!show}}" class="dataTable">
         <thead>
@@ -889,7 +889,7 @@ width: 14px;"> </core-icon> Grid </span>
       <properties-ui id="objProps" selectedobject="{{selectedObject}}" selectedentity="{{selectedEntity}}"> </properties-ui>
       <grid-ui id="gridProps" grid="{{$.grid}}"> </grid-ui>
       
-      <settings-ui id="options" autorotate="{{autoRotate}}" showgrid="{{showGrid}}" showaxes="{{showAxes}}" showcontrols="{{showControls}}" showannotations="{{showAnnotations}}" selectionzoom="{{selectionZoom}}"> </settings-ui>      
+      <settings-ui id="options" autorotate="{{autoRotate}}" showgrid="{{appSettings.grid.show}}" showaxes="{{showAxes}}" showcontrols="{{showControls}}" showannotations="{{showAnnotations}}" selectionzoom="{{selectionZoom}}"> </settings-ui>      
       <infos-ui id="infos"> </infos-ui>
       <fullscreen-toggler fullscreen="{{fullScreen}}"> </fullscreen-toggler>
       
@@ -958,7 +958,7 @@ font-size: 0.8em; ">
             <!--<template if="{{showAxes}}">
               <axis-helper up=[0,0,1]> </axis-helper>
             </template>-->
-            <grid-helper id="grid" up="[0,0,1]" show="{{showGrid}}"> </grid-helper>
+            <grid-helper id="grid" up="[0,0,1]" show="{{appSettings.grid.show}}"> </grid-helper>
               <!--<template repeat="{{resource in resources}}">
                 <template if="{{!resource.loaded}}">
                   <progress-cubic resource="{{resource}}"> </progress-cubic>
@@ -1022,7 +1022,11 @@ font-size: 0.8em; ">
       <core-localstorage name="ultiviewer-settings-showAnnotations" value="{{showAnnotations}}"></core-localstorage>
       <core-localstorage name="ultiviewer-data-annotations" value="{{annotations}}"></core-localstorage>
       
+      <!--FIXME: for testing -->     
+      <core-localstorage name="[[appInfos.ns]]" value="{{appSettings}}"></core-localstorage>
+      
       <!--keboard handling: FIXME: do this better-->
+      
       <core-a11y-keys keys="m" on-keys-pressed="{{toTranslateMode}}"></core-a11y-keys>
       <core-a11y-keys keys="r" on-keys-pressed="{{toRotateMode}}"></core-a11y-keys>
       <core-a11y-keys keys="s" on-keys-pressed="{{toScaleMode}}"></core-a11y-keys>

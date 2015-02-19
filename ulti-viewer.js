@@ -121,6 +121,11 @@ Polymer('ulti-viewer', Polymer.mixin({
   
   selectedEntity: null,
   
+  /*
+    This is used when more than one mesh/object is selected 
+  */
+  _selectionGroup: null,
+  
   
   appInfos:{
     ns:"youmagineJam",
@@ -394,7 +399,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     this.threeJs.addToScene( object, sceneName, options );
     //TODO: should we select the object we added by default ?
     //makes sense for single item viewer ...
-    if(options.select) this.selectedObject = object;
+    if(options.select) this.selectedObjects = [object]; //this.selectedObject = object;
     
     return object;
   },
@@ -437,7 +442,8 @@ Polymer('ulti-viewer', Polymer.mixin({
       
       console.log("part stuff", shape.userData.part.id, resource);
       
-      shape.userData.part.bomId = self._registerImplementationInFakeBOM( resource.uri, resource.name.split(".").shift() );
+      var partName = resource.name.substr(0, resource.name.lastIndexOf('.')); 
+      shape.userData.part.bomId = self._registerImplementationInFakeBOM( resource.uri, partName );
       
       //FIXME ; should this be handled by the asset manager or the parsers ? 
       //ie , this won't work for loaded hierarchies etc
@@ -598,6 +604,19 @@ Polymer('ulti-viewer', Polymer.mixin({
   },
   selectedObjectsChanged:function(oldSelections, newSelections)
   {
+    //for group move, rotate etc
+    /*
+    if(this.selectedObjects)
+    {
+      if(this.selectedObjects.length>1)
+      {
+        this._selectionGroup = new THREE.Object3D();
+        this.threeJs.scenes["main"].add( this._selectionGroup );
+        this.selectedObject = this._selectionGroup;
+      }
+    }*/
+  
+    
     //console.log("selectedObjectsChanged", this.selectedObjects);
     if(this.selectedObjects)
     {
