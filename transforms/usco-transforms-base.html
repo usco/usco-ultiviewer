@@ -46,6 +46,7 @@
         this._prevTool = oldTool;
         var controlableTools = this._controlableTools;
         
+        if(!this.controls) return;
         if(controlableTools.indexOf(this.activeTool) > -1 ){ //&& this.selectedObject){
           //console.log("setting controls mode to " , this.activeTool);
           this.controls.setMode(this.activeTool);
@@ -210,7 +211,6 @@
           if(! self.selectedObject ) return;
           if( self._selectionChanged)
           {
-            console.log("other object");
             self._selectionChanged = false;
             return;
           }

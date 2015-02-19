@@ -613,6 +613,12 @@ Polymer('ulti-viewer', Polymer.mixin({
         this._selectionGroup = new THREE.Object3D();
         this.threeJs.scenes["main"].add( this._selectionGroup );
         this.selectedObject = this._selectionGroup;
+        
+        for( var i=0;i<newSelections.length;i++)
+        {
+        
+        }
+        THREE.SceneUtils.attach( this.threeJs.scenes["main"]
       }
     }*/
   

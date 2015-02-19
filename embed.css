@@ -113,10 +113,13 @@ ulti-viewer /deep/ paper-item::shadow .button-content{
 } 
 
 
-
+ulti-viewer /deep/ paper-checkbox::shadow #ink[checked]{
+  color: #BBDEFB;
+}
 
 ulti-viewer /deep/ paper-checkbox::shadow #checkbox.checked {
   border-color: #ffd200;
+  background-color:#ffd200;
 }
   
 ulti-viewer /deep/ x-trigger:hover {
