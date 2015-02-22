@@ -841,6 +841,10 @@ Polymer('ulti-viewer', Polymer.mixin({
     var cloned = this.selectedObject.clone();
     cloned.material = this.selectedObject.material.clone();
     
+    //FIXME: metadta needs to be (mostly) the same
+    //Geometry should be pointer to the same data structure
+    //TODO: how to deal with objects that are already hieararchies (ie amf ?)
+    
     this.threeJs.scenes["main"].add( cloned );
     //this.addToScene( cloned, "main",{autoResize:false, autoCenter:false } );
     this._meshInjectPostProcess( cloned );

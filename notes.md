@@ -41,10 +41,28 @@ Uniqueness ids etc
 ------------------
 
   Uniqueness/ hash of implementations:
-
-  ROOT + partName+partVersion+partParameters
+      
+      ROOT + partName+partVersion+partParameters
+      
+      partName(bom) + partVersion
 
   Uniqueness/ hash of model files (stl etc):
+  
+      ????
+  
+  
+  All part instances in assemblies (since annotations **depend** on assemblies)
+  should have uuids, this way, no problem with reordering, id overlaps etc etc
+  or short ids, since collision can only be local ?
+  
+  ie either
+  
+        7c7b8605-dcd2-41f1-a913-4ecc0215b298
+        
+  or
+  
+        z5KyMg
+        
   
 
 Mesh file (instance) requirements, load ordering etc
@@ -65,8 +83,15 @@ ANNOTATIONS
   
   - this means that the objectIds in the annotations data structures should refer
   to INSTANCES not IMPLEMENTATIONS
+  
+  - actually we need both or for it to be user settable:
+    this means : we need 
+      * a partId/ hash
+      * an instance id/hash
 
-
+  - partIds : via bom ?
+  - instanceIDs: numeric, uuid ??
+  - needs to be recallable with bare-bones systems
 
 USER INTERACTIONS
 =================
@@ -102,6 +127,13 @@ General ui behaviour
  - double tap : zoom in on selected point of selected object
  - one tool active at a time: you should not have measurement/annotation
  tools active at the same time as translate/rotate etc
+ 
+ 
+Web/remote API interactions:
+----------------------------
+
+- optimstic: always assume things have succeeded, deal with errors later:
+this allows the interaction to be fast (since it is local to the editor)
  
 Order of precendence with mouse interactions:
 ---------------------------------------------
@@ -157,11 +189,23 @@ changes, which are not that usefull
 ie , when watching a 3d object's position, you need to consider x,y,z components as a whole, 
 and not isolated changes
 
+- how do we deal with "hidden" changes: ie if a root objects gets deleted, all its children get
+deleted too, but it still is only one "undo redo action"
+
 - persistance: perhaps even (simple) undo redo operations could be stored/reloaded?
+
+
+  #undoable actions
+    General:
+      * add or remove 3d mesh/part
+      * translate, rotate, scale
+      * edit properties (name)
+    
+    Annotations:
+      * add or remove
+      * edit properties (name, text)
+      * switch between instance and class 
   
-
-
-
 
   extra spicy:
   ------------
