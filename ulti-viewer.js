@@ -114,6 +114,7 @@ Polymer('ulti-viewer', Polymer.mixin({
   
   parts: {},
   partWaiters: {},
+  partMeshInstances:{},
   
   //TODO: do seperation between selected MESHES/3D objects and selected "data" objects/entitities
   //reminder: meshes are just REPRESENTATIONS of "entities"
@@ -175,35 +176,7 @@ Polymer('ulti-viewer', Polymer.mixin({
       //_editable:true //extra settable flags, runtime
     };
     
-    this.design = {
-  "name":"RobotoMaging",
-  "description":"such a great design",
-  "version": "0.0.2",
-  "url":"youmagine.com/designs/authorName/RobotoMaging",
-  "private": true,
-  "authors":[
-    {
-      "name":"otherGirl",
-    "url": "www.mysite.com",
-    "email":"gg@bar.baz"
-    },
-    {
-    "name":"otherGuy",
-    "url": "???",
-    "email":"aGuy@bar.baz"
-   }
-  ],
-   "tags": ["youmagine", "superduperdesign"],
-  "licenses":[
-    "GPLV3",
-    "MIT",
-    "CC-BY"
-  ],
-  "meta":{
-    "state":"design",
-    "color": "#0ca9e3"
-  },
-}
+    this.design = {};
     //bom, assemblies etc, are all files in the root path of design's url
   },
   ready:function(){
@@ -338,34 +311,12 @@ Polymer('ulti-viewer', Polymer.mixin({
     var self = this;
     
     function afterAdded( mesh ){ 
-      mesh.castShadow = true;
-      //mesh.receiveShadow = true;
-      
       //FIXME: this is wrong, we are not waiting for a part, but for a mesh (implementation)
       //we notify any and all 'waiters' that the part is ready
       //Q deferreds 
       var partId = mesh.userData.part.id;
       self.parts[ partId ] = mesh ;
-      if(self.partWaiters[ partId ])
-      {
-        console.log("resolving mesh for ", partId);
-        self.partWaiters[ partId ].resolve( mesh );
-      }
-      
-      self._registerInstanceInBom( mesh.userData.part.bomId, mesh );
-      
-      
-      //FIXME: not sure about these, they are used for selection levels
-      mesh.selectable      = true;
-      mesh.selectTrickleUp = false;
-      mesh.transformable   = true;
-      
-      //FIXME: not sure where this should be best: used to dispatch "scene insertion"/creation operation
-      var operation = new MeshAddition( mesh );
-      //var event = new CustomEvent('newOperation',{detail: {msg: operation}});
-      //self.dispatchEvent(event);
-      self.historyManager.addCommand( operation );
-      
+      self._meshInjectPostProcess( mesh );
     }
     if( display ){
       
@@ -488,8 +439,15 @@ Polymer('ulti-viewer', Polymer.mixin({
   //event handlers
   doubleTapHandler:function( event ){
     //console.log("double tap in viewer", event);
+    
+    var pickingInfos = event.detail.pickingInfos;
+    if(!pickingInfos) return;
+    if(pickingInfos.length == 0) return;
+    var object = pickingInfos[0].object; 
+    //console.log("object double tapped", object);
+     
     if(this.selectedObject){
-      this._zoomInOnObject.execute( this.selectedObject, {position:event.detail.pickingInfos[0].point} );
+      this._zoomInOnObject.execute( object, {position:pickingInfos[0].point} );
     }
   },
   urlParamsFoundHandler:function( event ){
@@ -573,6 +531,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     
     //FIXME: hardCoded, do this better
     if(this.toolCategory === "annotations" && this.activeTool) return;
+    
     //TODO: should be togglable behaviour
     if(this.selectionZoom) this._zoomInOnObject.execute( object );
     //FIXME: weird issue with rescaled models and worldToLocal
@@ -838,21 +797,40 @@ Polymer('ulti-viewer', Polymer.mixin({
     console.log("duplicating selection")
     if(!this.selectedObject) return;
     
-    var cloned = this.selectedObject.clone();
-    cloned.material = this.selectedObject.material.clone();
-    
+    //FIXME: we do not handle AMF etc like files for now (which are already hierarchies
+    //and not geometry 
+    //FIXME: this is kinda horrible, and not data driven, since we clone A REPRESENTATION
+    //OF THE DATA ! not the data itself
     //FIXME: metadta needs to be (mostly) the same
     //Geometry should be pointer to the same data structure
     //TODO: how to deal with objects that are already hieararchies (ie amf ?)
     
-    this.threeJs.scenes["main"].add( cloned );
-    //this.addToScene( cloned, "main",{autoResize:false, autoCenter:false } );
-    this._meshInjectPostProcess( cloned );
+    /*when you clone : 
+      * userData is the same
+      * geometry is the same
+      * you get a new mesh/object3d instance (custom pos,rot, scale etc)
+    
+    */
+    var original = this.selectedObject;
+    var geom     = original.geometry;
+    var mat      = original.material.clone();//we have to clone otherwise hover effects etc are applied to all
+    var userData = original.userData;
+    
+    var partMesh = new THREE.Mesh(geom,mat);
+    partMesh.userData = userData;
+    partMesh.position.copy( original.position );
+    partMesh.rotation.copy( original.rotation );
+    partMesh.scale.copy(  original.scale );
+    
+    //FIXME/ make a list of all operations needed to be applied on part meshes
+    computeObject3DBoundingSphere( partMesh, true );
+    
+    this.threeJs.scenes["main"].add( partMesh );
+    this._meshInjectPostProcess( partMesh );
     
     //FIXME REFACTOR: add to bom
-    console.log("clone userData", cloned.userData );
+    console.log("clone userData", partMesh.userData , "mesh registry", this.partMeshInstances);
     //self._unRegisterInstanceFromBom( cloned.userData.part.bomId , selectedObject );
-    
   },
   
   deleteObject:function(){
@@ -934,29 +912,6 @@ Polymer('ulti-viewer', Polymer.mixin({
         _instances:[],
         _instances2:{}
        };
-      
-      
-        /*
-           "implementations": {
-              "src/hand.scad":"assets/thumb_x_x_x.stl",
-              "src/hand.freecad":"assets/thumb_x_x_x_free.stl"
-            },
-           "parameters":"{type:'thumb',orientation:'Right',innerSize:25}"
-         },
-         
-          {
-           "id":17,
-           "title":"Thumb",
-           "version":"2.2.0",
-           "description":"Thumb",
-           "amount": 2,
-           "unit":"EA",
-           "implementations": {
-            "default":"bla.stl"}
-         },*/
-         
-       
-     
       this.bom.push( bomEntry );
     }
     console.log("BOM",this.bom);
@@ -988,8 +943,12 @@ Polymer('ulti-viewer', Polymer.mixin({
   //FIXME: do this better , but where ?
   _meshInjectPostProcess:function( mesh ){
     var self = this;
-    
+    //register new instance in the Bill of materials
     self._registerInstanceInBom( mesh.userData.part.bomId, mesh );
+    self._registerPartMeshInstance( mesh );
+    
+    mesh.castShadow = true;
+    //mesh.receiveShadow = true;
     
     //FIXME: not sure about these, they are used for selection levels
     mesh.selectable      = true;
@@ -1001,6 +960,24 @@ Polymer('ulti-viewer', Polymer.mixin({
     //var event = new CustomEvent('newOperation',{detail: {msg: operation}});
     //self.dispatchEvent(event);
     self.historyManager.addCommand( operation );
+  },
+  
+  _registerPartMeshInstance: function( mesh ){
+    var userData = mesh.userData;
+    var partId   = mesh.userData.part.id;//FIXME : partID VS partInstanceID
+    var instId   = "";
+    
+    if( !this.partMeshInstances[partId] )
+    {
+      this.partMeshInstances[partId] = [];
+    }
+    this.partMeshInstances[partId].push( mesh );
+    
+    if(this.partWaiters[ partId ])
+    {
+      console.log("resolving mesh for ", partId);
+      this.partWaiters[ partId ].resolve( mesh );
+    }
   },
   
   

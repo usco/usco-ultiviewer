@@ -65,6 +65,14 @@ Uniqueness ids etc
         
   
 
+Selection etc
+-------------
+
+  - selectedEntity(ies) : either part instances, annotation or ??  but NOT a mesh
+  
+  - selectedObject(s) : for now, selected meshes/Object3D in 3d view
+
+
 Mesh file (instance) requirements, load ordering etc
 ----------------------------------------------------
 
