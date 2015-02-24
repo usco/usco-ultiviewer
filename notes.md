@@ -215,11 +215,30 @@ deleted too, but it still is only one "undo redo action"
       * switch between instance and class 
   
 
-  extra spicy:
-  ------------
-  - get coordinates of drag & drop on screen, unproject, and put objects where you drag them in the 3d view
+extra spicy:
+------------
+- get coordinates of drag & drop on screen, unproject, and put objects where you drag them in the 3d view
+  
+
+problematic user interaction scenarios (current implementation):
+----------------------------------------------------------------
+- "bounceback" between BOM & 3D view:
+  * selecting objects in 3d view selects all the lines of the BOM view which are for that part
+  * BUT changing selected lines in the BOM selects all 3D instances  of that Part type !
+  * so selected3DObjects->selectedBOMLines->selected3DObjects : circular dependency ! 
+  * unless you have some "guards" to prevent endless loops...this is not good  
+
+- deletion "cascade" effects  & undo redo :
+  * you have PART-A with 2 annotations attached (annotations are a seperate data structure)
+  * if you delete PART-A : 
+    * logically the annotions should also be removed (or just "invalidated" ?) 
+    * the deletion of PART-A is what you want to be able to undo -redo , but if the manipulation
+    of parts & annotations is handled seperatly (as it should, see seperation of concerns etc), 
+    you will get two entries in the undo/redo stack, which makes no sense for the user
   
   
+  
+
  
 
 

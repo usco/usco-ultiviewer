@@ -73,6 +73,8 @@
 <link rel="import" href="bom/usco-bom-ui.html">
 
 
+<script src="components/nested-observe/dist/nested-observe.js"></script>
+
 
 <polymer-element name="ulti-viewer" attributes="showAxis showIndicators" tabindex="0">
     <template>
@@ -110,7 +112,7 @@
       <simple-bom bom="{{bom}}" selectedObject="{{selectedObject}}" selectedObjects="{{selectedObjects}}" show="{{showBOM}}"> </simple-bom>
       <usco-bom-ui id="bomUI" showBOM="{{showBOM}}"> </usco-bom-ui>
       
-      <!--<io-ui id="inputOutput" selectedObject="{{selectedObject}}" activeScene="{{$.activeScene.object}}" resources="{{resources}}" viewer="{{$.threeJs}}" partWaiters="{{partWaiters}}" parts="{{parts}}"></io-ui>-->
+      <io-ui id="inputOutput" selectedObject="{{selectedObject}}" activeScene="{{$.activeScene.object}}" resources="{{resources}}" viewer="{{$.threeJs}}" partWaiters="{{partWaiters}}" parts="{{parts}}"></io-ui>
       
       <properties-ui id="objProps" selectedObject="{{selectedObject}}" selectedEntity="{{selectedEntity}}"> </properties-ui>
       <grid-ui id="gridProps" grid="{{$.grid}}"> </grid-ui>
@@ -259,7 +261,7 @@ font-size: 0.8em; ">
       <core-localstorage name="ultiviewer-settings-activeTool" value="{{activeTool}}"></core-localstorage>
       
       <core-localstorage name="ultiviewer-settings-showAnnotations"value="{{showAnnotations}}"></core-localstorage>
-      <core-localstorage name="ultiviewer-data-annotations"     value="{{annotations}}"></core-localstorage>
+      <!--<core-localstorage name="ultiviewer-data-annotations"     value="{{annotations}}"></core-localstorage>-->
       
       <!--FIXME: for testing -->     
       <core-localstorage name="[[appInfos.ns]]"     value="{{appSettings}}"></core-localstorage>

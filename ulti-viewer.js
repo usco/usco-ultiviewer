@@ -110,7 +110,7 @@ Polymer('ulti-viewer', Polymer.mixin({
   
   design      : {},
   bom         : [],
-  hierarchy   : {},
+  assembly    : {},//assembly or hierarchy ?
   
   parts: {},
   partWaiters: {},
@@ -176,8 +176,51 @@ Polymer('ulti-viewer', Polymer.mixin({
       //_editable:true //extra settable flags, runtime
     };
     
-    this.design = {};
     //bom, assemblies etc, are all files in the root path of design's url
+    
+    //FIXME/ experimental 
+    this.assembly = {
+      children: []
+    }
+    
+    
+    var observer = new ObjectObserver(this.assembly);
+    observer.open(function(added, removed, changed, getOldValueFn) {
+      // respond to changes to the obj.
+      console.log("foo");
+      Object.keys(added).forEach(function(property) {
+        //property; // a property which has been been added to obj
+        //added[property]; // its value
+        console.log("added",property,added[property]);
+      });
+      Object.keys(removed).forEach(function(property) {
+        //property; // a property which has been been removed from obj
+        //getOldValueFn(property); // its old value
+      });
+      Object.keys(changed).forEach(function(property) {
+        //property; // a property on obj which has changed value.
+        //changed[property]; // its value
+        //getOldValueFn(property); // its old value
+        console.log("changed",property,changed[property]);
+      });
+    });
+    
+    
+    var Nested = window.Nested;
+    var self = this;
+    Nested.observe(this.assembly, function( bla ){
+      console.log("change in assembly", bla);
+      localStorage.setItem("ultiviewer-data-assembly", JSON.stringify( self.assembly ) );
+    })
+    
+    Nested.unobserve(this.assembly, function( bla ){
+      console.log("change in assembly(unobserve)", bla);
+      localStorage.setItem("ultiviewer-data-assembly", JSON.stringify( self.assembly ) );
+    })
+    Nested.deliverChangeRecords(function(blo){
+      console.log("blo", blo);
+    })
+    
   },
   ready:function(){
     this.threeJs      = this.$.threeJs;
@@ -327,8 +370,6 @@ Polymer('ulti-viewer', Polymer.mixin({
       });*/
       return resourcePromise.then( this.addToScene.bind(this), onDisplayError ).then(afterAdded);
     }
-    
-    
     return resourcePromise;
     //resourcePromise.then(resource.onLoaded.bind(resource), loadFailed, resource.onDownloadProgress.bind(resource) );
   },
@@ -353,7 +394,6 @@ Polymer('ulti-viewer', Polymer.mixin({
     //TODO: should we select the object we added by default ?
     //makes sense for single item viewer ...
     if(options.select) this.selectedObjects = [object]; //this.selectedObject = object;
-    
     return object;
   },
   removeFromScene:function( object, sceneName )
@@ -389,7 +429,7 @@ Polymer('ulti-viewer', Polymer.mixin({
 
       shape.userData.part = {};
       shape.userData.part.name = resource.name;//"Part"+self.partId;
-      shape.userData.part.id = hashCode(resource.uri)
+      shape.userData.part.id = hashCode(resource.uri)//FIXME this is wrong, that is based on mesh file, not for part
       shape.userData.resource = resource;
       shape.name = resource.name;
       
@@ -519,9 +559,8 @@ Polymer('ulti-viewer', Polymer.mixin({
       console.log("found root helper", annotation);
       //this.selectedObject = annotation;
       e.stopImmediatePropagation();
-      return
+      return;
     }
-    
     this.$.annotations.onPicked( e );
     
     pickingDatas = e.detail.pickingInfos;
@@ -701,6 +740,12 @@ Polymer('ulti-viewer', Polymer.mixin({
   toolCategoryChanged:function(oldCateg,newCateg){
     //console.log("toolCategoryChanged",oldCateg,newCateg, this.toolCategory);
   },
+  /*
+  assemblyChanged:function(oldAssembly, newAssembly){
+    console.log("assembly changed", newAssembly);
+  },*/
+  
+  /*
   xRayTest:function(){
     var scene = this.threeJs.getScene("main");
     scene = this.selectedObject;
@@ -714,7 +759,7 @@ Polymer('ulti-viewer', Polymer.mixin({
 		  }
     });
     
-  },
+  },*/
   //various
   updateOverlays: function(){
     var p, v, percX, percY, left, top;
@@ -838,13 +883,31 @@ Polymer('ulti-viewer', Polymer.mixin({
     var selectedObject = this.selectedObject;
     var selectedEntity = this.selectedEntity;
     
+    //FIXME: hack
+    if( selectedObject && selectedObject.userData ){
+      var assembly = this.assembly;
+      for(var i=assembly.children.length-1;i>=0;i--){
+        if(assembly.children[i].instId == selectedObject.userData.part.instId )
+        {
+          assembly.children.splice(i, 1);
+        }
+      }
+    }
+    //var index = this.assembly.children.indexOf(5);
+    //this.assembly.children.push( assemblyEntry );
+    //console.log("assembly", this.assembly);
+    
+    
     this.fire( "delete-entity", {entity:selectedEntity} );
     //FIXME: temporary workaround/hack as you cannot dispatch events to children    
     this.$.annotations.deleteEntityHandler(null, {entity:selectedEntity},null );
     
     //fire operation
-    var operation = new Deletion(selectedObject, selectedObject.parent);
-    this.fire('newOperation', {msg: operation});
+    if(selectedObject && selectedObject.parent)
+    {
+      var operation = new Deletion(selectedObject, selectedObject.parent);
+      this.fire('newOperation', {msg: operation});
+    }
     
     //FIXME: refactor REMOVAL FROM BOM
     try{
@@ -947,13 +1010,14 @@ Polymer('ulti-viewer', Polymer.mixin({
     self._registerInstanceInBom( mesh.userData.part.bomId, mesh );
     self._registerPartMeshInstance( mesh );
     
-    mesh.castShadow = true;
-    //mesh.receiveShadow = true;
     
     //FIXME: not sure about these, they are used for selection levels
     mesh.selectable      = true;
     mesh.selectTrickleUp = false;
     mesh.transformable   = true;
+    //FIXME: not sure, these are very specific for visuals
+     mesh.castShadow = true;
+    //mesh.receiveShadow = true;
     
     //FIXME: not sure where this should be best: used to dispatch "scene insertion"/creation operation
     var operation = new MeshAddition( mesh );
@@ -978,6 +1042,22 @@ Polymer('ulti-viewer', Polymer.mixin({
       console.log("resolving mesh for ", partId);
       this.partWaiters[ partId ].resolve( mesh );
     }
+    
+    //each instance needs a unique uid
+    //FIXME: this should not be at the MESH level, so this is the wrong place for that    
+    mesh.userData.part.instId = this.generateUUID();
+    
+    //FIXME: experimental hack , for a more data driven based approach
+    
+    var assemblyEntry = {
+      partId:partId,
+      instId:mesh.userData.part.instId, 
+      pos: mesh.position.toArray(), 
+      rot:mesh.rotation.toArray(), 
+      scale:mesh.scale.toArray()
+    };
+    this.assembly.children.push( assemblyEntry );
+    console.log("assembly", this.assembly);
   },
   
   
@@ -990,8 +1070,46 @@ Polymer('ulti-viewer', Polymer.mixin({
   },
   
   shiftPressed:function(){
-    console.log("shift pressed")
+    //console.log("shift pressed")
   },
+ 
+ //FIXME: taken from three.js , this should be a utility somewhere
+ generateUUID: function () {
+
+		// http://www.broofa.com/Tools/Math.uuid.htm
+
+		var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split( '' );
+		var uuid = new Array( 36 );
+		var rnd = 0, r;
+
+		return function () {
+
+			for ( var i = 0; i < 36; i ++ ) {
+
+				if ( i == 8 || i == 13 || i == 18 || i == 23 ) {
+
+					uuid[ i ] = '-';
+
+				} else if ( i == 14 ) {
+
+					uuid[ i ] = '4';
+
+				} else {
+
+					if ( rnd <= 0x02 ) rnd = 0x2000000 + ( Math.random() * 0x1000000 ) | 0;
+					r = rnd & 0xf;
+					rnd = rnd >> 4;
+					uuid[ i ] = chars[ ( i == 19 ) ? ( r & 0x3 ) | 0x8 : r ];
+
+				}
+			}
+
+			return uuid.join( '' );
+
+		};
+
+	}(),
+ 
  
   //filters
   toFixed:function(o, precision){
