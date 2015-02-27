@@ -101,6 +101,12 @@ ANNOTATIONS
   - instanceIDs: numeric, uuid ??
   - needs to be recallable with bare-bones systems
 
+Measurements
+------------
+- if any measurement is active, deactivate object selection :
+zooming in etc distracts from taking measures across objects
+
+
 USER INTERACTIONS
 =================
 
@@ -163,11 +169,6 @@ Order of precendence with mouse interactions:
   - make all annotations NOT selectable
   - prevent any other interactions
 
-
-Measurements
-------------
-- if any measurement is active, deactivate object selection :
-zooming in etc distracts from taking measures across objects
 
 Editing
 -------
@@ -235,11 +236,16 @@ problematic user interaction scenarios (current implementation):
     * the deletion of PART-A is what you want to be able to undo -redo , but if the manipulation
     of parts & annotations is handled seperatly (as it should, see seperation of concerns etc), 
     you will get two entries in the undo/redo stack, which makes no sense for the user
-  
+    Also not clear how to handle *redo* in that specific case
   
   
 
- 
+ Annotations upgrade:
+ - remove "see-through" or at least make them more transparent in the background
+ - remove color background (annoying)
+ - go back to "flat" view of numbers : less annoying, less disturbing visually
+ - detect what "side" of an object(or bounding box) you are on when adding things, to determine
+ placement
 
 
  

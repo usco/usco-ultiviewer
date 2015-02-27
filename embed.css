@@ -36,8 +36,9 @@ ulti-viewer /deep/ #perspectiveView{
 }
 /*
 Colors:
-blue:#4ebcf6
-darkblue : #2e7396
+blue-white:#f5f5f5;
+blue:#4ebcf6;
+darkblue : #2e7396;
 orangeYellow:#ffd200;
 */
 
@@ -156,7 +157,6 @@ ulti-viewer /deep/ x-trigger /deep/ paper-item.core-selected {
       background:#ffd200;
       color:black;
 }  
-
 
 
 ulti-viewer /deep/ x-trigger /deep/ paper-item::shadow .button-content{

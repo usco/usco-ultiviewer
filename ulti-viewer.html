@@ -74,7 +74,7 @@
 
 
 <script src="components/nested-observe/dist/nested-observe.js"></script>
-
+<script src="components/keymaster/keymaster.js"></script>
 
 <polymer-element name="ulti-viewer" attributes="showAxis showIndicators" tabindex="0">
     <template>
@@ -133,6 +133,7 @@
         <usco-annotations-ui id="annotations" value="annotations" activeTool="{{activeTool}}"
         selectedObject="{{selectedObject}}" showAnnotations="{{showAnnotations}}" 
         activeType="{{activeTool}}" annotations="{{annotations}}" parts="{{parts}}" partWaiters="{{partWaiters}}"
+        uiMode="{{uiMode}}"
         > </usco-annotations-ui>
         <!--<usco-annotations-ui id="annotations" value="annotations" activeTool="{{activeTool}}"> </usco-annotations-ui>-->
         
@@ -205,8 +206,9 @@ font-size: 0.8em; ">
           
           <three-js-viewport name="perspective" id="perspectiveView" class="perspectiveView"
           exScenes="naviScene" on-doubletap="{{doubleTapHandler}}" >
-            <three-js-combinedCamera id="cam" pos=[100,-100,100] defaultPos=[-100,-50,200] orientation="{{camOrientation}}" up=[0,0,1]></three-js-combinedCamera >
-            <three-js-orbitControls id="camCtrl" cameraUp=[0,0,1] autoRotate="{{autoRotate && (!selectedObject || selectRotate)}}" autoRotateSpeed=2 panSpeed=1.5> </three-js-orbitControls>
+            <three-js-combinedCamera id="cam" pos=[100,-100,100] defaultPos=[-100,-50,200] orientation="{{camOrientation}}" up=[0,0,1]
+            ></three-js-combinedCamera >
+            <three-js-orbitControls id="camCtrl" cameraUp=[0,0,1] autoRotate="{{autoRotate && (!selectedObject || selectRotate)}}" autoRotateSpeed=2 panSpeed=1.5 active="{{camActive}}"> </three-js-orbitControls>
           </three-js-viewport>
           
           <!--overlay viewport thingy & scene-->
@@ -267,7 +269,7 @@ font-size: 0.8em; ">
       <core-localstorage name="[[appInfos.ns]]"     value="{{appSettings}}"></core-localstorage>
       
       <!--keboard handling: FIXME: do this better-->
-      
+      <!--
       <core-a11y-keys  keys="m" on-keys-pressed="{{toTranslateMode}}"></core-a11y-keys>
       <core-a11y-keys  keys="r" on-keys-pressed="{{toRotateMode}}"></core-a11y-keys>
       <core-a11y-keys  keys="s" on-keys-pressed="{{toScaleMode}}"></core-a11y-keys>
@@ -276,11 +278,11 @@ font-size: 0.8em; ">
       <core-a11y-keys  keys="F11" on-keys-pressed="{{handleFullScreen}}"></core-a11y-keys>
       
       <core-a11y-keys  keys="ctrl+z" on-keys-pressed="{{undo}}"></core-a11y-keys>
-      <core-a11y-keys  keys="ctrl+shift+z" on-keys-pressed="{{redo}}"></core-a11y-keys>
+      <core-a11y-keys  keys="ctrl+shift+z" on-keys-pressed="{{redo}}"></core-a11y-keys>-->
       
       <!--for mac -->
-      <core-a11y-keys  keys="meta+z" on-keys-pressed="{{undo}}"></core-a11y-keys>
-      <core-a11y-keys  keys="meta+shift+z" on-keys-pressed="{{redo}}"></core-a11y-keys>
+      <!--<core-a11y-keys  keys="meta+z" on-keys-pressed="{{undo}}"></core-a11y-keys>
+      <core-a11y-keys  keys="meta+shift+z" on-keys-pressed="{{redo}}"></core-a11y-keys>-->
       
   </template>
   <script src="ulti-viewer.js"></script>

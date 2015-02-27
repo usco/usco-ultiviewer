@@ -128,6 +128,25 @@ Polymer('ulti-viewer', Polymer.mixin({
   _selectionGroup: null,
   
   
+  /*
+    global flag for interaction modes
+  */
+  uiMode : "default",
+  camActive:false,
+  
+  camActiveChanged:function(){
+    console.log("this.camActive",this.camActive);
+    if(this.camActive)
+    {
+      this.uiMode = "camera";
+    }
+    else{
+      this.uiMode = "default";
+    }
+    
+    console.log("this.uiMode",this.uiMode);
+  },
+  
   appInfos:{
     ns:"youmagineJam",
     name:"Jam!",
@@ -183,7 +202,7 @@ Polymer('ulti-viewer', Polymer.mixin({
       children: []
     }
     
-    
+    /*
     var observer = new ObjectObserver(this.assembly);
     observer.open(function(added, removed, changed, getOldValueFn) {
       // respond to changes to the obj.
@@ -203,7 +222,7 @@ Polymer('ulti-viewer', Polymer.mixin({
         //getOldValueFn(property); // its old value
         console.log("changed",property,changed[property]);
       });
-    });
+    });*/
     
     
     var Nested = window.Nested;
@@ -212,14 +231,48 @@ Polymer('ulti-viewer', Polymer.mixin({
       console.log("change in assembly", bla);
       localStorage.setItem("ultiviewer-data-assembly", JSON.stringify( self.assembly ) );
     })
-    
-    Nested.unobserve(this.assembly, function( bla ){
+    /*Nested.unobserve(this.assembly, function( bla ){
       console.log("change in assembly(unobserve)", bla);
       localStorage.setItem("ultiviewer-data-assembly", JSON.stringify( self.assembly ) );
     })
     Nested.deliverChangeRecords(function(blo){
       console.log("blo", blo);
-    })
+    })*/
+    
+    
+    //alternative key binding
+    var self = this;
+    key('delete', function(){ 
+      self.deleteObject();
+    });
+    key('⌘+r,ctrl+d', function(){ 
+      self.duplicateObject();
+      return false;
+    });
+    key('⌘+z,ctrl+z', function(){ 
+      self.duplicateObject();
+    });
+    key('⌘+shift+z,ctrl+shift+z', function(){ 
+      self.duplicateObject();
+    });
+    
+    key('m', function(){ 
+      self.toTranslateMode();
+    });
+    key('r', function(){ 
+      self.toRotateMode();
+    });
+    key('s', function(){ 
+      self.toScaleMode();
+    });
+    
+    key('F11', function(){ 
+      self.handleFullScreen();
+    });
+    // multiple shortcuts that do the same thing
+    /*key('⌘+r, ctrl+r', function(){ });*/
+    
+    
     
   },
   ready:function(){
@@ -311,6 +364,14 @@ Polymer('ulti-viewer', Polymer.mixin({
     });
     
     //this.$.dialogs.toggle();
+    
+    
+    var label = new LabelHelperPlane({text:"255",fontSize:10,color:"#FF00FF"});
+    label.position.x += label.width/2;
+    label.position.y += label.height/2;
+    
+    this.threeJs.scenes["main"].add( label );
+    
   },
   detached:function()
   {
@@ -883,7 +944,17 @@ Polymer('ulti-viewer', Polymer.mixin({
     var selectedObject = this.selectedObject;
     var selectedEntity = this.selectedEntity;
     
-    //FIXME: hack
+    //var index = this.assembly.children.indexOf(5);
+    //this.assembly.children.push( assemblyEntry );
+    //console.log("assembly", this.assembly);
+    
+    
+    this.fire( "delete-entity", {entity:selectedEntity} );
+    //FIXME: temporary workaround/hack as you cannot dispatch events to children    
+    this.$.annotations.deleteEntityHandler(null, {entity:selectedEntity},null );
+    
+    
+        //FIXME: hack
     if( selectedObject && selectedObject.userData ){
       var assembly = this.assembly;
       for(var i=assembly.children.length-1;i>=0;i--){
@@ -893,14 +964,6 @@ Polymer('ulti-viewer', Polymer.mixin({
         }
       }
     }
-    //var index = this.assembly.children.indexOf(5);
-    //this.assembly.children.push( assemblyEntry );
-    //console.log("assembly", this.assembly);
-    
-    
-    this.fire( "delete-entity", {entity:selectedEntity} );
-    //FIXME: temporary workaround/hack as you cannot dispatch events to children    
-    this.$.annotations.deleteEntityHandler(null, {entity:selectedEntity},null );
     
     //fire operation
     if(selectedObject && selectedObject.parent)
