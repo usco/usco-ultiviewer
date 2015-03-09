@@ -2,7 +2,7 @@
 <script src="operations.js"></script>
 
 
-<polymer-element name="usco-transforms-base" attributes="selectedObject activeTool enabled">
+<polymer-element name="usco-transforms-base" attributes="selectedObject activeTool enabled ui-mode">
   <script>
     Polymer("usco-transforms-base",{
       selectedObject: null,
@@ -41,6 +41,19 @@
         //this.controls.detach();
       },
       //attribute change callbacks
+      uiModeChanged:function(){
+        var self = this;
+        
+        switch(this.uiMode){
+          case "default":
+            this.controls.enabled = true;
+           break;
+           case "camera":
+             this.controls.enabled = false;
+           break;
+         }
+      },
+      
       activeToolChanged:function( oldTool, newTool ){
         console.log("this.activeTool", this.activeTool, oldTool, newTool);
         this._prevTool = oldTool;

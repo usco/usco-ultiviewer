@@ -265,26 +265,35 @@ on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}"
       }
     },
     selectedObjectsChanged:function(oldSelObjects, newSelObjects){
-      //console.log("selectedObjects", this.selectedObjects );
+      console.log("selectedObjects", this.selectedObjects );
+      
       function lookUpBomEntries( selectedObjects, bomEntriesIdx, bom ){
         var selectionCandidates = [];
+        var selectedInstancePerBomEntryCandidates = {};
+        
         for(var i=0;i<selectedObjects.length;i++)
         {
           var selection = selectedObjects[i];
           if(!selection || !selection.userData.part) {
-            //this.selectedBomEntry = -1;
             continue;
           }
           var bomId = selection.userData.part.bomId;
+          var instId = selection.userData.part.instId;
           
           //only push if not already a part of current candidates
           if( selectionCandidates.indexOf( bomId ) === -1 )
           {
             selectionCandidates.push( bomId );
           }
+          
+          //deal with instances, perhaps weakrefs would be easier?
+          if(!selectedInstancePerBomEntryCandidates[bomId] ) selectedInstancePerBomEntryCandidates[bomId]= [];
+          if( selectedInstancePerBomEntryCandidates[bomId].indexOf( selection ) === -1 ){
+            selectedInstancePerBomEntryCandidates[bomId].push( selection );
+          }
         }
         
-        return selectionCandidates;
+        return [selectionCandidates, selectedInstancePerBomEntryCandidates];
       }
       var currentBomEntries = this.selectedBomEntries;
       var newSelObjects = newSelObjects;
@@ -295,16 +304,22 @@ on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}"
         newSelObjects = [];
       }
       
-      
-      var candidates = lookUpBomEntries( newSelObjects, currentBomEntries, this.bom );
-      //console.log("candidates",candidates);
+      var candidatesData = lookUpBomEntries( newSelObjects, currentBomEntries, this.bom );
+      var candidates = candidatesData[0];
       
       if(candidates.sort().join(',') !== currentBomEntries.slice(0).sort().join(',')){
-          //console.log("different !!");
           this.selectedBomEntries = candidates;
       }
+      
+      this.selectedInstancePerBomEntryCandidates = candidatesData[1];
+      //console.log("selectedInstancePerBomEntryCandidates");
     },
-    
+
+    /*IF there are already instances of a given selectedBomEntry selected (selectedObject)
+    then do NOT override that selection
+    IE: only select all instances of a bom entry if there are no selected instances of that
+    part
+    */   
     selectedBomEntriesChanged:function(){
       //console.log("selectedBomEntries", this.selectedBomEntries);
       //reset selectedInstances indices
@@ -316,6 +331,10 @@ on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}"
         {
           var partIndex = bomEntriesIdx[i];
           var instIndex = -1;//TODO implement
+          if( bomEntryInstancesIdx && bomEntryInstancesIdx[partIndex] && bomEntryInstancesIdx[partIndex].length > 0 )
+          {
+            instIndex = 1;
+          }
           
           if(! bom[ partIndex ] ) continue;
           if(  bom[ partIndex ]._instances.length == 0 ) continue;
@@ -325,14 +344,20 @@ on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}"
             selectionCandidates = selectionCandidates.concat( bom[ partIndex ]._instances );
           }
           else{
-            var selectionCandidate = bom[ partIndex ]._instances[ instIndex ];
-            selectionCandidates.push( selectionCandidate )
+          
+            for(var j=0; j< bomEntryInstancesIdx[ partIndex ].length;j++)
+            {
+              selectionCandidates.push( bomEntryInstancesIdx[ partIndex ][j] )
+            }
+            //var selectionCandidate = bom[ partIndex ]._instances[ instIndex ];
+            //selectionCandidates.push( selectionCandidate )
           }
         }
         return selectionCandidates;
       }
       
-      this.selectedObjects = lookUpInstanceRefs( this.selectedBomEntries,null, this.bom )
+      this.selectedObjects = lookUpInstanceRefs( this.selectedBomEntries, 
+        this.selectedInstancePerBomEntryCandidates, this.bom )
     },
     
     //event handlers

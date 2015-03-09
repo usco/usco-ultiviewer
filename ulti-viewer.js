@@ -271,9 +271,6 @@ Polymer('ulti-viewer', Polymer.mixin({
     });
     // multiple shortcuts that do the same thing
     /*key('⌘+r, ctrl+r', function(){ });*/
-    
-    
-    
   },
   ready:function(){
     this.threeJs      = this.$.threeJs;
@@ -286,6 +283,8 @@ Polymer('ulti-viewer', Polymer.mixin({
     
      //add the selection helper
     //dimensions display helper
+    //var ObjectDimensionsHelper = require("ObjectDimensionsHelper");
+    
     this.objDimensionsHelper = new ObjectDimensionsHelper({textBgColor:"#ffd200"});
     this.addToScene( this.objDimensionsHelper, "helpers", {autoResize:false, autoCenter:false, persistent:true, select:false } );
     
@@ -366,12 +365,10 @@ Polymer('ulti-viewer', Polymer.mixin({
     //this.$.dialogs.toggle();
     
     
-    var label = new LabelHelperPlane({text:"255",fontSize:10,color:"#FF00FF"});
-    label.position.x += label.width/2;
-    label.position.y += label.height/2;
-    
-    this.threeJs.scenes["main"].add( label );
-    
+    //var label = new LabelHelperPlane({text:"255",fontSize:8,color:"#FF00FF"});
+    //label.position.x += label.width/2;
+    //label.position.y += label.height/2;
+    //this.threeJs.scenes["main"].add( label );
   },
   detached:function()
   {
@@ -445,7 +442,7 @@ Polymer('ulti-viewer', Polymer.mixin({
   {
     var options = options || {};
     options.autoCenter = options.autoCenter === undefined ? true: options.autoCenter;
-    options.autoResize = options.autoResize === undefined ? true: options.autoResize;
+    options.autoResize = options.autoResize === undefined ? false: options.autoResize;
     options.minSize    = options.minSize === undefined ? this.settings.minObjectSize: options.minSize; 
     options.maxSize    = options.maxSize === undefined ? this.settings.maxObjectSize: options.maxSize; 
     options.persistent = options.persistent === undefined ? false: options.persistent; 
@@ -491,7 +488,6 @@ Polymer('ulti-viewer', Polymer.mixin({
       shape.userData.part = {};
       shape.userData.part.name = resource.name;//"Part"+self.partId;
       shape.userData.part.id = hashCode(resource.uri)//FIXME this is wrong, that is based on mesh file, not for part
-      shape.userData.resource = resource;
       shape.name = resource.name;
       
       console.log("part stuff", shape.userData.part.id, resource);
@@ -588,6 +584,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     this.dismissResource( resource );
   },
   objectPicked:function(e){
+    console.log("picking");
     /*TODO: externalize all of this into custom elements for
       how to handle event binding ?
       perhaps better to use pub/sub ?
@@ -923,7 +920,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     var userData = original.userData;
     
     var partMesh = new THREE.Mesh(geom,mat);
-    partMesh.userData = userData;
+    partMesh.userData = JSON.parse(JSON.stringify( original.userData ));//userData; //FIXME: problem with object pointers, weakrefs are needed
     partMesh.position.copy( original.position );
     partMesh.rotation.copy( original.rotation );
     partMesh.scale.copy(  original.scale );

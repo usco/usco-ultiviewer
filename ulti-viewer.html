@@ -57,6 +57,8 @@
 <link rel="import" href="ui-elements/settings-ui.html">
 <link rel="import" href="ui-elements/view-navigator.html">
 
+<link rel="import" href="components/three-js-helpers/dimensions-helper.html">
+
 <!--interactions-->
 <link rel="import" href="ui-elements/properties-ui.html">
 <link rel="import" href="ui-elements/grid-ui.html">
@@ -72,6 +74,8 @@
 <link rel="import" href="bom/simple-bom.html">
 <link rel="import" href="bom/usco-bom-ui.html">
 
+
+<script src="components/three-js-helpers/lib/usco-dimensions.js"></script>
 
 <script src="components/nested-observe/dist/nested-observe.js"></script>
 <script src="components/keymaster/keymaster.js"></script>
@@ -126,7 +130,7 @@
       <!--<core-selector valueattr="value" selected="{{toolCategory}}">-->
         <!--transforms systems -->
         <usco-transforms-ui id="transforms" value="transforms" controls="{{transformControls}}" 
-        selectedObject="{{selectedObject}}" activeTool="{{activeTool}}"> 
+        selectedObject="{{selectedObject}}" activeTool="{{activeTool}}" uiMode="{{uiMode}}"> 
         </usco-transforms-ui>
         
         <!-- annotations system -->
