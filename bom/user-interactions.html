@@ -2,23 +2,44 @@
 <link rel="import" href="../components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../components/paper-dialog/paper-action-dialog.html">
 <link rel="import" href="../components/paper-button/paper-button.html">
+<link rel="import" href="../components/core-label/core-label.html">
 
-<polymer-element name="dia-log">
+<polymer-element name="dia-log" attributes="partName partNames resource">
   <template>
     <style>
       
       paper-action-dialog{
         font-size:0.9em;
+        
+        z-index:17;
+        
+        
+        position: fixed;
+        top: 16px;
+        right: -10px;
+      }
+      
+      :host /deep/ .field{
+        width: 100%;
       }
       
       paper-action-dialog /deep/ .content{
         padding:6px;
       }
       
+      paper-action-dialog /deep/ .emphasis{
+        font-weight:bold;
+      }
+      
+      
+      
+      
       paper-action-dialog /deep/ #scroller{
         font-size:0.9em;
         padding: 6px;
         padding-top: 0px;
+        
+        /*width:500px;*/
       }
       
       paper-action-dialog /deep/ #actions {
@@ -35,13 +56,53 @@
       }
       /*heading="Add new item to bill of materials?" */
     </style>
-     <paper-action-dialog class="scrolling" id="dialog"
+     
+    <paper-action-dialog class="scrolling" id="addInstance"
       autoCloseDisabled layered="false">
         <section class="content">
-          The file {{instanceFileName}} is not part of this design yet, do you want to add it?
+          The file '<span class="emphasis">{{resource.name}}</span>' is not part of this design yet:
         </section>
+        <br/>
+        
+        <template if="{{! _isFileAlreadyUpladed }}">
+          <section>
+              <div horizontal layout style="padding: 5px;">
+                <div flex><paper-checkbox for checked="{{doUpload}}"></paper-checkbox></div>
+                <div flex>
+                  <core-tooltip label="This will upload the file to the design's workspace">
+                  <span>Upload it ?</span>
+                  </core-tooltip>
+                </div>
+              </div>
+            <br/>
+          </section>
+        </template>
+        
+        <section>
+          <div>
+            <div vertical layout>
+              <h4>What part is this ?</h4><!--what part is this an instance off?-->
+              <div>Ie Please choose the name of the part this file represents</div>
+              <template if="{{partNames.length>0}}">
+                <div>
+                  <select>
+                  <option value="">  </option>
+                  <template repeat="{{pName in partNames}}">
+                    <option value="{{pName}}"> {{pName}} </option>
+                  </template>
+                </select>
+                </div>
+              </template>
+              <div>
+                <paper-input label="alternate name" value="{{partName}}" class="field">
+                </paper-input>
+              </div>
+            </div>
+          </div>
+        </section>
+        <br/>
         <paper-button affirmative>Cancel</paper-button>
-        <paper-button affirmative autofocus>OK</paper-button>
+        <paper-button affirmative autofocus on-tap="{{doneHandler}}">OK</paper-button>
     </paper-action-dialog>
    
     <!--
@@ -67,20 +128,22 @@
   </template>
   <script>
   Polymer("dia-log",{
-  
+    _isFileAlreadyUpladed: false,
+    doUpload:true,
     toggle:function(){
       //scope.transition = e.target.getAttribute('transition');
-      this.$.dialog.toggle();
+      //TODO: find a way to determine/pass the info that something is already uploaded?
+      if(this.resource && this.resource.uri == "bla bla")
+      {
+        
+      }
+      
+      this.$.addInstance.toggle();
     },
-    
-    toggle2:function(data){
-      /*
-      data: {
-        title:"bla",
-        text:""
-      }*/
-    
-      this.$.dialog.toggle();
+    doneHandler:function( bla ){
+      var msg = {partName:this.partName,doUpload:this.doUpload}
+      this.fire('partInstanceDone', msg);
+      console.log("new part instance settings done", msg);
     }
     
   });

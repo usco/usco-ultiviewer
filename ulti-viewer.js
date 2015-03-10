@@ -135,7 +135,7 @@ Polymer('ulti-viewer', Polymer.mixin({
   camActive:false,
   
   camActiveChanged:function(){
-    console.log("this.camActive",this.camActive);
+    //console.log("this.camActive",this.camActive);
     if(this.camActive)
     {
       this.uiMode = "camera";
@@ -144,7 +144,7 @@ Polymer('ulti-viewer', Polymer.mixin({
       this.uiMode = "default";
     }
     
-    console.log("this.uiMode",this.uiMode);
+    //console.log("this.uiMode",this.uiMode);
   },
   
   appInfos:{
@@ -201,29 +201,6 @@ Polymer('ulti-viewer', Polymer.mixin({
     this.assembly = {
       children: []
     }
-    
-    /*
-    var observer = new ObjectObserver(this.assembly);
-    observer.open(function(added, removed, changed, getOldValueFn) {
-      // respond to changes to the obj.
-      console.log("foo");
-      Object.keys(added).forEach(function(property) {
-        //property; // a property which has been been added to obj
-        //added[property]; // its value
-        console.log("added",property,added[property]);
-      });
-      Object.keys(removed).forEach(function(property) {
-        //property; // a property which has been been removed from obj
-        //getOldValueFn(property); // its old value
-      });
-      Object.keys(changed).forEach(function(property) {
-        //property; // a property on obj which has changed value.
-        //changed[property]; // its value
-        //getOldValueFn(property); // its old value
-        console.log("changed",property,changed[property]);
-      });
-    });*/
-    
     
     var Nested = window.Nested;
     var self = this;
@@ -356,14 +333,9 @@ Polymer('ulti-viewer', Polymer.mixin({
       /*var validOp = operationAccumulator( operation );
       if( validOp )
       {
-        
       }*/
-      
       //if(self.generateCodeOnTheFly) self.generateCodeFromHistory();
     });
-    
-    //this.$.dialogs.toggle();
-    
     
     //var label = new LabelHelperPlane({text:"255",fontSize:8,color:"#FF00FF"});
     //label.position.x += label.width/2;
@@ -490,9 +462,25 @@ Polymer('ulti-viewer', Polymer.mixin({
       shape.userData.part.id = hashCode(resource.uri)//FIXME this is wrong, that is based on mesh file, not for part
       shape.name = resource.name;
       
-      console.log("part stuff", shape.userData.part.id, resource);
       
       var partName = resource.name.substr(0, resource.name.lastIndexOf('.')); 
+      //check if the implementation (the stl, amf etc) file is already registered as an implementation of 
+      //some part
+      /*var callback = function( bla )
+      {
+      
+      }
+      self.$.dialogs.addEventListener("partInstanceDone", callback, false);*/
+      
+      if( !self._isPartImplementationInBom( resource.name ) ){
+        self.$.dialogs.resource = resource;
+        self.$.dialogs.partName = partName;
+        self.$.dialogs.partNames = self._getPartNamesFromBom();
+        self.$.dialogs.toggle();
+        
+        //self.$.dialogs.removeEventListener("partInstanceDone", callback);
+      }
+      
       shape.userData.part.bomId = self._registerImplementationInFakeBOM( resource.uri, partName );
       
       //FIXME ; should this be handled by the asset manager or the parsers ? 
@@ -500,8 +488,6 @@ Polymer('ulti-viewer', Polymer.mixin({
       var geometry = shape.geometry;
       if(geometry)
       {
-        //geometry.computeBoundingBox();
-        //geometry.computeBoundingSphere();
         geometry.computeVertexNormals();//needed at least for .ply files
         geometry.computeFaceNormals();
       }
@@ -678,8 +664,27 @@ Polymer('ulti-viewer', Polymer.mixin({
         THREE.SceneUtils.attach( this.threeJs.scenes["main"]
       }
     }*/
-  
     
+     /*if(oldSelections){
+        for(var i=0;i<oldSelections.length;i++)
+        {
+          var selection = oldSelections[i];
+          if(selection.material) selection.material.color.setHex( selection.material._oldColor );
+        }
+      }
+      
+     if(newSelections){
+        for(var i=0;i<newSelections.length;i++)
+        {
+          var selection = newSelections[i];
+          if(selection.material){
+            selection.material._oldColor = selection.material.color.getHex( );
+            selection.material.color.setHex( 0xFF0000 );
+          }
+        }
+      }*/
+    
+  
     //console.log("selectedObjectsChanged", this.selectedObjects);
     if(this.selectedObjects)
     {
@@ -698,24 +703,6 @@ Polymer('ulti-viewer', Polymer.mixin({
     }
     
     //console.log("selectedObjects", this.selectedObjects );
-    /*if(oldSelections){
-        for(var i=0;i<oldSelections.length;i++)
-        {
-          var selection = oldSelections[i];
-          if(selection.material) selection.material.color.setHex( selection.material._oldColor );
-        }
-      }
-      
-     if(newSelections){
-        for(var i=0;i<newSelections.length;i++)
-        {
-          var selection = newSelections[i];
-          if(selection.material){
-            selection.material._oldColor = selection.material.color.getHex( );
-            selection.material.color.setHex( 0xFF0000 );
-          }
-        }
-      }*/
     
     /*
      if(newSelections && newSelections.length > 0 )
@@ -1027,7 +1014,7 @@ Polymer('ulti-viewer', Polymer.mixin({
         name:partName,
         description:"",
         version:"0.0.1",
-        amount: 0,
+        qty: 0,
         unit:"EA",
         url:"",
         implementations:{"default":meshUri},
@@ -1040,16 +1027,72 @@ Polymer('ulti-viewer', Polymer.mixin({
     console.log("BOM",this.bom);
     return partIndex;
   },
+  
+  _isPartImplementationInBom:function( implementationName ){
+    for(var i=0;i<this.bom.length;i++)
+    {
+      var entry = this.bom[i];
+      //var implemNames = Object.keys(entry.implementations).map(key => entry.implementations[key]); 
+      var implemNames = Object.keys(entry.implementations).map(function (key) {
+          return entry.implementations[key];
+      });
+      
+      if(implemNames.indexOf( implementationName ) !== -1)
+      {
+        return true;
+      }
+    }
+    return false;
+  },
+  
+  _getPartNamesFromBom:function(){
+    
+    var partNames = this.bom.map(function (obj) {
+      return obj.name
+    });
+    
+    return partNames;
+  },
+  
+  _addEmtpyBomEntry:function( partName, description ){
+  
+      partIndex = this.bom.length-1;
+      
+      bomEntry = {
+      id:partIndex , 
+      name:partName,
+      description:"",
+      version:"0.0.1",
+      qty: 0,
+      unit:"EA",
+      url:"",
+      implementations:{"default":""},
+      parameters:"",
+      _instances2:{}
+     };
+     
+    this.bom.push( bomEntry );
+  },
+  
+  _assignInstanceToSpecificBomEntry:function( instance ){
+  
+    var partId = instance.userData.part.partId;
+    
+    this._unRegisterInstanceFromBom( partId, instance );
+    this._registerInstanceInBom( partId, instance );
+  },
+  
   _registerInstanceInBom:function( partId, instance )
   {
     var bomEntry = this.bom[ partId ];
     if(!bomEntry) throw new Error("bad partId specified");
     
-    console.log("registering", instance, "as instance of ", bomEntry.name ); 
+    //console.log("registering", instance, "as instance of ", bomEntry.name ); 
     bomEntry._instances.push( instance);
     //FIXME can't we use the length of instances ? or should we allow for human settable variation
-    bomEntry.amount += 1;
+    bomEntry.qty += 1;
   },
+  
   _unRegisterInstanceFromBom:function( partId, instance ){
     var bomEntry = this.bom[ partId ];
     if(!bomEntry) throw new Error("bad partId specified");
@@ -1059,7 +1102,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     
     bomEntry._instances.splice( index, 1 );
     //FIXME can't we use the length of instances ? or should we allow for human settable variation
-    bomEntry.amount -= 1;
+    bomEntry.qty -= 1;
   },
   
   //mesh insertion post process
@@ -1069,7 +1112,6 @@ Polymer('ulti-viewer', Polymer.mixin({
     //register new instance in the Bill of materials
     self._registerInstanceInBom( mesh.userData.part.bomId, mesh );
     self._registerPartMeshInstance( mesh );
-    
     
     //FIXME: not sure about these, they are used for selection levels
     mesh.selectable      = true;

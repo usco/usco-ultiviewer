@@ -141,12 +141,12 @@ on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}"
            
            <tr class="bomEntry">
             <template repeat="{{header in headers}}">
-              <template if="{{header !== '_instances' && header !== 'implementations' && bomEntry.amount>=minAmount}}">
+              <template if="{{header !== '_instances' && header !== 'implementations' && bomEntry.qty>=minAmount}}">
                 <td>
                   {{bomEntry[header]}}
                 </td>
               </template>
-              <template if="{{header === '_instances' && bomEntry.amount>=minAmount}}">
+              <template if="{{header === '_instances' && bomEntry.qty>=minAmount}}">
                 <td>
                    <ul>
                      <template repeat="{{instance, index in bomEntry._instances}}">
@@ -157,7 +157,7 @@ on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}"
                 </td>
               </template>
               
-              <template if="{{header === 'implementations' && bomEntry.amount>=minAmount}}">
+              <template if="{{header === 'implementations' && bomEntry.qty>=minAmount}}">
                 <td>
                    <ul>
                      <template repeat="{{source in keys(bomEntry.implementations) }}">
@@ -205,7 +205,14 @@ on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}"
      * @attribute headers
      * @type array
     */
-    headers:["id","name", "amount", "unit", "version", "implementations","_instances"],//"url","_instances"],
+    headers:["id","name", "qty", "unit", "version", "implementations","_instances"],//"url","_instances"],
+    
+    /**
+      *field names to use
+      *
+    */
+    fNames:["Item","name","description","version","qty","unit"],
+    
     
     /**
      * what type to display a given field as, default to text
@@ -213,7 +220,7 @@ on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}"
      * @attribute types
      * @type object
     */
-    types:{"amount":"number", "unit":"list"},
+    types:{"qty":"number", "unit":"list"},
     /**
      * hide any entry with count lower than this
      * 
@@ -265,7 +272,7 @@ on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}"
       }
     },
     selectedObjectsChanged:function(oldSelObjects, newSelObjects){
-      console.log("selectedObjects", this.selectedObjects );
+      //console.log("selectedObjects", this.selectedObjects );
       
       function lookUpBomEntries( selectedObjects, bomEntriesIdx, bom ){
         var selectionCandidates = [];
