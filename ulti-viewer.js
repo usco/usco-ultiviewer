@@ -341,6 +341,13 @@ Polymer('ulti-viewer', Polymer.mixin({
     //label.position.x += label.width/2;
     //label.position.y += label.height/2;
     //this.threeJs.scenes["main"].add( label );
+    
+    
+    //FIXME: multi selection
+    this._selectionGroup = new THREE.Object3D();
+    this._selectionGroup.name = "ghostGroup";
+    this._selectionGroup.transformable = true;
+    this.threeJs.scenes["main"].add( this._selectionGroup );
   },
   detached:function()
   {
@@ -570,7 +577,6 @@ Polymer('ulti-viewer', Polymer.mixin({
     this.dismissResource( resource );
   },
   objectPicked:function(e){
-    console.log("picking");
     /*TODO: externalize all of this into custom elements for
       how to handle event binding ?
       perhaps better to use pub/sub ?
@@ -580,7 +586,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     var pickingDatas = e.detail.pickingInfos;
     if(!pickingDatas) return;
     if(pickingDatas.length == 0) return;
-    console.log("object picked", e);
+    //console.log("object picked", e);
     
     var object = pickingDatas[0].object; 
     
@@ -647,43 +653,44 @@ Polymer('ulti-viewer', Polymer.mixin({
   },
   selectedObjectsChanged:function(oldSelections, newSelections)
   {
-    //for group move, rotate etc
-    /*
-    if(this.selectedObjects)
-    {
-      if(this.selectedObjects.length>1)
+   //for group move, rotate etc
+   var selectionGroup = this._selectionGroup;
+  
+   if(oldSelections){
+      
+      for(var i=0;i<oldSelections.length;i++)
       {
-        this._selectionGroup = new THREE.Object3D();
-        this.threeJs.scenes["main"].add( this._selectionGroup );
-        this.selectedObject = this._selectionGroup;
+        var selection = oldSelections[i];
+        if(selection.material) selection.material.color.setHex( selection.material._oldColor );
         
-        for( var i=0;i<newSelections.length;i++)
-        {
-        
-        }
-        THREE.SceneUtils.attach( this.threeJs.scenes["main"]
+        //for group move, rotate etc
+        THREE.SceneUtils.detach( selection,  selectionGroup, this.threeJs.scenes["main"]);
       }
-    }*/
+      selectionGroup.position.set( 0, 0, 0);
+      selectionGroup.rotation.set( 0, 0, 0);
+      selectionGroup.scale.set( 1, 1, 1);
+    }
     
-     /*if(oldSelections){
-        for(var i=0;i<oldSelections.length;i++)
-        {
-          var selection = oldSelections[i];
-          if(selection.material) selection.material.color.setHex( selection.material._oldColor );
+   if(newSelections){
+      for(var i=0;i<newSelections.length;i++)
+      {
+        var selection = newSelections[i];
+        if(selection.material){
+          selection.material._oldColor = selection.material.color.getHex( );
+          selection.material.color.setHex( 0xFF0000 );
         }
+        
+        THREE.SceneUtils.attach( selection, this.threeJs.scenes["main"], selectionGroup);
       }
       
-     if(newSelections){
-        for(var i=0;i<newSelections.length;i++)
-        {
-          var selection = newSelections[i];
-          if(selection.material){
-            selection.material._oldColor = selection.material.color.getHex( );
-            selection.material.color.setHex( 0xFF0000 );
-          }
-        }
-      }*/
-    
+      if(newSelections.length >1 ){
+        this.selectedObject = selectionGroup;
+      }
+      else{
+        this.selectedObject = newSelections[0];
+      }
+    }
+    return;
   
     //console.log("selectedObjectsChanged", this.selectedObjects);
     if(this.selectedObjects)
@@ -721,7 +728,7 @@ Polymer('ulti-viewer', Polymer.mixin({
   },
   selectedObjectChanged:function(oldSelection, newSelection)
   {
-    //console.log("selectedObjectChanged", this.selectedObject, oldSelection, newSelection);
+    console.log("selectedObjectChanged", this.selectedObject, oldSelection, newSelection);
     var newSelection = this.selectedObject;
     
     if( oldSelection ){
@@ -732,7 +739,7 @@ Polymer('ulti-viewer', Polymer.mixin({
        //this.clearVisualFocusOnSelection();
       if( oldSelection.helpers && ! (oldSelection instanceof AnnotationHelper) )
       {
-        this.objDimensionsHelper.detach( oldSelection );
+        //this.objDimensionsHelper.detach( oldSelection );
       }
     }
     
@@ -752,7 +759,7 @@ Polymer('ulti-viewer', Polymer.mixin({
       {
         if(! (newSelection instanceof AnnotationHelper) )
         {
-          this.objDimensionsHelper.attach( newSelection );
+          //this.objDimensionsHelper.attach( newSelection );
           if(!(newSelection.helpers)) newSelection.helpers = {}
         }
       }
