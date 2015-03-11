@@ -6,7 +6,7 @@ Polymer('ulti-viewer', Polymer.mixin({
    * @attribute showGrid
    * @type boolean
   */
-  showGrid: false,
+  showGrid: true,
   /**
    * toggle to show axes or not
    * 
@@ -121,11 +121,6 @@ Polymer('ulti-viewer', Polymer.mixin({
   //entities can be: Parts (or should that be part instances?) , annotations
   
   selectedEntity: null,
-  
-  /*
-    This is used when more than one mesh/object is selected 
-  */
-  _selectionGroup: null,
   
   
   /*
@@ -536,9 +531,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     var object = pickingInfos[0].object; 
     //console.log("object double tapped", object);
      
-    if(this.selectedObject){
-      this._zoomInOnObject.execute( object, {position:pickingInfos[0].point} );
-    }
+    this._zoomInOnObject.execute( object, {position:pickingInfos[0].point} );
   },
   urlParamsFoundHandler:function( event ){
     var urlParams = event.detail.params;
@@ -669,9 +662,18 @@ Polymer('ulti-viewer', Polymer.mixin({
       selectionGroup.position.set( 0, 0, 0);
       selectionGroup.rotation.set( 0, 0, 0);
       selectionGroup.scale.set( 1, 1, 1);
+      
+      //
+      /*selectionGroup = this._selectionGroup = new THREE.Object3D();
+      this._selectionGroup.transformable = true;
+      this.threeJs.scenes["main"].add( this._selectionGroup );*/
+      
+      
     }
     
    if(newSelections){
+      var _fakeAvgPos = new THREE.Vector3();//for multi selection only;
+      
       for(var i=0;i<newSelections.length;i++)
       {
         var selection = newSelections[i];
@@ -679,12 +681,26 @@ Polymer('ulti-viewer', Polymer.mixin({
           selection.material._oldColor = selection.material.color.getHex( );
           selection.material.color.setHex( 0xFF0000 );
         }
-        
-        THREE.SceneUtils.attach( selection, this.threeJs.scenes["main"], selectionGroup);
+        if(newSelections.length >1 ){
+          _fakeAvgPos.add( selection.position.clone() );
+          THREE.SceneUtils.attach( selection, this.threeJs.scenes["main"], selectionGroup);
+        }
       }
       
       if(newSelections.length >1 ){
         this.selectedObject = selectionGroup;
+        //if we use the shadow group, its position, rotation need to be the average of all
+        //the sub parts?
+        /*_fakeAvgPos.divideScalar( newSelections.length )
+        selectionGroup.position.copy(  _fakeAvgPos ); 
+        
+        //trick so the inital , avg position of the group does not matter
+        for(var i=0;i<newSelections.length;i++){
+          var matrixWorldInverse = new THREE.Matrix4();
+		      matrixWorldInverse.getInverse( selectionGroup.matrixWorld );
+		      newSelections[i].applyMatrix( matrixWorldInverse );
+		      
+        }*/
       }
       else{
         this.selectedObject = newSelections[0];
@@ -990,97 +1006,6 @@ Polymer('ulti-viewer', Polymer.mixin({
     this.activeTool = this.activeTool === "scale" ? null: "scale";
   }, 
   //helpers
-  //FIXME: obviously, replace this with something real
-  /*
-    Register an IMPLEMENTATIOn in the bom: an implementation is for example a mesh/ mesh file
-    (stl , amf) etc: why an implementation ? because an entity/part can be created in different
-    software, different formats etc, it still remains the same entity*/
-  _registerImplementationInFakeBOM:function( meshUri, partName ){
-    console.log("registering", meshUri, "as implementation of ", partName); 
-    if(!partName) throw new Error("no part name specified");
-    
-    var partIndex = -1;
-    var bomEntry = null;
-    
-    for(var i=0;i<this.bom.length;i++)
-    {
-      var entry = this.bom[i];
-      partIndex = i;
-      if(entry.name === partName)
-      {
-        bomEntry = entry;
-        break;
-      }
-    }
-    
-    
-    if(!bomEntry){
-      partIndex += 1; 
-      bomEntry = {
-        id:partIndex , 
-        name:partName,
-        description:"",
-        version:"0.0.1",
-        qty: 0,
-        unit:"EA",
-        url:"",
-        implementations:{"default":meshUri},
-        parameters:"",
-        _instances:[],
-        _instances2:{}
-       };
-      this.bom.push( bomEntry );
-    }
-    console.log("BOM",this.bom);
-    return partIndex;
-  },
-  
-  _isPartImplementationInBom:function( implementationName ){
-    for(var i=0;i<this.bom.length;i++)
-    {
-      var entry = this.bom[i];
-      //var implemNames = Object.keys(entry.implementations).map(key => entry.implementations[key]); 
-      var implemNames = Object.keys(entry.implementations).map(function (key) {
-          return entry.implementations[key];
-      });
-      
-      if(implemNames.indexOf( implementationName ) !== -1)
-      {
-        return true;
-      }
-    }
-    return false;
-  },
-  
-  _getPartNamesFromBom:function(){
-    
-    var partNames = this.bom.map(function (obj) {
-      return obj.name
-    });
-    
-    return partNames;
-  },
-  
-  _addEmtpyBomEntry:function( partName, description ){
-  
-      partIndex = this.bom.length-1;
-      
-      bomEntry = {
-      id:partIndex , 
-      name:partName,
-      description:"",
-      version:"0.0.1",
-      qty: 0,
-      unit:"EA",
-      url:"",
-      implementations:{"default":""},
-      parameters:"",
-      _instances2:{}
-     };
-     
-    this.bom.push( bomEntry );
-  },
-  
   _assignInstanceToSpecificBomEntry:function( instance ){
   
     var partId = instance.userData.part.partId;

@@ -33,6 +33,7 @@ the only difference to the standard demo is the path/name of the files
 
 - a pre-built version (following the steps above) is already present by default in the embed folder
 
+- do not forget to copy/symlink embed.css into the embed folder (it is used both for the basic demo & the embed version)
 
 This will be AUTOMATED soon
 

@@ -9,7 +9,6 @@
 <link rel="import" href="components/three-js-helpers/shadow-plane.html">
 <link rel="import" href="components/three-js-helpers/mirror-plane.html">
 <link rel="import" href="components/three-js-helpers/image-plane.html">
-<link rel="import" href="components/three-js-helpers/annotations/dimension-helpers.html">
 <link rel="import" href="components/three-js-helpers/camview-helper.html">
 
 
@@ -42,6 +41,7 @@
 <link rel="import" href="transforms/usco-transforms-ui.html">
 
 <!--annotations-->
+
 <link rel="import" href="components/three-js-helpers/annotations/usco-annotations.html">
 <link rel="import" href="annotations/usco-annotations-ui.html">
 <link rel="import" href="overlay-note.html">
@@ -121,7 +121,7 @@
       <properties-ui id="objProps" selectedObject="{{selectedObject}}" selectedEntity="{{selectedEntity}}"> </properties-ui>
       <grid-ui id="gridProps" grid="{{$.grid}}"> </grid-ui>
       
-      <settings-ui id="options" autoRotate="{{autoRotate}}" showGrid="{{appSettings.grid.show}}" showAxes="{{showAxes}}"
+      <settings-ui id="options" autoRotate="{{autoRotate}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}"
       showControls="{{showControls}}" showAnnotations="{{showAnnotations}}" selectionZoom="{{selectionZoom}}"> </settings-ui>      
       <infos-ui    id="infos" > </infos-ui>
       <fullscreen-toggler fullScreen="{{fullScreen}}"> </fullscreen-toggler>
@@ -199,7 +199,7 @@ font-size: 0.8em; ">
             <!--<template if="{{showAxes}}">
               <axis-helper up=[0,0,1]> </axis-helper>
             </template>-->
-            <grid-helper id="grid" up=[0,0,1] show="{{appSettings.grid.show}}"> </grid-helper>
+            <grid-helper id="grid" up=[0,0,1] show="{{showGrid}}"> </grid-helper>
               <!--<template repeat="{{resource in resources}}">
                 <template if="{{!resource.loaded}}">
                   <progress-cubic resource="{{resource}}"> </progress-cubic>

@@ -82,6 +82,14 @@ hold off doing actions until the meshes are actually loaded
 
 - note: they should be called instanceMesh waiters
 
+Possible user interaction scenario (user story):
+- drag & drop an stl onto the viewer:
+  * is it already registered ?
+    -> yes : just add the instance to the instance of that part('s implementation)
+    -> no  : ask the user
+
+
+
 ANNOTATIONS
 ===========
 
@@ -241,11 +249,11 @@ problematic user interaction scenarios (current implementation):
   
 
  Annotations upgrade:
- - remove "see-through" or at least make them more transparent in the background
- - remove color background (annoying)
- - go back to "flat" view of numbers : less annoying, less disturbing visually
+ - remove "see-through" or at least make them more transparent in the background -> DONE
+ - remove color background (annoying) -> DONE
+ - go back to "flat" view of numbers : less annoying, less disturbing visually -> DONE
  - detect what "side" of an object(or bounding box) you are on when adding things, to determine
- placement
+ placement -> DONE
 
 
  
