@@ -121,8 +121,6 @@ Polymer('ulti-viewer', Polymer.mixin({
   //entities can be: Parts (or should that be part instances?) , annotations
   
   selectedEntity: null,
-  
-  
   /*
     global flag for interaction modes
   */
@@ -189,6 +187,8 @@ Polymer('ulti-viewer', Polymer.mixin({
     this.design = {
       //_editable:true //extra settable flags, runtime
     };
+    
+    this.bomWrapper = new Bom();
     
     //bom, assemblies etc, are all files in the root path of design's url
     
@@ -299,28 +299,6 @@ Polymer('ulti-viewer', Polymer.mixin({
     //if we recieve a "newOperation" event, add it to history  
     var self = this;
     
-    /*
-    var lastOp = null;
-    //time based accumulator, to remove extra operations
-    function operationAccumulator( op ){
-      if(!lastOp){
-        lastOp = op; 
-        lastOp._timeStamp = new Date().getTime();
-        return op;
-        }
-        
-      var newTime = new Date().getTime();
-      var difference = newTime - lastOp._timeStamp;
-      lastOp = op; 
-      lastOp._timeStamp = newTime;
-      console.log( "timeStamp",difference );
-      if(lastOp.type === op.type && difference < 30000)
-      {
-        return op;
-      }
-      return lastOp;
-    }*/
-    
     this.addEventListener('newOperation', function(e) {
       var operation = e.detail.msg;
       console.log("newOperation",operation.type, operation);
@@ -336,7 +314,6 @@ Polymer('ulti-viewer', Polymer.mixin({
     //label.position.x += label.width/2;
     //label.position.y += label.height/2;
     //this.threeJs.scenes["main"].add( label );
-    
     
     //FIXME: multi selection
     this._selectionGroup = new THREE.Object3D();
@@ -464,13 +441,11 @@ Polymer('ulti-viewer', Polymer.mixin({
       shape.userData.part.id = hashCode(resource.uri)//FIXME this is wrong, that is based on mesh file, not for part
       shape.name = resource.name;
       
-      
       var partName = resource.name.substr(0, resource.name.lastIndexOf('.')); 
       //check if the implementation (the stl, amf etc) file is already registered as an implementation of 
       //some part
       /*var callback = function( bla )
       {
-      
       }
       self.$.dialogs.addEventListener("partInstanceDone", callback, false);*/
       
@@ -479,7 +454,6 @@ Polymer('ulti-viewer', Polymer.mixin({
         self.$.dialogs.partName = partName;
         self.$.dialogs.partNames = self._getPartNamesFromBom();
         self.$.dialogs.toggle();
-        
         //self.$.dialogs.removeEventListener("partInstanceDone", callback);
       }
       
@@ -535,7 +509,6 @@ Polymer('ulti-viewer', Polymer.mixin({
   },
   urlParamsFoundHandler:function( event ){
     var urlParams = event.detail.params;
-    //console.log("URLparams", urlParams);
     if("modelUrl" in urlParams)
     {
       for( var i=0;i<urlParams["modelUrl"].length;i++)
@@ -667,8 +640,6 @@ Polymer('ulti-viewer', Polymer.mixin({
       /*selectionGroup = this._selectionGroup = new THREE.Object3D();
       this._selectionGroup.transformable = true;
       this.threeJs.scenes["main"].add( this._selectionGroup );*/
-      
-      
     }
     
    if(newSelections){
@@ -724,23 +695,6 @@ Polymer('ulti-viewer', Polymer.mixin({
         this.selectedEntity = null;
       }
     }
-    
-    //console.log("selectedObjects", this.selectedObjects );
-    
-    /*
-     if(newSelections && newSelections.length > 0 )
-    {
-      this.selectedObject = this.selectedObjects[0];
-      //FIXME: unify data structures between parts & annotations
-      if(this.selectedObject.userData.data) this.selectedEntity = this.selectedObject.userData.data;
-      if(this.selectedObject.userData.part) this.selectedEntity = this.selectedObject.userData.part;
-    }    
-    if(oldSelections && oldSelections.length == 0)
-    {
-       this.selectedObject = null;
-       this.selectedEntity = null;
-    }*/
-    
   },
   selectedObjectChanged:function(oldSelection, newSelection)
   {
@@ -758,13 +712,11 @@ Polymer('ulti-viewer', Polymer.mixin({
         //this.objDimensionsHelper.detach( oldSelection );
       }
     }
-    
     if( newSelection ){
       //FIXME: hack
       if( newSelection.highlight ){
         newSelection.highlight( true );
       }
-      
       //FIXME: do this differently ?
       if(this.toolCategory === "annotations" &&  this.activeTool) return;
       //this.outlineObject( newSelection, oldSelection );
@@ -808,27 +760,8 @@ Polymer('ulti-viewer', Polymer.mixin({
   toolCategoryChanged:function(oldCateg,newCateg){
     //console.log("toolCategoryChanged",oldCateg,newCateg, this.toolCategory);
   },
-  /*
-  assemblyChanged:function(oldAssembly, newAssembly){
-    console.log("assembly changed", newAssembly);
-  },*/
-  
-  /*
-  xRayTest:function(){
-    var scene = this.threeJs.getScene("main");
-    scene = this.selectedObject;
-    scene.traverse(function( child ) {
-		  if ( child.material && child instanceof THREE.Mesh ){
-		    //child.material.highlight( flag );
-		    child.material.blending = THREE.AdditiveBlending;//AdditiveAlphaBlending;//AdditiveBlending;
-        child.material.transparent=true;
-        child.material.opacity = 0.99;
-        child.material.side = THREE.BackSide;
-		  }
-    });
-    
-  },*/
   //various
+  //FIXME: this is purely visual related, so nothing to do here
   updateOverlays: function(){
     var p, v, percX, percY, left, top;
     var camera = this.$.cam.object;
@@ -857,28 +790,10 @@ Polymer('ulti-viewer', Polymer.mixin({
       overlay.style.visibility = "visible";
       var overlayEl = overlay;
       var position = new THREE.Vector3().fromArray( annotation.position );
-      /*if(!annotation.poi){
-
-        var poi = new THREE.Object3D();
-        poi.boundingSphere = new THREE.Sphere(offset.clone(), 15);
-        
-        //for debugging only
-        var foo = new THREE.Mesh( new THREE.BoxGeometry(10,10,10), new THREE.MeshBasicMaterial({color:0xFF0000,wireframe:true}) );
-        var foo = new THREE.Mesh( new THREE.SphereGeometry(10,32,32), new THREE.MeshBasicMaterial({color:0xFF0000,wireframe:true}) );
-        var bla = offset.clone();
-        bla = target.localToWorld( bla );
-        foo.position.copy( bla );
-        //this.addToScene(foo, "main", {autoCenter:false,autoResize:false,select:false} );
-        
-        target.add(poi);
-        poi.position.copy( bla );
-        annotation.poi = poi;
-      }*/
       
       var self = this;
       drawOverlay( overlayEl, position);
     }
-    
     
     function drawOverlay( overlay , offset)
     {
@@ -955,12 +870,9 @@ Polymer('ulti-viewer', Polymer.mixin({
     //this.assembly.children.push( assemblyEntry );
     //console.log("assembly", this.assembly);
     
-    
     this.fire( "delete-entity", {entity:selectedEntity} );
     //FIXME: temporary workaround/hack as you cannot dispatch events to children    
     this.$.annotations.deleteEntityHandler(null, {entity:selectedEntity},null );
-    
-    
         //FIXME: hack
     if( selectedObject && selectedObject.userData ){
       var assembly = this.assembly;
@@ -1006,37 +918,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     this.activeTool = this.activeTool === "scale" ? null: "scale";
   }, 
   //helpers
-  _assignInstanceToSpecificBomEntry:function( instance ){
-  
-    var partId = instance.userData.part.partId;
-    
-    this._unRegisterInstanceFromBom( partId, instance );
-    this._registerInstanceInBom( partId, instance );
-  },
-  
-  _registerInstanceInBom:function( partId, instance )
-  {
-    var bomEntry = this.bom[ partId ];
-    if(!bomEntry) throw new Error("bad partId specified");
-    
-    //console.log("registering", instance, "as instance of ", bomEntry.name ); 
-    bomEntry._instances.push( instance);
-    //FIXME can't we use the length of instances ? or should we allow for human settable variation
-    bomEntry.qty += 1;
-  },
-  
-  _unRegisterInstanceFromBom:function( partId, instance ){
-    var bomEntry = this.bom[ partId ];
-    if(!bomEntry) throw new Error("bad partId specified");
-    
-    var index = bomEntry._instances.indexOf( instance );
-    if( index == -1 ) return;
-    
-    bomEntry._instances.splice( index, 1 );
-    //FIXME can't we use the length of instances ? or should we allow for human settable variation
-    bomEntry.qty -= 1;
-  },
-  
+ 
   //mesh insertion post process
   //FIXME: do this better , but where ?
   _meshInjectPostProcess:function( mesh ){
@@ -1081,8 +963,8 @@ Polymer('ulti-viewer', Polymer.mixin({
     //FIXME: this should not be at the MESH level, so this is the wrong place for that    
     mesh.userData.part.instId = this.generateUUID();
     
-    //FIXME: experimental hack , for a more data driven based approach
     
+    //FIXME: experimental hack , for a more data driven based approach
     var assemblyEntry = {
       partId:partId,
       instId:mesh.userData.part.instId, 
@@ -1106,44 +988,6 @@ Polymer('ulti-viewer', Polymer.mixin({
   shiftPressed:function(){
     //console.log("shift pressed")
   },
- 
- //FIXME: taken from three.js , this should be a utility somewhere
- generateUUID: function () {
-
-		// http://www.broofa.com/Tools/Math.uuid.htm
-
-		var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split( '' );
-		var uuid = new Array( 36 );
-		var rnd = 0, r;
-
-		return function () {
-
-			for ( var i = 0; i < 36; i ++ ) {
-
-				if ( i == 8 || i == 13 || i == 18 || i == 23 ) {
-
-					uuid[ i ] = '-';
-
-				} else if ( i == 14 ) {
-
-					uuid[ i ] = '4';
-
-				} else {
-
-					if ( rnd <= 0x02 ) rnd = 0x2000000 + ( Math.random() * 0x1000000 ) | 0;
-					r = rnd & 0xf;
-					rnd = rnd >> 4;
-					uuid[ i ] = chars[ ( i == 19 ) ? ( r & 0x3 ) | 0x8 : r ];
-
-				}
-			}
-
-			return uuid.join( '' );
-
-		};
-
-	}(),
- 
  
   //filters
   toFixed:function(o, precision){
