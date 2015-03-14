@@ -181,6 +181,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     
     //helpers
     this._zoomInOnObject = new ZoomInOnObject();
+    this._outlineObject  = new OutlineObject();
     
     //TODO: remove this, just temporary
     this.bom = [];
@@ -188,7 +189,7 @@ Polymer('ulti-viewer', Polymer.mixin({
       //_editable:true //extra settable flags, runtime
     };
     
-    this.bomWrapper = new Bom();
+    //this.bomWrapper = new Bom();
     
     //bom, assemblies etc, are all files in the root path of design's url
     
@@ -214,6 +215,11 @@ Polymer('ulti-viewer', Polymer.mixin({
     
     //alternative key binding
     var self = this;
+    
+    key('backspace', function(){ 
+      return false
+    });
+    
     key('delete', function(){ 
       self.deleteObject();
     });
@@ -271,7 +277,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     
     this.threeJs.updatables.push( this.updateOverlays.bind(this) ); 
     
-    //FIXME: does this work at all ???
+    //FIXME: does this work at all focusing rules are unclear
     this.async(function(){
       this.$.perspectiveView.focus();
     },null,10);
@@ -339,6 +345,18 @@ Polymer('ulti-viewer', Polymer.mixin({
     }
   },
   //public api
+  
+  //FIXME: this should be elsewhere, in a design specific 
+  loadDesign:function( uriOrData, options ){
+    console.log("this would load a design at "+ uriOrData +" , but this feature is not done yet!,sorry");
+    //FIXME ; just for testing, disregard
+    this.design = {
+      //_editable:true //extra settable flags, runtime
+      name:"Test design ",
+      title:"cool design",
+    };
+  },
+  
   loadMesh:function( uriOrData, options )
   {
     var options     = options || {};
@@ -449,15 +467,16 @@ Polymer('ulti-viewer', Polymer.mixin({
       }
       self.$.dialogs.addEventListener("partInstanceDone", callback, false);*/
       
+      /*
       if( !self._isPartImplementationInBom( resource.name ) ){
         self.$.dialogs.resource = resource;
         self.$.dialogs.partName = partName;
-        self.$.dialogs.partNames = self._getPartNamesFromBom();
+        //self.$.dialogs.partNames = self._getPartNamesFromBom();
         self.$.dialogs.toggle();
         //self.$.dialogs.removeEventListener("partInstanceDone", callback);
-      }
+      }*/
       
-      shape.userData.part.bomId = self._registerImplementationInFakeBOM( resource.uri, partName );
+      //shape.userData.part.bomId = self._registerImplementationInFakeBOM( resource.uri, partName );
       
       //FIXME ; should this be handled by the asset manager or the parsers ? 
       //ie , this won't work for loaded hierarchies etc
@@ -509,12 +528,17 @@ Polymer('ulti-viewer', Polymer.mixin({
   },
   urlParamsFoundHandler:function( event ){
     var urlParams = event.detail.params;
-    if("modelUrl" in urlParams)
+    if("meshUri" in urlParams)
     {
-      for( var i=0;i<urlParams["modelUrl"].length;i++)
+      for( var i=0;i<urlParams["meshUri"].length;i++)
       {
-        this.loadMesh(urlParams["modelUrl"][i],{display:true});
+        this.loadMesh(urlParams["meshUri"][i],{display:true});
       }
+    }
+    //FIXME:should be either or
+    if("designUri" in urlParams){
+      //TODO: split it out
+      this.loadDesign( urlParams[ "designUri" ][0] );
     }
   },
   urlDroppedHandler:function( event ){
@@ -627,7 +651,10 @@ Polymer('ulti-viewer', Polymer.mixin({
       for(var i=0;i<oldSelections.length;i++)
       {
         var selection = oldSelections[i];
-        if(selection.material) selection.material.color.setHex( selection.material._oldColor );
+        
+        //un-applying outline effect : TODO: not sure about implementation
+        this._outlineObject.removeFrom( selection );
+        //if(selection.material) selection.material.color.setHex( selection.material._oldColor );
         
         //for group move, rotate etc
         THREE.SceneUtils.detach( selection,  selectionGroup, this.threeJs.scenes["main"]);
@@ -648,10 +675,12 @@ Polymer('ulti-viewer', Polymer.mixin({
       for(var i=0;i<newSelections.length;i++)
       {
         var selection = newSelections[i];
-        if(selection.material){
+        //applying outline effect : TODO: not sure about implementation
+        this._outlineObject.addTo( selection );
+        /*if(selection.material){
           selection.material._oldColor = selection.material.color.getHex( );
           selection.material.color.setHex( 0xFF0000 );
-        }
+        }*/
         if(newSelections.length >1 ){
           _fakeAvgPos.add( selection.position.clone() );
           THREE.SceneUtils.attach( selection, this.threeJs.scenes["main"], selectionGroup);
@@ -924,7 +953,7 @@ Polymer('ulti-viewer', Polymer.mixin({
   _meshInjectPostProcess:function( mesh ){
     var self = this;
     //register new instance in the Bill of materials
-    self._registerInstanceInBom( mesh.userData.part.bomId, mesh );
+    //self._registerInstanceInBom( mesh.userData.part.bomId, mesh );
     self._registerPartMeshInstance( mesh );
     
     //FIXME: not sure about these, they are used for selection levels
@@ -944,8 +973,7 @@ Polymer('ulti-viewer', Polymer.mixin({
   
   _registerPartMeshInstance: function( mesh ){
     var userData = mesh.userData;
-    var partId   = mesh.userData.part.id;//FIXME : partID VS partInstanceID
-    var instId   = "";
+    var partId   = 0;//mesh.userData.part.id;//FIXME : partID VS partInstanceID
     
     if( !this.partMeshInstances[partId] )
     {
@@ -961,7 +989,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     
     //each instance needs a unique uid
     //FIXME: this should not be at the MESH level, so this is the wrong place for that    
-    mesh.userData.part.instId = this.generateUUID();
+    mesh.userData.part.instId = 898;//this.generateUUID();
     
     
     //FIXME: experimental hack , for a more data driven based approach

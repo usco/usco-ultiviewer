@@ -190,6 +190,17 @@ ulti-viewer::shadow #transforms{
   position:absolute;top:5px;left:300px;z-index:15;
 }
 
+ulti-viewer::shadow #designTitle{
+  
+position: absolute;
+top: 15px;
+left: 100px;
+z-index: 15;
+font-weight: bold;
+/* height: 40px; */
+vertical-align: bottom;
+}
+
 ulti-viewer::shadow #bomUI{
   position:absolute;top:5px;right:100px;z-index:15;
 }

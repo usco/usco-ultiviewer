@@ -1,0 +1,29 @@
+{
+  "name":"RobotoMaging",
+  "description":"such a great design",
+  "version": "0.0.2",
+  "url":"youmagine.com/designs/authorName/RobotoMaging",
+  "private": true,
+  "authors":[
+    {
+      "name":"otherGirl",
+    "url": "www.mysite.com",
+    "email":"gg@bar.baz"
+    },
+    {
+    "name":"otherGuy",
+    "url": "???",
+    "email":"aGuy@bar.baz"
+   }
+  ],
+  "tags": ["youmagine", "superduperdesign"],
+  "licenses":[
+    "GPLV3",
+    "MIT",
+    "CC-BY"
+  ],
+  "meta":{
+    "state":"design",
+    "color": "#0ca9e3"
+  },
+}

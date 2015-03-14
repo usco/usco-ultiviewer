@@ -39,6 +39,7 @@ This will be AUTOMATED soon
 
 
 
+
 building a release: DEPRECATED
 ------------------
 Various builds targets (browser, desktop, standalone or integration) are available ,
@@ -90,6 +91,18 @@ removing all resouces, and flush cache
     
     ultiViewer.clearResources({clearCache:true});
 
+
+url parameters:
+---------------
+
+- *mesh* via url for example demo.html?meshUri=jam.youmagine.com/designs/testDesign/gear.stl
+- *design* via url for example demo.html?designUri=jam.youmagine.com/designs/testDesign
+
+
+demo design:
+-----------
+
+a demo design is available at http://localhost:8080/demo-data/demo-design
 
 Licence
 =======
