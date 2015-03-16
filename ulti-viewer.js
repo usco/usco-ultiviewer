@@ -121,6 +121,7 @@ Polymer('ulti-viewer', Polymer.mixin({
   //entities can be: Parts (or should that be part instances?) , annotations
   
   selectedEntity: null,
+  
   /*
     global flag for interaction modes
   */
@@ -171,6 +172,13 @@ Polymer('ulti-viewer', Polymer.mixin({
   
   created: function()
   {
+    this._kernel = new window.UscoKernel();
+    
+    //no need to put this in kernel, this is ui level...or is it ?
+    this.selectedEntities = [];
+    
+    
+  
     this.resources = [];
     this.meshes    = [];
     
@@ -200,9 +208,8 @@ Polymer('ulti-viewer', Polymer.mixin({
     
     var Nested = window.Nested;
     var self = this;
-    Nested.observe(this.assembly, function( bla ){
-      console.log("change in assembly", bla);
-      localStorage.setItem("ultiviewer-data-assembly", JSON.stringify( self.assembly ) );
+    Nested.observe(this._kernel.activeAssembly, function( change ){
+      self.activeHierarchyStructureChanged( change, self );
     })
     /*Nested.unobserve(this.assembly, function( bla ){
       console.log("change in assembly(unobserve)", bla);
@@ -282,7 +289,6 @@ Polymer('ulti-viewer', Polymer.mixin({
       this.$.perspectiveView.focus();
     },null,10);
     
-    
     //initialise stuff 
     this.$.transforms.init( this.$.cam.object, this.$.perspectiveView );
     var controls = this.$.transforms.controls;
@@ -300,7 +306,6 @@ Polymer('ulti-viewer', Polymer.mixin({
     this.initFullScreen();
     this.attachNoScroll();
     
-    
     this.historyManager = this.$.history;
     //if we recieve a "newOperation" event, add it to history  
     var self = this;
@@ -309,6 +314,20 @@ Polymer('ulti-viewer', Polymer.mixin({
       var operation = e.detail.msg;
       console.log("newOperation",operation.type, operation);
       self.historyManager.addCommand( operation );
+      
+      //FIXME : experimental hack/exp
+      if(operation.type === "translation"){
+        operation.target.userData.part.pos = operation.target.position.toArray();
+      }
+      
+      if(operation.type === "rotation"){
+        operation.target.userData.part.rot = operation.target.rotation.toArray().slice( [0,3] );
+      }
+      
+      if(operation.type === "scale"){
+        operation.target.userData.part.sca = operation.target.scale.toArray();
+      }
+      
       /*var validOp = operationAccumulator( operation );
       if( validOp )
       {
@@ -326,6 +345,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     this._selectionGroup.name = "ghostGroup";
     this._selectionGroup.transformable = true;
     this.threeJs.scenes["main"].add( this._selectionGroup );
+    this._multiSelection = false;
   },
   detached:function()
   {
@@ -361,6 +381,7 @@ Polymer('ulti-viewer', Polymer.mixin({
   {
     var options     = options || {};
     var display     = options.display === undefined ? true: options.display;
+    var addToAssembly= options.addToAssembly === undefined ? true: options.addToAssembly;
     var keepRawData = options.keepRawData === undefined ? true: options.keepRawData;
     
     if(!uriOrData){ console.warn("no uri or data to load"); return};
@@ -384,18 +405,21 @@ Polymer('ulti-viewer', Polymer.mixin({
       //FIXME: this is wrong, we are not waiting for a part, but for a mesh (implementation)
       //we notify any and all 'waiters' that the part is ready
       //Q deferreds 
-      var partId = mesh.userData.part.id;
-      self.parts[ partId ] = mesh ;
       self._meshInjectPostProcess( mesh );
+      self.selectedEntities = [ mesh.userData.part ];
+      
     }
     if( display ){
-      
       //fire import event ??
       /*resourcePromise.then( function(){
         var operation = new Import(importedPart, resource);
         self.fire('newOperation', {msg: operation});
       });*/
-      return resourcePromise.then( this.addToScene.bind(this), onDisplayError ).then(afterAdded);
+      //return resourcePromise.then( this.addToScene.bind(this), onDisplayError ).then(afterAdded);
+      return resourcePromise.then(afterAdded);
+    }
+    if( addToAssembly ){
+    
     }
     return resourcePromise;
     //resourcePromise.then(resource.onLoaded.bind(resource), loadFailed, resource.onDownloadProgress.bind(resource) );
@@ -406,6 +430,8 @@ Polymer('ulti-viewer', Polymer.mixin({
     
     this.selectedObjects = [];//TODO: move this to three-js element ?
     this.$.cam.resetView();
+    
+    this.selectedEntities = [];
   },
   addToScene:function( object, sceneName, options )
   {
@@ -449,17 +475,18 @@ Polymer('ulti-viewer', Polymer.mixin({
         //new THREE.MeshLambertMaterial( {opacity:1,transparent:false,color: 0x0088ff} );
         shape = new THREE.Mesh(shape, material);
       }
-      
-      hashCode = function(s){
-        return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);              
-      }
 
-      shape.userData.part = {};
+      //we are registering a yet-uknown Part's instance
+      self._kernel.registerPart( null, null, shape, {name:resource.name} );
+      
+      /*
       shape.userData.part.name = resource.name;//"Part"+self.partId;
       shape.userData.part.id = hashCode(resource.uri)//FIXME this is wrong, that is based on mesh file, not for part
       shape.name = resource.name;
       
       var partName = resource.name.substr(0, resource.name.lastIndexOf('.')); 
+      */
+      
       //check if the implementation (the stl, amf etc) file is already registered as an implementation of 
       //some part
       /*var callback = function( bla )
@@ -475,8 +502,6 @@ Polymer('ulti-viewer', Polymer.mixin({
         self.$.dialogs.toggle();
         //self.$.dialogs.removeEventListener("partInstanceDone", callback);
       }*/
-      
-      //shape.userData.part.bomId = self._registerImplementationInFakeBOM( resource.uri, partName );
       
       //FIXME ; should this be handled by the asset manager or the parsers ? 
       //ie , this won't work for loaded hierarchies etc
@@ -514,10 +539,9 @@ Polymer('ulti-viewer', Polymer.mixin({
     this.assetManager.unloadResource( resource.uri );
     if (index > -1) this.resources.splice(index, 1);
   },
+  //////////////////
   //event handlers
   doubleTapHandler:function( event ){
-    //console.log("double tap in viewer", event);
-    
     var pickingInfos = event.detail.pickingInfos;
     if(!pickingInfos) return;
     if(pickingInfos.length == 0) return;
@@ -669,12 +693,21 @@ Polymer('ulti-viewer', Polymer.mixin({
       this.threeJs.scenes["main"].add( this._selectionGroup );*/
     }
     
+    
+   //FIXME entities//FIXME: avoid double loop , see below
+   this.selectedEntities = newSelections.filter( function( selection ){
+      return ( selection.userData && selection.userData.part );
+   }).map( function( selection ){
+    return selection.userData.part;
+   });
+    
    if(newSelections){
       var _fakeAvgPos = new THREE.Vector3();//for multi selection only;
       
       for(var i=0;i<newSelections.length;i++)
       {
         var selection = newSelections[i];
+        
         //applying outline effect : TODO: not sure about implementation
         this._outlineObject.addTo( selection );
         /*if(selection.material){
@@ -689,6 +722,7 @@ Polymer('ulti-viewer', Polymer.mixin({
       
       if(newSelections.length >1 ){
         this.selectedObject = selectionGroup;
+        this._multiSelection  = true;
         //if we use the shadow group, its position, rotation need to be the average of all
         //the sub parts?
         /*_fakeAvgPos.divideScalar( newSelections.length )
@@ -703,25 +737,8 @@ Polymer('ulti-viewer', Polymer.mixin({
         }*/
       }
       else{
-        this.selectedObject = newSelections[0];
-      }
-    }
-    return;
-  
-    //console.log("selectedObjectsChanged", this.selectedObjects);
-    if(this.selectedObjects)
-    {
-      if(this.selectedObjects.length>0)
-      {
-        this.selectedObject = this.selectedObjects[0];
-        //
-        //FIXME: unify data structures between parts & annotations
-        if(this.selectedObject.userData.data) this.selectedEntity = this.selectedObject.userData.data;
-        if(this.selectedObject.userData.part) this.selectedEntity = this.selectedObject.userData.part;
-      }
-      else{
-        this.selectedObject = null;
-        this.selectedEntity = null;
+        this._multiSelection = false;
+        this.selectedObject  = newSelections[0];
       }
     }
   },
@@ -771,6 +788,9 @@ Polymer('ulti-viewer', Polymer.mixin({
       newEntity._selected = true;
     }
   },
+  selectedEntitiesChanged:function( oldEntities, newEntitites){
+    console.log("selectedEntitIES changed", oldEntities, newEntitites );
+  },
   
   //FIXME : weird hack to solve issues with undo redo operations that add/remove items
   //from the scene : a removed item is 'invisible', so selectedObject should become null
@@ -782,14 +802,72 @@ Polymer('ulti-viewer', Polymer.mixin({
       this.selectedEntity = null;
     }
   },
-  //important data structure change watchers, not sure this should be here either
-  activeToolChanged:function(oldTool,newTool){
-    //console.log("activeToolChanged",oldTool,newTool, this.activeTool);
+  activeHierarchyStructureChanged:function(changes, self){
+    console.log("changes in assembly", changes);// self._kernel.activeAssembly);
+    var strForm = JSON.stringify( self._kernel.activeAssembly );
+    localStorage.setItem("ultiviewer-data-assembly", strForm );
+    
+    changes.map( function( change ){
+      //get visuals for entities that were removed:
+      var removedEntities = change.removed;
+      var addedEntities   = [ change.object[ change.index ] ];
+      var changePath      = change.path;
+      console.log("removedEntities", removedEntities,"addedEntities",addedEntities, "changePath",changePath);
+      
+      //remove the visuals of the removed entities
+      removedEntities.map( function( entity ) {
+        var meshInstance = self._kernel.entitiesToMeshInstancesMap.get( entity );
+        if( meshInstance && meshInstance.parent ){
+          meshInstance.parent.remove( meshInstance );
+        }
+      });
+      
+      //add the visuals of the added entities
+      addedEntities.map( function( entity ) {
+        //FIXME: use methods, not specific data structures
+        var meshInstance = self._kernel.partRegistry._partMeshTemplates[ entity.puid ].clone();
+        meshInstance.userData.part = entity;
+        if( meshInstance){
+          //FIXME: for now this is enough , but we need to fetch the actual mesh of the parent
+          
+          /*var partMesh = new THREE.Mesh(geom,mat);
+          partMesh.userData.part = duplicatePart;
+          //JSON.parse(JSON.stringify( original.userData ));//userData; //FIXME: problem with object pointers, weakrefs are needed
+          
+          //Geometry should be pointer to the same data structure*/
+          /*when you clone : 
+            * userData is the same
+            * geometry is the same
+            * you get a new mesh/object3d instance (custom pos,rot, scale etc)
+          */
+          
+          //FIXME/ make a list of all operations needed to be applied on part meshes
+          meshInstance.position.fromArray( entity.pos )
+          meshInstance.rotation.fromArray( entity.rot );
+          meshInstance.scale.fromArray(  entity.sca );
+          
+          computeObject3DBoundingSphere( meshInstance, true );
+          self.threeJs.scenes["main"].add( meshInstance );
+          self._meshInjectPostProcess( meshInstance );
+          
+        }
+      });
+      
+      
+    });
+    
+    //self.updateVisuals();
   },
-  toolCategoryChanged:function(oldCateg,newCateg){
-    //console.log("toolCategoryChanged",oldCateg,newCateg, this.toolCategory);
-  },
+  
   //various
+  /*experimental : updates content of 3d view based on
+    data: 
+  */
+  updateVisuals:function(){
+    
+  
+  },
+  
   //FIXME: this is purely visual related, so nothing to do here
   updateOverlays: function(){
     var p, v, percX, percY, left, top;
@@ -805,7 +883,9 @@ Polymer('ulti-viewer', Polymer.mixin({
       var annotation = this.annotations[number];
       
       //console.log("annotation",annotation,this.selectedEntity);
-      var target = this.parts[ annotation.partId] ;//this.selectedEntity;
+      var target = this._kernel.entitiesToMeshInstancesMap[ annotation.instId ] ;//this.selectedEntity;
+      
+      if( !target) return;
       
       if( annotation.type !== "note") {
         overlay.style.visibility = "hidden";
@@ -814,7 +894,6 @@ Polymer('ulti-viewer', Polymer.mixin({
           //this.$.noteContent.style.opacity = 0;
           //this.$.noteContent.style.visibility="hidden";
       
-      if( !target) return;
       //if( target.object !== annotation.partId ) continue;
       overlay.style.visibility = "visible";
       var overlayEl = overlay;
@@ -845,7 +924,6 @@ Polymer('ulti-viewer', Polymer.mixin({
       
       overlay.style.left = (left - width / 2) + 'px'
       overlay.style.top = (top - height / 2) + 'px'
-      //console.log("gna",overlay, left, top);
     }
   },
   
@@ -853,88 +931,36 @@ Polymer('ulti-viewer', Polymer.mixin({
   duplicateObject:function(){
     console.log("duplicating selection")
     if(!this.selectedObject) return;
+    //FIXME: how to deal with objects that are already hieararchies (ie amf ?): and not just geometry
     
-    //FIXME: we do not handle AMF etc like files for now (which are already hierarchies
-    //and not geometry 
-    //FIXME: this is kinda horrible, and not data driven, since we clone A REPRESENTATION
-    //OF THE DATA ! not the data itself
-    //FIXME: metadta needs to be (mostly) the same
-    //Geometry should be pointer to the same data structure
-    //TODO: how to deal with objects that are already hieararchies (ie amf ?)
+    var self = this;
+    //multiple selection is handled out of the box
+    this.selectedEntities.map( function( entity ){
     
-    /*when you clone : 
-      * userData is the same
-      * geometry is the same
-      * you get a new mesh/object3d instance (custom pos,rot, scale etc)
+      var duplicateEntity = self._kernel.duplicateEntity( entity );
     
-    */
-    var original = this.selectedObject;
-    var geom     = original.geometry;
-    var mat      = original.material.clone();//we have to clone otherwise hover effects etc are applied to all
-    var userData = original.userData;
-    
-    var partMesh = new THREE.Mesh(geom,mat);
-    partMesh.userData = JSON.parse(JSON.stringify( original.userData ));//userData; //FIXME: problem with object pointers, weakrefs are needed
-    partMesh.position.copy( original.position );
-    partMesh.rotation.copy( original.rotation );
-    partMesh.scale.copy(  original.scale );
-    
-    //FIXME/ make a list of all operations needed to be applied on part meshes
-    computeObject3DBoundingSphere( partMesh, true );
-    
-    this.threeJs.scenes["main"].add( partMesh );
-    this._meshInjectPostProcess( partMesh );
-    
-    //FIXME REFACTOR: add to bom
-    console.log("clone userData", partMesh.userData , "mesh registry", this.partMeshInstances);
-    //self._unRegisterInstanceFromBom( cloned.userData.part.bomId , selectedObject );
+    });
   },
   
   deleteObject:function(){
     console.log("deleting selection");
-    var selectedObject = this.selectedObject;
-    var selectedEntity = this.selectedEntity;
+    //TODO : how to handle deletion's selection removal and undo-redo?*/
+    var self = this;
+    //multiple selection is handled out of the box
+    this.selectedEntities.map( function( entity ){
     
-    //var index = this.assembly.children.indexOf(5);
-    //this.assembly.children.push( assemblyEntry );
-    //console.log("assembly", this.assembly);
+      self._kernel.removeEntity( entity );//remove !== delete
+      
+      //fire operation
+      self.fire( "delete-entity", {entity:entity} );//FIXME: ughh why the double event?      
+      var operation = new Deletion(entity, self._kernel.activeAssembly.getNodeParent( entity ) );
+      //self.fire('newOperation', {msg: operation});
+      
+    });
     
-    this.fire( "delete-entity", {entity:selectedEntity} );
-    //FIXME: temporary workaround/hack as you cannot dispatch events to children    
-    this.$.annotations.deleteEntityHandler(null, {entity:selectedEntity},null );
-        //FIXME: hack
-    if( selectedObject && selectedObject.userData ){
-      var assembly = this.assembly;
-      for(var i=assembly.children.length-1;i>=0;i--){
-        if(assembly.children[i].instId == selectedObject.userData.part.instId )
-        {
-          assembly.children.splice(i, 1);
-        }
-      }
-    }
-    
-    //fire operation
-    if(selectedObject && selectedObject.parent)
-    {
-      var operation = new Deletion(selectedObject, selectedObject.parent);
-      this.fire('newOperation', {msg: operation});
-    }
-    
-    //FIXME: refactor REMOVAL FROM BOM
-    try{
-      this._unRegisterInstanceFromBom( selectedObject.userData.part.bomId , selectedObject );
-    }catch(error){} //FIXME: only works for items in bom
-    
-    if(!selectedObject) return; 
-    //FIXME : is this needed ? should the change watcher of annotations/objects
-    //deal with it: so far, YES, since annotations do NOT know about their representations
-    selectedObject.parent.remove( selectedObject ) ;
-    
+    this.selectedEntities = [];
     this.selectedObject = null;
     this.selectedEntity = null;
-    
-    //TODO : how to handle deletion's selection removal and undo-redo?
-    
   },
   
   toRotateMode:function(){
@@ -950,60 +976,24 @@ Polymer('ulti-viewer', Polymer.mixin({
  
   //mesh insertion post process
   //FIXME: do this better , but where ?
-  _meshInjectPostProcess:function( mesh ){
+  _meshInjectPostProcess:function( mesh, partId ){
+  
     var self = this;
-    //register new instance in the Bill of materials
-    //self._registerInstanceInBom( mesh.userData.part.bomId, mesh );
-    self._registerPartMeshInstance( mesh );
+    self._kernel.entitiesToMeshInstancesMap.set( mesh.userData.part, mesh );
+    
     
     //FIXME: not sure about these, they are used for selection levels
     mesh.selectable      = true;
     mesh.selectTrickleUp = false;
     mesh.transformable   = true;
     //FIXME: not sure, these are very specific for visuals
-     mesh.castShadow = true;
+    mesh.castShadow = true;
     //mesh.receiveShadow = true;
     
     //FIXME: not sure where this should be best: used to dispatch "scene insertion"/creation operation
     var operation = new MeshAddition( mesh );
-    //var event = new CustomEvent('newOperation',{detail: {msg: operation}});
-    //self.dispatchEvent(event);
     self.historyManager.addCommand( operation );
   },
-  
-  _registerPartMeshInstance: function( mesh ){
-    var userData = mesh.userData;
-    var partId   = 0;//mesh.userData.part.id;//FIXME : partID VS partInstanceID
-    
-    if( !this.partMeshInstances[partId] )
-    {
-      this.partMeshInstances[partId] = [];
-    }
-    this.partMeshInstances[partId].push( mesh );
-    
-    if(this.partWaiters[ partId ])
-    {
-      console.log("resolving mesh for ", partId);
-      this.partWaiters[ partId ].resolve( mesh );
-    }
-    
-    //each instance needs a unique uid
-    //FIXME: this should not be at the MESH level, so this is the wrong place for that    
-    mesh.userData.part.instId = 898;//this.generateUUID();
-    
-    
-    //FIXME: experimental hack , for a more data driven based approach
-    var assemblyEntry = {
-      partId:partId,
-      instId:mesh.userData.part.instId, 
-      pos: mesh.position.toArray(), 
-      rot:mesh.rotation.toArray(), 
-      scale:mesh.scale.toArray()
-    };
-    this.assembly.children.push( assemblyEntry );
-    console.log("assembly", this.assembly);
-  },
-  
   
   //FIXME: here or where?
   undo:function(){
@@ -1013,10 +1003,6 @@ Polymer('ulti-viewer', Polymer.mixin({
     this.historyManager.redo();
   },
   
-  shiftPressed:function(){
-    //console.log("shift pressed")
-  },
- 
   //filters
   toFixed:function(o, precision){
     if(!o) return "";
