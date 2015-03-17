@@ -109,7 +109,6 @@ Polymer('ulti-viewer', Polymer.mixin({
   toolCategory: null,
   
   design      : {},
-  bom         : [],
   assembly    : {},//assembly or hierarchy ?
   
   parts: {},
@@ -165,20 +164,13 @@ Polymer('ulti-viewer', Polymer.mixin({
     }
   },
   
-  
-  observe:{
-    'selectedObject.parent':'selectedObjectParentChanged'
-  },
-  
   created: function()
   {
     this._kernel = new window.UscoKernel();
     
     //no need to put this in kernel, this is ui level...or is it ?
     this.selectedEntities = [];
-    
-    
-  
+
     this.resources = [];
     this.meshes    = [];
     
@@ -192,12 +184,9 @@ Polymer('ulti-viewer', Polymer.mixin({
     this._outlineObject  = new OutlineObject();
     
     //TODO: remove this, just temporary
-    this.bom = [];
     this.design = {
       //_editable:true //extra settable flags, runtime
     };
-    
-    //this.bomWrapper = new Bom();
     
     //bom, assemblies etc, are all files in the root path of design's url
     
@@ -219,10 +208,7 @@ Polymer('ulti-viewer', Polymer.mixin({
       console.log("blo", blo);
     })*/
     
-    
     //alternative key binding
-    var self = this;
-    
     key('backspace', function(){ 
       return false
     });
@@ -321,7 +307,7 @@ Polymer('ulti-viewer', Polymer.mixin({
       }
       
       if(operation.type === "rotation"){
-        operation.target.userData.part.rot = operation.target.rotation.toArray().slice( [0,3] );
+        operation.target.userData.part.rot = operation.target.rotation.toArray().slice( 0, 3 );
       }
       
       if(operation.type === "scale"){
@@ -345,7 +331,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     this._selectionGroup.name = "ghostGroup";
     this._selectionGroup.transformable = true;
     this.threeJs.scenes["main"].add( this._selectionGroup );
-    this._multiSelection = false;
+    
   },
   detached:function()
   {
@@ -680,8 +666,12 @@ Polymer('ulti-viewer', Polymer.mixin({
         this._outlineObject.removeFrom( selection );
         //if(selection.material) selection.material.color.setHex( selection.material._oldColor );
         
-        //for group move, rotate etc
-        THREE.SceneUtils.detach( selection,  selectionGroup, this.threeJs.scenes["main"]);
+        //ONLY for group move, rotate etc beware of side effects !//TODO: deal with deleted objects
+        //TODO: it needs to work for all entities , not just parts
+        if(oldSelections.length > 1 && this._kernel.isEntityinActiveAssembly( selection.userData.part ) )
+        { 
+          THREE.SceneUtils.detach( selection,  selectionGroup, this.threeJs.scenes["main"]);
+        }
       }
       selectionGroup.position.set( 0, 0, 0);
       selectionGroup.rotation.set( 0, 0, 0);
@@ -722,7 +712,6 @@ Polymer('ulti-viewer', Polymer.mixin({
       
       if(newSelections.length >1 ){
         this.selectedObject = selectionGroup;
-        this._multiSelection  = true;
         //if we use the shadow group, its position, rotation need to be the average of all
         //the sub parts?
         /*_fakeAvgPos.divideScalar( newSelections.length )
@@ -737,7 +726,6 @@ Polymer('ulti-viewer', Polymer.mixin({
         }*/
       }
       else{
-        this._multiSelection = false;
         this.selectedObject  = newSelections[0];
       }
     }
@@ -765,9 +753,6 @@ Polymer('ulti-viewer', Polymer.mixin({
       }
       //FIXME: do this differently ?
       if(this.toolCategory === "annotations" &&  this.activeTool) return;
-      //this.outlineObject( newSelection, oldSelection );
-      if(this.selectionZoom) this._zoomInOnObject.execute( newSelection );
-      
       
       if(this.showDimensions)
       {
@@ -792,16 +777,6 @@ Polymer('ulti-viewer', Polymer.mixin({
     console.log("selectedEntitIES changed", oldEntities, newEntitites );
   },
   
-  //FIXME : weird hack to solve issues with undo redo operations that add/remove items
-  //from the scene : a removed item is 'invisible', so selectedObject should become null
-  selectedObjectParentChanged:function(){
-    if(!this.selectedObject) return
-    //console.log("dfsdfdsf", this.selectedObject.parent);
-    if(!this.selectedObject.parent){
-      this.selectedObject = null;
-      this.selectedEntity = null;
-    }
-  },
   activeHierarchyStructureChanged:function(changes, self){
     console.log("changes in assembly", changes);// self._kernel.activeAssembly);
     var strForm = JSON.stringify( self._kernel.activeAssembly );
@@ -810,7 +785,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     changes.map( function( change ){
       //get visuals for entities that were removed:
       var removedEntities = change.removed;
-      var addedEntities   = [ change.object[ change.index ] ];
+      var addedEntities   = [ change.object[ change.index ] ].filter(function(n){ return n != undefined });
       var changePath      = change.path;
       console.log("removedEntities", removedEntities,"addedEntities",addedEntities, "changePath",changePath);
       
@@ -820,6 +795,8 @@ Polymer('ulti-viewer', Polymer.mixin({
         if( meshInstance && meshInstance.parent ){
           meshInstance.parent.remove( meshInstance );
         }
+        //remove entry not sure about this
+        self._kernel.entitiesToMeshInstancesMap.delete( entity );
       });
       
       //add the visuals of the added entities
@@ -828,8 +805,8 @@ Polymer('ulti-viewer', Polymer.mixin({
         var meshInstance = self._kernel.partRegistry._partMeshTemplates[ entity.puid ].clone();
         meshInstance.userData.part = entity;
         if( meshInstance){
-          //FIXME: for now this is enough , but we need to fetch the actual mesh of the parent
-          
+          //FIXME: for now this is enough , but we need to fetch the actual mesh of the parent based on
+          //the entity
           /*var partMesh = new THREE.Mesh(geom,mat);
           partMesh.userData.part = duplicatePart;
           //JSON.parse(JSON.stringify( original.userData ));//userData; //FIXME: problem with object pointers, weakrefs are needed
@@ -842,14 +819,16 @@ Polymer('ulti-viewer', Polymer.mixin({
           */
           
           //FIXME/ make a list of all operations needed to be applied on part meshes
+          
+          computeObject3DBoundingSphere( meshInstance, true );
+          centerMesh( meshInstance ); //FIXME do not use the "global" centerMesh
+          
           meshInstance.position.fromArray( entity.pos )
           meshInstance.rotation.fromArray( entity.rot );
           meshInstance.scale.fromArray(  entity.sca );
           
-          computeObject3DBoundingSphere( meshInstance, true );
           self.threeJs.scenes["main"].add( meshInstance );
           self._meshInjectPostProcess( meshInstance );
-          
         }
       });
       
@@ -864,8 +843,6 @@ Polymer('ulti-viewer', Polymer.mixin({
     data: 
   */
   updateVisuals:function(){
-    
-  
   },
   
   //FIXME: this is purely visual related, so nothing to do here
@@ -930,16 +907,18 @@ Polymer('ulti-viewer', Polymer.mixin({
   //interactions
   duplicateObject:function(){
     console.log("duplicating selection")
-    if(!this.selectedObject) return;
-    //FIXME: how to deal with objects that are already hieararchies (ie amf ?): and not just geometry
-    
     var self = this;
+    //FIXME: how to deal with objects that are already hieararchies (ie amf ?): and not just geometry
+    var duplicates = [];
     //multiple selection is handled out of the box
     this.selectedEntities.map( function( entity ){
     
       var duplicateEntity = self._kernel.duplicateEntity( entity );
+      duplicates.push( duplicateEntity );
     
     });
+    
+    //this.selectedEntities = [ duplicates ];
   },
   
   deleteObject:function(){
@@ -951,16 +930,16 @@ Polymer('ulti-viewer', Polymer.mixin({
     
       self._kernel.removeEntity( entity );//remove !== delete
       
-      //fire operation
+      //dispatch operation event for undo/redo
       self.fire( "delete-entity", {entity:entity} );//FIXME: ughh why the double event?      
       var operation = new Deletion(entity, self._kernel.activeAssembly.getNodeParent( entity ) );
-      //self.fire('newOperation', {msg: operation});
+      self.fire('newOperation', {msg: operation});
       
     });
-    
+    this.selectedObject   = null;
+    this.selectedEntity   = null;
     this.selectedEntities = [];
-    this.selectedObject = null;
-    this.selectedEntity = null;
+    this.selectedObjects  = [];
   },
   
   toRotateMode:function(){
@@ -1001,6 +980,11 @@ Polymer('ulti-viewer', Polymer.mixin({
   },
   redo:function(){
     this.historyManager.redo();
+  },
+  
+  //testing
+  mdHandler:function(e ){
+    console.log("mouse down");
   },
   
   //filters

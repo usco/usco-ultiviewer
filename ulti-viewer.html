@@ -78,12 +78,13 @@
 <script src="src/usco-kernel.js"></script>
 
 <script src="components/three-js-helpers/lib/usco-dimensions.js"></script>
+<script src="components/three-js-helpers/lib/meshTools.js"></script>
 
 <script src="components/nested-observe/dist/nested-observe.js"></script>
 <script src="components/keymaster/keymaster.js"></script>
 
 
-<polymer-element name="ulti-viewer" attributes="showAxis showIndicators" tabindex="0">
+<polymer-element name="ulti-viewer" attributes="showAxis showIndicators" tabindex="0" on-mousedown="{{mdHandler}}">
     <template>
       <link rel="stylesheet" type="text/css" href="ulti-viewer.css">
       <!--controls overlay-->
