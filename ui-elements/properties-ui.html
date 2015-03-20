@@ -97,8 +97,8 @@ Polymer("properties-ui",{
     }
     if(!this.selectedObject) {this.displayName = ""; return}
     
-    if( this.selectedObject.userData.part ){
-      this.displayName = this.selectedObject.userData.part.name;
+    if( this.selectedObject.userData.entity ){
+      this.displayName = this.selectedObject.userData.entity.name;
     }else{
       this.displayName = this.selectedObject.name;
     }

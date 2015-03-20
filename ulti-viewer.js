@@ -183,17 +183,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     this._zoomInOnObject = new ZoomInOnObject();
     this._outlineObject  = new OutlineObject();
     
-    //TODO: remove this, just temporary
-    this.design = {
-      //_editable:true //extra settable flags, runtime
-    };
-    
     //bom, assemblies etc, are all files in the root path of design's url
-    
-    //FIXME/ experimental 
-    this.assembly = {
-      children: []
-    }
     
     var Nested = window.Nested;
     var self = this;
@@ -221,10 +211,10 @@ Polymer('ulti-viewer', Polymer.mixin({
       return false;
     });
     key('⌘+z,ctrl+z', function(){ 
-      self.duplicateObject();
+      self.undo();
     });
     key('⌘+shift+z,ctrl+shift+z', function(){ 
-      self.duplicateObject();
+      self.redo();
     });
     
     key('m', function(){ 
@@ -303,15 +293,15 @@ Polymer('ulti-viewer', Polymer.mixin({
       
       //FIXME : experimental hack/exp
       if(operation.type === "translation"){
-        operation.target.userData.part.pos = operation.target.position.toArray();
+        operation.target.userData.entity.pos = operation.target.position.toArray();
       }
       
       if(operation.type === "rotation"){
-        operation.target.userData.part.rot = operation.target.rotation.toArray().slice( 0, 3 );
+        operation.target.userData.entity.rot = operation.target.rotation.toArray().slice( 0, 3 );
       }
       
       if(operation.type === "scale"){
-        operation.target.userData.part.sca = operation.target.scale.toArray();
+        operation.target.userData.entity.sca = operation.target.scale.toArray();
       }
       
       /*var validOp = operationAccumulator( operation );
@@ -326,7 +316,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     //label.position.y += label.height/2;
     //this.threeJs.scenes["main"].add( label );
     
-    //FIXME: multi selection
+    //FIXME: multi selection tools
     this._selectionGroup = new THREE.Object3D();
     this._selectionGroup.name = "ghostGroup";
     this._selectionGroup.transformable = true;
@@ -356,11 +346,8 @@ Polymer('ulti-viewer', Polymer.mixin({
   loadDesign:function( uriOrData, options ){
     console.log("this would load a design at "+ uriOrData +" , but this feature is not done yet!,sorry");
     //FIXME ; just for testing, disregard
-    this.design = {
-      //_editable:true //extra settable flags, runtime
-      name:"Test design ",
-      title:"cool design",
-    };
+    this.design = this._kernel.loadDesign( uriOrData, options );    
+    //this._kernel.
   },
   
   loadMesh:function( uriOrData, options )
@@ -392,7 +379,7 @@ Polymer('ulti-viewer', Polymer.mixin({
       //we notify any and all 'waiters' that the part is ready
       //Q deferreds 
       self._meshInjectPostProcess( mesh );
-      self.selectedEntities = [ mesh.userData.part ];
+      self.selectedEntities = [ mesh.userData.entity ];
       
     }
     if( display ){
@@ -443,7 +430,7 @@ Polymer('ulti-viewer', Polymer.mixin({
   _loadResource:function(uriOrData)
   {
     var self = this;
-    var resource = this.assetManager.loadResource( uriOrData, {parsing:{useWorker:true,useBuffers:true} } );
+    var resource = this.assetManager.loadResource( uriOrData, {keepRawData:true, parsing:{useWorker:true,useBuffers:true} } );
     this.resources.push( resource );
     
     var resourceDeferred = resource.deferred;
@@ -463,31 +450,14 @@ Polymer('ulti-viewer', Polymer.mixin({
       }
 
       //we are registering a yet-uknown Part's instance
-      self._kernel.registerPart( null, null, shape, {name:resource.name} );
+      self._kernel.registerPartType( null, null, shape, {name:resource.name} );
+      console.log("resource", resource);
       
-      /*
-      shape.userData.part.name = resource.name;//"Part"+self.partId;
-      shape.userData.part.id = hashCode(resource.uri)//FIXME this is wrong, that is based on mesh file, not for part
-      shape.name = resource.name;
-      
-      var partName = resource.name.substr(0, resource.name.lastIndexOf('.')); 
-      */
-      
-      //check if the implementation (the stl, amf etc) file is already registered as an implementation of 
-      //some part
-      /*var callback = function( bla )
-      {
-      }
-      self.$.dialogs.addEventListener("partInstanceDone", callback, false);*/
-      
-      /*
-      if( !self._isPartImplementationInBom( resource.name ) ){
-        self.$.dialogs.resource = resource;
-        self.$.dialogs.partName = partName;
-        //self.$.dialogs.partNames = self._getPartNamesFromBom();
-        self.$.dialogs.toggle();
-        //self.$.dialogs.removeEventListener("partInstanceDone", callback);
-      }*/
+      //TODO: clean this up, just a hack
+      //FILE UPLOAD
+      //var blob = new Blob([resource.rawData], {type: 'application/sla'});
+      //var url = URL.createObjectURL(blob);
+      self._kernel.uploadDoc( resource._file, resource.name, resource.rawDataType );
       
       //FIXME ; should this be handled by the asset manager or the parsers ? 
       //ie , this won't work for loaded hierarchies etc
@@ -582,6 +552,11 @@ Polymer('ulti-viewer', Polymer.mixin({
       perhaps better to use pub/sub ?
     */
     
+    //are we currently moving the camera around ? in that case, do nothing
+    if( this.uiMode === "camera" )
+    {
+      return;
+    }
     //FIXME: experimental: try to select the ROOT helper if possible
     var pickingDatas = e.detail.pickingInfos;
     if(!pickingDatas) return;
@@ -668,7 +643,7 @@ Polymer('ulti-viewer', Polymer.mixin({
         
         //ONLY for group move, rotate etc beware of side effects !//TODO: deal with deleted objects
         //TODO: it needs to work for all entities , not just parts
-        if(oldSelections.length > 1 && this._kernel.isEntityinActiveAssembly( selection.userData.part ) )
+        if(oldSelections.length > 1 && this._kernel.isEntityinActiveAssembly( selection.userData.entity ) )
         { 
           THREE.SceneUtils.detach( selection,  selectionGroup, this.threeJs.scenes["main"]);
         }
@@ -686,9 +661,9 @@ Polymer('ulti-viewer', Polymer.mixin({
     
    //FIXME entities//FIXME: avoid double loop , see below
    this.selectedEntities = newSelections.filter( function( selection ){
-      return ( selection.userData && selection.userData.part );
+      return ( selection.userData && selection.userData.entity );
    }).map( function( selection ){
-    return selection.userData.part;
+    return selection.userData.entity;
    });
     
    if(newSelections){
@@ -779,9 +754,11 @@ Polymer('ulti-viewer', Polymer.mixin({
   
   activeHierarchyStructureChanged:function(changes, self){
     console.log("changes in assembly", changes);// self._kernel.activeAssembly);
-    var strForm = JSON.stringify( self._kernel.activeAssembly );
-    localStorage.setItem("ultiviewer-data-assembly", strForm );
     
+    //this needs to hook up into the api and current storage system
+    self._kernel.saveActiveAssemblyState();
+    
+    //react to the changes, update visuals
     changes.map( function( change ){
       //get visuals for entities that were removed:
       var removedEntities = change.removed;
@@ -791,27 +768,21 @@ Polymer('ulti-viewer', Polymer.mixin({
       
       //remove the visuals of the removed entities
       removedEntities.map( function( entity ) {
-        var meshInstance = self._kernel.entitiesToMeshInstancesMap.get( entity );
+        var meshInstance = self._kernel.getMeshOfEntity( entity );
         if( meshInstance && meshInstance.parent ){
           meshInstance.parent.remove( meshInstance );
         }
-        //remove entry not sure about this
-        self._kernel.entitiesToMeshInstancesMap.delete( entity );
       });
       
       //add the visuals of the added entities
       addedEntities.map( function( entity ) {
         //FIXME: use methods, not specific data structures
-        var meshInstance = self._kernel.partRegistry._partMeshTemplates[ entity.puid ].clone();
-        meshInstance.userData.part = entity;
+        var meshInstance = self._kernel.getPartMeshInstance( entity ) ;
+        meshInstance.userData.entity = entity;//FIXME : should we have this sort of backlink ?
         if( meshInstance){
           //FIXME: for now this is enough , but we need to fetch the actual mesh of the parent based on
           //the entity
-          /*var partMesh = new THREE.Mesh(geom,mat);
-          partMesh.userData.part = duplicatePart;
-          //JSON.parse(JSON.stringify( original.userData ));//userData; //FIXME: problem with object pointers, weakrefs are needed
-          
-          //Geometry should be pointer to the same data structure*/
+          //Geometry should be pointer to the same data structure
           /*when you clone : 
             * userData is the same
             * geometry is the same
@@ -918,7 +889,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     
     });
     
-    //this.selectedEntities = [ duplicates ];
+    this.selectedEntities = [ duplicates ];
   },
   
   deleteObject:function(){
@@ -927,12 +898,13 @@ Polymer('ulti-viewer', Polymer.mixin({
     var self = this;
     //multiple selection is handled out of the box
     this.selectedEntities.map( function( entity ){
-    
-      self._kernel.removeEntity( entity );//remove !== delete
+      //get the parent first !
+      var parentEntity = self._kernel.activeAssembly.getParentNode( entity );
       
+      self._kernel.removeEntity( entity );//remove !== delete
       //dispatch operation event for undo/redo
       self.fire( "delete-entity", {entity:entity} );//FIXME: ughh why the double event?      
-      var operation = new Deletion(entity, self._kernel.activeAssembly.getNodeParent( entity ) );
+      var operation = new Deletion( entity, parentEntity );
       self.fire('newOperation', {msg: operation});
       
     });
@@ -955,12 +927,8 @@ Polymer('ulti-viewer', Polymer.mixin({
  
   //mesh insertion post process
   //FIXME: do this better , but where ?
-  _meshInjectPostProcess:function( mesh, partId ){
-  
+  _meshInjectPostProcess:function( mesh ){
     var self = this;
-    self._kernel.entitiesToMeshInstancesMap.set( mesh.userData.part, mesh );
-    
-    
     //FIXME: not sure about these, they are used for selection levels
     mesh.selectable      = true;
     mesh.selectTrickleUp = false;
@@ -980,11 +948,6 @@ Polymer('ulti-viewer', Polymer.mixin({
   },
   redo:function(){
     this.historyManager.redo();
-  },
-  
-  //testing
-  mdHandler:function(e ){
-    console.log("mouse down");
   },
   
   //filters
