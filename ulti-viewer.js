@@ -190,13 +190,6 @@ Polymer('ulti-viewer', Polymer.mixin({
     Nested.observe(this._kernel.activeAssembly, function( change ){
       self.activeHierarchyStructureChanged( change, self );
     })
-    /*Nested.unobserve(this.assembly, function( bla ){
-      console.log("change in assembly(unobserve)", bla);
-      localStorage.setItem("ultiviewer-data-assembly", JSON.stringify( self.assembly ) );
-    })
-    Nested.deliverChangeRecords(function(blo){
-      console.log("blo", blo);
-    })*/
     
     //alternative key binding
     key('backspace', function(){ 
@@ -303,11 +296,6 @@ Polymer('ulti-viewer', Polymer.mixin({
       if(operation.type === "scale"){
         operation.target.userData.entity.sca = operation.target.scale.toArray();
       }
-      
-      /*var validOp = operationAccumulator( operation );
-      if( validOp )
-      {
-      }*/
       //if(self.generateCodeOnTheFly) self.generateCodeFromHistory();
     });
     
@@ -344,10 +332,27 @@ Polymer('ulti-viewer', Polymer.mixin({
   
   //FIXME: this should be elsewhere, in a design specific 
   loadDesign:function( uriOrData, options ){
-    console.log("this would load a design at "+ uriOrData +" , but this feature is not done yet!,sorry");
+    console.log("this would load a design at "+ uriOrData );
+    
     //FIXME ; just for testing, disregard
-    this.design = this._kernel.loadDesign( uriOrData, options );    
-    //this._kernel.
+    var self = this;
+    var serverUri = "http://localhost:3080/api/designs/demo-design/documents"; 
+    var callback = function (data)
+    {
+      data.map( function( entry ){
+        var path = serverUri+"/"+entry;
+        console.log("entry", entry, path);
+        self.loadMesh( path, {addToAssembly:false, display:false} );
+      });
+      
+      //hack
+      self._kernel.loadActiveAssemblyState( function(){
+        //hack
+        self.updateVisualsBasedOnEntities(self._kernel.activeDesign.activeAssembly.children);
+      } );
+      
+    }
+    this.design = this._kernel.loadDesign( uriOrData, options, callback );    
   },
   
   loadMesh:function( uriOrData, options )
@@ -358,7 +363,9 @@ Polymer('ulti-viewer', Polymer.mixin({
     var keepRawData = options.keepRawData === undefined ? true: options.keepRawData;
     
     if(!uriOrData){ console.warn("no uri or data to load"); return};
-    var resourcePromise = this._loadResource( uriOrData );
+    var resOptions = {addToAssembly:addToAssembly};
+    var resourcePromise = this._loadResource( uriOrData, resOptions );
+    //var resource = yield this._loadResource( uriOrData, resOptions );
     
     function loadFailed(res)
     {
@@ -375,12 +382,8 @@ Polymer('ulti-viewer', Polymer.mixin({
     var self = this;
     
     function afterAdded( mesh ){ 
-      //FIXME: this is wrong, we are not waiting for a part, but for a mesh (implementation)
-      //we notify any and all 'waiters' that the part is ready
-      //Q deferreds 
       self._meshInjectPostProcess( mesh );
       self.selectedEntities = [ mesh.userData.entity ];
-      
     }
     if( display ){
       //fire import event ??
@@ -422,18 +425,21 @@ Polymer('ulti-viewer', Polymer.mixin({
     if(options.select) this.selectedObjects = [object]; //this.selectedObject = object;
     return object;
   },
+  
   removeFromScene:function( object, sceneName )
   {
     var sceneName = sceneName || "main" ;
     this.threeJs.removeFromScene( object, sceneName );
   },
-  _loadResource:function(uriOrData)
+  
+  _loadResource:function(uriOrData, options )
   {
     var self = this;
     var resource = this.assetManager.loadResource( uriOrData, {keepRawData:true, parsing:{useWorker:true,useBuffers:true} } );
     this.resources.push( resource );
     
     var resourceDeferred = resource.deferred;
+    var addToAssembly = options.addToAssembly;
     
     //TODO: UNIFY api for parsers, this is redundant
     function formatResource(resource)
@@ -449,15 +455,13 @@ Polymer('ulti-viewer', Polymer.mixin({
         shape = new THREE.Mesh(shape, material);
       }
 
-      //we are registering a yet-uknown Part's instance
-      self._kernel.registerPartType( null, null, shape, {name:resource.name} );
+      //we are registering a yet-uknown Part's type, getting back an instance of that type
+      var part = self._kernel.registerPartType( null, null, shape, {name:resource.name} );
+      if( addToAssembly ) self._kernel.registerPartInstance( part );
       console.log("resource", resource);
-      
       //TODO: clean this up, just a hack
-      //FILE UPLOAD
-      //var blob = new Blob([resource.rawData], {type: 'application/sla'});
-      //var url = URL.createObjectURL(blob);
       self._kernel.uploadDoc( resource._file, resource.name, resource.rawDataType );
+      
       
       //FIXME ; should this be handled by the asset manager or the parsers ? 
       //ie , this won't work for loaded hierarchies etc
@@ -940,6 +944,25 @@ Polymer('ulti-viewer', Polymer.mixin({
     //FIXME: not sure where this should be best: used to dispatch "scene insertion"/creation operation
     var operation = new MeshAddition( mesh );
     self.historyManager.addCommand( operation );
+  },
+  updateVisualsBasedOnEntities:function( entities ){
+    var self = this;
+    entities.map( function( entity ) {
+      //FIXME: use methods, not specific data structures
+      var meshInstance = self._kernel.getPartMeshInstance( entity ) ;
+      meshInstance.userData.entity = entity;//FIXME : should we have this sort of backlink ?
+      if( meshInstance){
+        computeObject3DBoundingSphere( meshInstance, true );
+        centerMesh( meshInstance ); //FIXME do not use the "global" centerMesh
+        
+        meshInstance.position.fromArray( entity.pos )
+        meshInstance.rotation.fromArray( entity.rot );
+        meshInstance.scale.fromArray(  entity.sca );
+        
+        self.threeJs.scenes["main"].add( meshInstance );
+        self._meshInjectPostProcess( meshInstance );
+      }
+    });
   },
   
   //FIXME: here or where?
