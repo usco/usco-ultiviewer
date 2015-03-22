@@ -119,7 +119,8 @@
       <span flex id="designTitle">{{design.name}}</span>
       
       
-      <simple-bom bom="{{_kernel.bom}}" selectedObject="{{selectedObject}}" selectedObjects="{{selectedObjects}}" show="{{showBOM}}"> </simple-bom>
+      <simple-bom bom="{{_kernel.bom.bom}}" selectedObject="{{selectedObject}}" selectedObjects="{{selectedObjects}}" 
+      selectedEntities="{{selectedEntities}}" show="{{showBOM}}"> </simple-bom>
       <usco-bom-ui id="bomUI" showBOM="{{showBOM}}"> </usco-bom-ui>
       
       <!--<io-ui id="inputOutput" selectedObject="{{selectedObject}}" activeScene="{{$.activeScene.object}}" resources="{{resources}}" viewer="{{$.threeJs}}" partWaiters="{{partWaiters}}" parts="{{parts}}"></io-ui>-->

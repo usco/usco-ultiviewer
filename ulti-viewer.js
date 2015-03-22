@@ -111,10 +111,6 @@ Polymer('ulti-viewer', Polymer.mixin({
   design      : {},
   assembly    : {},//assembly or hierarchy ?
   
-  parts: {},
-  partWaiters: {},
-  partMeshInstances:{},
-  
   //TODO: do seperation between selected MESHES/3D objects and selected "data" objects/entitities
   //reminder: meshes are just REPRESENTATIONS of "entities"
   //entities can be: Parts (or should that be part instances?) , annotations
@@ -194,10 +190,10 @@ Polymer('ulti-viewer', Polymer.mixin({
     });
     
     key('delete', function(){ 
-      self.deleteObject();
+      self.removeEntity();
     });
     key('⌘+r,ctrl+d', function(){ 
-      self.duplicateObject();
+      self.duplicateEntity();
       return false;
     });
     key('⌘+z,ctrl+z', function(){ 
@@ -824,14 +820,15 @@ Polymer('ulti-viewer', Polymer.mixin({
   },
   
   //interactions
-  duplicateObject:function(){
+  duplicateEntity:function(){
     console.log("duplicating selection")
     var self = this;
     //FIXME: how to deal with objects that are already hieararchies (ie amf ?): and not just geometry
     var duplicates = [];
     //multiple selection is handled out of the box
     this.selectedEntities.map( function( entity ){
-    
+      //prevent arrays
+      if(entity.length) entity = entity[0];
       var duplicateEntity = self._kernel.duplicateEntity( entity );
       duplicates.push( duplicateEntity );
     
@@ -840,7 +837,7 @@ Polymer('ulti-viewer', Polymer.mixin({
     this.selectedEntities = [ duplicates ];
   },
   
-  deleteObject:function(){
+  removeEntity:function(){
     console.log("deleting selection");
     //TODO : how to handle deletion's selection removal and undo-redo?*/
     var self = this;
