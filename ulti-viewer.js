@@ -167,12 +167,9 @@ Polymer('ulti-viewer', Polymer.mixin({
   created: function()
   {
     this._kernel = new window.UscoKernel();
-    
     //no need to put this in kernel, this is ui level...or is it ?
     this.selectedEntities = [];
-
     this.resources = [];
-    this.meshes    = [];
     
     this.settings = {
       minObjectSize: 20,//minimum size (in arbitrarty/opengl units) before requiring re-scaling (upwards)
@@ -333,7 +330,7 @@ Polymer('ulti-viewer', Polymer.mixin({
   //FIXME: this should be elsewhere, in a design specific 
   loadDesign:function( uriOrData, options ){
     console.log("this would load a design at "+ uriOrData );
-    
+    this.design = this._kernel.loadDesign( uriOrData, options, null );    
     return;
     //FIXME ; just for testing, disregard
     var self = this;
@@ -353,6 +350,7 @@ Polymer('ulti-viewer', Polymer.mixin({
       } );
       
     }
+    
     this.design = this._kernel.loadDesign( uriOrData, options, callback );    
   },
   
@@ -392,15 +390,11 @@ Polymer('ulti-viewer', Polymer.mixin({
         
         //part type registration etc
         //we are registering a yet-uknown Part's type, getting back an instance of that type
-        var partKlass = self._kernel.registerPartType( null, null, shape, {name:resource.name} );
+        var partKlass = self._kernel.registerPartType( null, null, shape, {name:resource.name, resource:resource} );
         if( addToAssembly ) {
           var part = self._kernel.makePartTypeInstance( partKlass );
           self._kernel.registerPartInstance( part );
         }
-        
-        console.log("resource", resource);
-        //TODO: clean this up, just a hack
-        self._kernel.uploadDoc( resource._file, resource.name, resource.rawDataType );
         
         if( display || addToAssembly ){
           self._meshInjectPostProcess( shape );
@@ -467,7 +461,6 @@ Polymer('ulti-viewer', Polymer.mixin({
     if(pickingInfos.length == 0) return;
     var object = pickingInfos[0].object; 
     //console.log("object double tapped", object);
-     
     this._zoomInOnObject.execute( object, {position:pickingInfos[0].point} );
   },
   urlParamsFoundHandler:function( event ){
@@ -738,38 +731,29 @@ Polymer('ulti-viewer', Polymer.mixin({
         }
       });
       
+      var co = self._kernel.co;
       //add the visuals of the added entities
       addedEntities.map( function( entity ) {
         //FIXME: use methods, not specific data structures
-        var meshInstance = self._kernel.getPartMeshInstance( entity ) ;
-        meshInstance.userData.entity = entity;//FIXME : should we have this sort of backlink ?
-        if( meshInstance){
-          //FIXME: for now this is enough , but we need to fetch the actual mesh of the parent based on
-          //the entity
-          //Geometry should be pointer to the same data structure
-          /*when you clone : 
-            * userData is the same
-            * geometry is the same
-            * you get a new mesh/object3d instance (custom pos,rot, scale etc)
-          */
-          
-          //FIXME/ make a list of all operations needed to be applied on part meshes
-          
-          computeObject3DBoundingSphere( meshInstance, true );
-          centerMesh( meshInstance ); //FIXME do not use the "global" centerMesh
-          
-          meshInstance.position.fromArray( entity.pos )
-          meshInstance.rotation.fromArray( entity.rot );
-          meshInstance.scale.fromArray(  entity.sca );
-          
-          self.threeJs.scenes["main"].add( meshInstance );
-          self._meshInjectPostProcess( meshInstance );
-        }
+        co(function* (){
+          var meshInstance = yield self._kernel.getPartMeshInstance( entity ) ;
+          meshInstance.userData.entity = entity;//FIXME : should we have this sort of backlink ?
+          if( meshInstance){
+            //FIXME/ make a list of all operations needed to be applied on part meshes
+            computeObject3DBoundingSphere( meshInstance, true );
+            centerMesh( meshInstance ); //FIXME do not use the "global" centerMesh
+            
+            meshInstance.position.fromArray( entity.pos )
+            meshInstance.rotation.fromArray( entity.rot );
+            meshInstance.scale.fromArray(  entity.sca );
+            
+            self.threeJs.scenes["main"].add( meshInstance );
+            self._meshInjectPostProcess( meshInstance );
+          }
+        });
+        
       });
-      
-      
     });
-    
     //self.updateVisuals();
   },
   
@@ -902,8 +886,8 @@ Polymer('ulti-viewer', Polymer.mixin({
     //mesh.receiveShadow = true;
     
     //FIXME: not sure where this should be best: used to dispatch "scene insertion"/creation operation
-    var operation = new MeshAddition( mesh );
-    self.historyManager.addCommand( operation );
+    //var operation = new MeshAddition( mesh );
+    //self.historyManager.addCommand( operation );
   },
   updateVisualsBasedOnEntities:function( entities ){
     var self = this;
