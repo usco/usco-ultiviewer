@@ -334,6 +334,7 @@ Polymer('ulti-viewer', Polymer.mixin({
   loadDesign:function( uriOrData, options ){
     console.log("this would load a design at "+ uriOrData );
     
+    return;
     //FIXME ; just for testing, disregard
     var self = this;
     var serverUri = "http://localhost:3080/api/designs/demo-design/documents"; 
@@ -363,42 +364,57 @@ Polymer('ulti-viewer', Polymer.mixin({
     var keepRawData = options.keepRawData === undefined ? true: options.keepRawData;
     
     if(!uriOrData){ console.warn("no uri or data to load"); return};
-    var resOptions = {addToAssembly:addToAssembly};
-    var resourcePromise = this._loadResource( uriOrData, resOptions );
-    //var resource = yield this._loadResource( uriOrData, resOptions );
-    
-    function loadFailed(res)
-    {
-      //TODO: do this cleanly via type checking or somethg
-      var error = res.error;
-      if( error.indexOf("No parser found") != -1)
-      {
-        error = "sorry, the "+resource.ext+" format is not supported";
-      }
-    }
-    function onDisplayError(error){console.log("FAILED to display",error);};
-    
-    //FIXME: temporary hack for annotations etc
     var self = this;
+    var co = this._kernel.co;
+    var resource = this.assetManager.loadResource( uriOrData, {keepRawData:true, parsing:{useWorker:true,useBuffers:true} } );
+    this.resources.push( resource );
     
-    function afterAdded( mesh ){ 
-      self._meshInjectPostProcess( mesh );
-      self.selectedEntities = [ mesh.userData.entity ];
-    }
-    if( display ){
-      //fire import event ??
-      /*resourcePromise.then( function(){
-        var operation = new Import(importedPart, resource);
-        self.fire('newOperation', {msg: operation});
-      });*/
-      //return resourcePromise.then( this.addToScene.bind(this), onDisplayError ).then(afterAdded);
-      return resourcePromise.then(afterAdded);
-    }
-    if( addToAssembly ){
-    
-    }
-    return resourcePromise;
-    //resourcePromise.then(resource.onLoaded.bind(resource), loadFailed, resource.onDownloadProgress.bind(resource) );
+    co(function* (){
+      try{
+        var meshData = yield resource.deferred.promise;
+        //TODO: UNIFY api for parsers, this is redundant
+        //geometry
+        var shape = resource.data;
+        if( !(shape instanceof THREE.Object3D) )
+        {
+          var material = new THREE.MeshPhongMaterial( { color: 0x17a9f5, specular: 0xffffff, shininess: 5, shading: THREE.FlatShading} );
+          shape = new THREE.Mesh(shape, material);
+        }
+        
+        //FIXME ; should this be handled by the asset manager or the parsers ? 
+        //ie , this won't work for loaded hierarchies etc
+        var geometry = shape.geometry;
+        if(geometry)
+        {
+          geometry.computeVertexNormals();//needed at least for .ply files
+          geometry.computeFaceNormals();
+        }
+        
+        //part type registration etc
+        //we are registering a yet-uknown Part's type, getting back an instance of that type
+        var partKlass = self._kernel.registerPartType( null, null, shape, {name:resource.name} );
+        if( addToAssembly ) {
+          var part = self._kernel.makePartTypeInstance( partKlass );
+          self._kernel.registerPartInstance( part );
+        }
+        
+        console.log("resource", resource);
+        //TODO: clean this up, just a hack
+        self._kernel.uploadDoc( resource._file, resource.name, resource.rawDataType );
+        
+        if( display || addToAssembly ){
+          self._meshInjectPostProcess( shape );
+          //self.selectedEntities = [ shape.userData.entity ];
+        }
+      }catch( error ){
+        console.log("failed to load resource", resource.error);
+        //do not keep error message on screen for too long, remove it after a while
+        self.async(function() {
+          self.dismissResource(resource);
+        }, null, self.dismissalTimeOnError);
+      }
+      
+    })
   },
   clearScene:function(sceneName){
     var sceneName = sceneName || "main";
@@ -430,62 +446,6 @@ Polymer('ulti-viewer', Polymer.mixin({
   {
     var sceneName = sceneName || "main" ;
     this.threeJs.removeFromScene( object, sceneName );
-  },
-  
-  _loadResource:function(uriOrData, options )
-  {
-    var self = this;
-    var resource = this.assetManager.loadResource( uriOrData, {keepRawData:true, parsing:{useWorker:true,useBuffers:true} } );
-    this.resources.push( resource );
-    
-    var resourceDeferred = resource.deferred;
-    var addToAssembly = options.addToAssembly;
-    
-    //TODO: UNIFY api for parsers, this is redundant
-    function formatResource(resource)
-    {
-      //geometry
-      var shape = resource.data;
-      if( !(shape instanceof THREE.Object3D) )
-      {
-        //console.log("formating resource");
-        //nice color: 0x00a9ff
-        var material = new THREE.MeshPhongMaterial( { color: 0x17a9f5, specular: 0xffffff, shininess: 5, shading: THREE.FlatShading} );
-        //new THREE.MeshLambertMaterial( {opacity:1,transparent:false,color: 0x0088ff} );
-        shape = new THREE.Mesh(shape, material);
-      }
-
-      //we are registering a yet-uknown Part's type, getting back an instance of that type
-      var part = self._kernel.registerPartType( null, null, shape, {name:resource.name} );
-      if( addToAssembly ) self._kernel.registerPartInstance( part );
-      console.log("resource", resource);
-      //TODO: clean this up, just a hack
-      self._kernel.uploadDoc( resource._file, resource.name, resource.rawDataType );
-      
-      
-      //FIXME ; should this be handled by the asset manager or the parsers ? 
-      //ie , this won't work for loaded hierarchies etc
-      var geometry = shape.geometry;
-      if(geometry)
-      {
-        geometry.computeVertexNormals();//needed at least for .ply files
-        geometry.computeFaceNormals();
-      }
-      return shape;
-    }
-    
-    var self = this;
-    return resourceDeferred.promise
-      .then( formatResource)
-      .fail( this.resourceLoadFailed.bind(this) );
-  },
-  resourceLoadFailed:function(resource)
-  {
-    console.log("failed to load resource", resource.error);
-    //do not keep error message on screen for too long, remove it after a while
-    this.async(function() {
-      this.dismissResource(resource);
-    }, null, this.dismissalTimeOnError);
   },
   clearResources:function()
   {
